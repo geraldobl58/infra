@@ -1,0 +1,75 @@
+# ============================================================================
+# Nexo Platform - ArgoCD Projects (DigitalOcean)
+# Ambientes: develop, qa, staging, prod
+# ============================================================================
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: nexo-develop
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  description: Nexo Platform - Ambiente de Development
+  sourceRepos:
+    - "https://github.com/geraldobl58/nexo.git"
+  destinations:
+    - namespace: nexo-develop
+      server: https://kubernetes.default.svc
+  clusterResourceWhitelist:
+    - group: ""
+      kind: Namespace
+---
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: nexo-qa
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  description: Nexo Platform - Ambiente de QA
+  sourceRepos:
+    - "https://github.com/geraldobl58/nexo.git"
+  destinations:
+    - namespace: nexo-qa
+      server: https://kubernetes.default.svc
+  clusterResourceWhitelist:
+    - group: ""
+      kind: Namespace
+---
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: nexo-staging
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  description: Nexo Platform - Ambiente de Staging
+  sourceRepos:
+    - "https://github.com/geraldobl58/nexo.git"
+  destinations:
+    - namespace: nexo-staging
+      server: https://kubernetes.default.svc
+  clusterResourceWhitelist:
+    - group: ""
+      kind: Namespace
+---
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: nexo-prod
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  description: Nexo Platform - Ambiente de Producao
+  sourceRepos:
+    - "https://github.com/geraldobl58/nexo.git"
+  destinations:
+    - namespace: nexo-prod
+      server: https://kubernetes.default.svc
+  clusterResourceWhitelist:
+    - group: ""
+      kind: Namespace

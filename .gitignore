@@ -1,0 +1,88 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# Dependencies
+node_modules
+.pnp
+.pnp.js
+
+# Local env files
+.env
+.env.*
+!.env.template
+!.env.example
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+**/.env
+**/.env.*
+!**/.env.template
+!**/.env.example
+
+# Testing
+coverage
+
+# Turbo
+.turbo
+
+# Vercel
+.vercel
+
+# Build Outputs
+.next/
+out/
+build
+dist
+
+
+# Debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Misc
+.DS_Store
+*.pem
+
+# Kubernetes
+*.kubeconfig
+kubeconfig*
+
+# Kubernetes Secrets (local development)
+# NEVER commit real secrets!
+infra/environments/local/secrets/*.yaml
+infra/environments/*/secrets/*.yaml
+!infra/environments/*/secrets/*.yaml.template
+
+# Secrets and sensitive files
+**/secrets/
+**/secret.yaml
+**/secret.yml
+**/*secret*.yaml
+**/*secret*.yml
+# Exception: Helm secret TEMPLATES (generate secrets from values, not real secrets)
+!**/helm/**/templates/*secret*.yaml
+*.key
+*.pem
+*.crt
+*.csr
+*.p12
+*.pfx
+
+# GitHub tokens and credentials
+ghp_*
+github_token
+github_pat
+**/token.txt
+**/credentials.txt
+
+# Setup logs (podem conter tokens)
+setup.log
+setup-*.log
+local/setup*.log
+
+# KIND data
+/tmp/nexo-local/
+
+# Helm (only ignore .tgz packages, not infra/charts/)
+*.tgz

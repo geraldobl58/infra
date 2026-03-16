@@ -1,0 +1,113 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# NEXO PLATFORM - Docker Compose (Development)
+# ═══════════════════════════════════════════════════════════════════════════════
+services:
+  # ════════════════════════════════════════════════════════════════════════════
+  # 🗄️  PostgreSQL - Banco de Dados
+  # ════════════════════════════════════════════════════════════════════════════
+  # Bancos criados automaticamente:
+  #   - nexo_keycloak: Para o Keycloak (Identity & Access Management)
+  #   - nexo_app: Para a aplicação Nexo (Backend)
+  # ════════════════════════════════════════════════════════════════════════════
+  postgres:
+    image: postgres:16-alpine
+    container_name: nexo-postgres-dev
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: nexo_db
+      POSTGRES_USER: nexo
+      POSTGRES_PASSWORD: nexo_password
+      # PGDATA em subdiretório evita conflito com ._* metadata do macOS
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./local/init-databases.sh:/docker-entrypoint-initdb.d/init-databases.sh:ro
+    networks:
+      - nexo-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nexo -d nexo_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    command:
+      - "postgres"
+      - "-c"
+      - "max_connections=100"
+      - "-c"
+      - "shared_buffers=128MB"
+
+  # ════════════════════════════════════════════════════════════════════════════
+  #  Keycloak - Identity & Access Management
+  # ════════════════════════════════════════════════════════════════════════════
+  # Conexão: jdbc:postgresql://postgres:5432/nexo_keycloak
+  # ════════════════════════════════════════════════════════════════════════════
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.5
+    container_name: nexo-auth-dev
+    command:
+      - start-dev
+      - --http-port=8080
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+      - "9000:9000"
+    environment:
+      # Admin credentials (novas variáveis do Keycloak 26)
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+
+      # Database (PostgreSQL) - Banco separado para Keycloak
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/nexo_keycloak
+      KC_DB_USERNAME: nexo
+      KC_DB_PASSWORD: nexo_password
+
+      # HTTP Only - Sem HTTPS em desenvolvimento
+      KC_HTTP_ENABLED: "true"
+      KC_HOSTNAME_STRICT: "false"
+
+      # Health/Metrics
+      KC_HEALTH_ENABLED: "true"
+      KC_METRICS_ENABLED: "true"
+
+      # Theme hot-reload
+      KC_SPI_THEME_STATIC_MAX_AGE: "-1"
+      KC_SPI_THEME_CACHE_THEMES: "false"
+      KC_SPI_THEME_CACHE_TEMPLATES: "false"
+
+      # Logging
+      KC_LOG_LEVEL: INFO
+    volumes:
+      - keycloak-data:/opt/keycloak/data
+      - ./apps/nexo-auth/themes:/opt/keycloak/themes
+    networks:
+      - nexo-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/localhost/9000 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 15
+      start_period: 90s
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 🌐 Networks
+# ═══════════════════════════════════════════════════════════════════════════════
+networks:
+  nexo-network:
+    driver: bridge
+    name: nexo-network
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 💾 Volumes - Gerenciados pelo Docker (armazenados localmente no Mac)
+# ═══════════════════════════════════════════════════════════════════════════════
+volumes:
+  postgres-data:
+    name: nexo-postgres-data
+  keycloak-data:
+    name: nexo-keycloak-data

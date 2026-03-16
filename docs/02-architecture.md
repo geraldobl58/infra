@@ -1,0 +1,533 @@
+# 🏗️ Arquitetura da CloudLab
+
+Visão geral da infraestrutura local completa do projeto Nexo.
+
+---
+
+## 📐 Arquitetura Geral
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                           macOS Host Machine                                 │
+│  ┌────────────────────────────────────────────────────────────────────────┐ │
+│  │                        Docker Desktop                                   │ │
+│  │  ┌──────────────────────────────────────────────────────────────────┐  │ │
+│  │  │                  k3d Cluster (nexo-local)                         │  │ │
+│  │  │                                                                    │  │ │
+│  │  │  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐  │  │ │
+│  │  │  │  k3d-server-0   │  │  k3d-agent-0    │  │  k3d-agent-1    │  │  │ │
+│  │  │  │  (Control Plane)│  │  (Worker Node)  │  │  (Worker Node)  │  │  │ │
+│  │  │  └─────────────────┘  └─────────────────┘  └─────────────────┘  │  │ │
+│  │  │                                                                    │  │ │
+│  │  │  ┌────────────────────────────────────────────────────────────┐  │  │ │
+│  │  │  │                  NGINX Ingress Controller                   │  │ │ │
+│  │  │  │              (Port Mapping: 80:80, 443:443)                 │  │ │ │
+│  │  │  └────────────────────────────────────────────────────────────┘  │  │ │
+│  │  │                                                                    │  │ │
+│  │  │  ┌────────────────────────────────────────────────────────────┐  │  │ │
+│  │  │  │                   Namespaces & Services                     │  │ │ │
+│  │  │  │                                                              │  │ │ │
+│  │  │  │  • argocd         (GitOps)                                  │  │ │ │
+│  │  │  │  • monitoring     (Prometheus + Grafana)                    │  │ │ │
+│  │  │  │  • nexo-develop   (Apps: nexo-be, nexo-fe, nexo-auth)      │  │ │ │
+│  │  │  │  • nexo-qa        (Apps: nexo-be, nexo-fe, nexo-auth)      │  │ │ │
+│  │  │  │  • nexo-staging   (Apps: nexo-be, nexo-fe, nexo-auth)      │  │ │ │
+│  │  │  │  • nexo-prod      (Apps: nexo-be, nexo-fe, nexo-auth)      │  │ │ │
+│  │  │  └────────────────────────────────────────────────────────────┘  │  │ │
+│  │  └──────────────────────────────────────────────────────────────────┘  │ │
+│  └────────────────────────────────────────────────────────────────────────┘ │
+│                                                                               │
+│  ┌────────────────────────────────────────────────────────────────────────┐ │
+│  │              External SSD: /Volumes/Backup/nexo-cloudlab               │ │
+│  │         (Persistent Volumes for DBs)                               │ │
+│  └────────────────────────────────────────────────────────────────────────┘ │
+│                                                                               │
+│  /etc/hosts mappings:                                                        │
+│  127.0.0.1  *-fe.nexo.local *-be.nexo.local *-auth.nexo.local               │
+│  127.0.0.1  argocd.nexo.local grafana.nexo.local prometheus.nexo.local ...   │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 🎯 Componentes Principais
+
+### 1. Cluster Kubernetes (k3d)
+
+```
+k3d-nexo-local
+├── k3d-server-0  (Control Plane + etcd)
+│   ├── CPU: 2 cores
+│   ├── Memory: 4GB
+│   └── Roles: control-plane, master
+│
+├── k3d-agent-0   (Worker Node)
+│   ├── CPU: 2 cores
+│   ├── Memory: 4GB
+│   └── Roles: worker
+│
+└── k3d-agent-1   (Worker Node)
+    ├── CPU: 2 cores
+    ├── Memory: 4GB
+    └── Roles: worker
+
+Volumes montados:
+- /Volumes/Backup/nexo-cloudlab → /mnt/data (em cada node)
+```
+
+### 2. GitOps Stack (ArgoCD)
+
+```
+Namespace: argocd
+
+┌────────────────────────────────────────┐
+│           ArgoCD Server                │
+│  http://argocd.nexo.local              │
+├────────────────────────────────────────┤
+│  • Application Controller              │
+│  • Repo Server                         │
+│  • ApplicationSet Controller           │
+│  • Notifications Controller            │
+└────────────────────────────────────────┘
+          │
+          ├─── Git Repository (GitHub)
+          │    https://github.com/usuario/nexo
+          │    ├── apps/nexo-be/**
+          │    ├── apps/nexo-fe/**
+          │    ├── apps/nexo-auth/**
+          │    └── local/helm/**
+          │
+          └─── Auto-sync com apps:
+               ├── nexo-be-local
+               ├── nexo-fe-local
+               └── nexo-auth-local
+```
+
+### 3. Observability Stack (Prometheus + Grafana)
+
+```
+Namespace: monitoring
+
+┌──────────────────────────────────────────────────────────┐
+│                    Prometheus Stack                       │
+│                                                            │
+│  ┌────────────────┐        ┌─────────────────┐          │
+│  │   Prometheus   │────────│  AlertManager   │          │
+│  │   :9090        │        │     :9093       │          │
+│  └────────────────┘        └─────────────────┘          │
+│         │                           │                     │
+│         │                           │                     │
+│         ├───────────────────────────┤                     │
+│         │                           │                     │
+│  ┌──────▼──────────────────────────▼──────┐             │
+│  │           Grafana                       │             │
+│  │   http://grafana.nexo.local             │             │
+│  │                                          │             │
+│  │  Dashboards:                             │             │
+│  │  • Nexo CloudLab - Overview              │             │
+│  │  • Nexo CloudLab - Backend API           │             │
+│  │  • Nexo CloudLab - Frontend              │             │
+│  │  • Nexo CloudLab - Auth/Keycloak         │             │
+│  └──────────────────────────────────────────┘             │
+└──────────────────────────────────────────────────────────┘
+
+Integrations:
+├── Node Exporter (métricas de host)
+├── Kube State Metrics (métricas de K8s)
+├── ServiceMonitors (custom app metrics)
+└── Alert Rules (notificações via webhook)
+```
+
+### 4. Application Stack (Nexo Apps)
+
+```
+Namespace: nexo-local
+
+┌──────────────────────────────────────────────────────────┐
+│                     Nexo Applications                     │
+│                                                            │
+│  Frontend (Next.js)                                       │
+│  ┌────────────────────────────────────────────┐          │
+│  │  nexo-fe                                    │          │
+│  │  http://develop-fe.nexo.local                  │          │
+│  │  ├── Replicas: 2                            │          │
+│  │  ├── Resources: 512Mi RAM, 500m CPU        │          │
+│  │  └── Env: NEXT_PUBLIC_API_URL,             │          │
+│  │           NEXT_PUBLIC_AUTH_URL              │          │
+│  └────────────────────────────────────────────┘          │
+│                      │                                     │
+│                      │ HTTP requests                       │
+│                      ▼                                     │
+│  Backend (NestJS)                                         │
+│  ┌────────────────────────────────────────────┐          │
+│  │  nexo-be                                    │          │
+│  │  http://develop-be.nexo.local              │          │
+│  │  ├── Replicas: 2                            │          │
+│  │  ├── Resources: 1Gi RAM, 1000m CPU         │          │
+│  │  ├── Health: /health/live, /health/ready   │          │
+│  │  └── Dependencies:                          │          │
+│  │      ├── PostgreSQL                         │          │
+│  │      ├── Redis                              │          │
+│  │      └── Keycloak                           │          │
+│  └────────────────────────────────────────────┘          │
+│                      │                                     │
+│                      │ Authentication                      │
+│                      ▼                                     │
+│  Auth Service (Keycloak)                                  │
+│  ┌────────────────────────────────────────────┐          │
+│  │  nexo-auth                                  │          │
+│  │  http://develop-auth.nexo.local             │          │
+│  │  ├── Replicas: 1                            │          │
+│  │  ├── Resources: 1Gi RAM, 500m CPU          │          │
+│  │  ├── Realm: nexo                            │          │
+│  │  ├── Clients: nexo-fe, nexo-be             │          │
+│  │  └── Custom Themes: /themes/nexo           │          │
+│  └────────────────────────────────────────────┘          │
+│                      │                                     │
+│  Databases                                                 │
+│  ┌────────────────────────────────────────────┐          │
+│  │  PostgreSQL 16                              │          │
+│  │  ├── Databases: nexo, nexo_auth, nexo_qa   │          │
+│  │  └── PVC: /Volumes/Backup/nexo-cloudlab    │          │
+│  └────────────────────────────────────────────┘          │
+│  ┌────────────────────────────────────────────┐          │
+│  │  Redis 7                                    │          │
+│  │  ├── Cache & Sessions                       │          │
+│  │  └── AOF persistence                        │          │
+│  └────────────────────────────────────────────┘          │
+└──────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 🔄 Deploy Flow (GitOps)
+
+```
+Developer ──┐
+            │
+            ▼
+┌─────────────────────┐
+│   Git Push          │
+│   (develop branch)  │
+└──────────┬──────────┘
+           │
+           ▼
+┌─────────────────────────────────────────────────┐
+│          GitHub Actions Workflow                 │
+│  1. Run tests (CI)                               │
+│  2. Build Docker images                          │
+│  3. Push to GHCR (ghcr.io/geraldobl58)           │
+│  4. Update Helm values (Git commit)              │
+└──────────┬──────────────────────────────────────┘
+           │
+           ▼
+┌─────────────────────────────────────────────────┐
+│              ArgoCD Detects Changes              │
+│  • Polls Git repository (every 3min)            │
+│  • Compares desired state vs current state      │
+│  • Auto-sync enabled                             │
+└──────────┬──────────────────────────────────────┘
+           │
+           ▼
+┌─────────────────────────────────────────────────┐
+│           ArgoCD Applies Changes                 │
+│  1. Pull new Helm values from Git               │
+│  2. Render templates                             │
+│  3. Apply to Kubernetes                          │
+│  4. Wait for health checks                       │
+└──────────┬──────────────────────────────────────┘
+           │
+           ▼
+┌─────────────────────────────────────────────────┐
+│      Kubernetes Rolling Update                   │
+│  • Terminate old pods gracefully                 │
+│  • Start new pods with new image                 │
+│  • Health checks (liveness + readiness)          │
+│  • Zero-downtime deployment                      │
+└──────────┬──────────────────────────────────────┘
+           │
+           ▼
+┌─────────────────────────────────────────────────┐
+│            Application Running                   │
+│  • New version deployed                          │
+│  • Metrics sent to Prometheus                    │
+│  • Logs sent to Elasticsearch                    │
+│  • ArgoCD status: Synced + Healthy              │
+└─────────────────────────────────────────────────┘
+```
+
+---
+
+## 🌍 Multi-Environment Strategy
+
+```
+┌────────────────────────────────────────────────────────┐
+│                   DNS Mapping                           │
+├────────────────────────────────────────────────────────┤
+│                                                          │
+│  /etc/hosts configuration (auto-managed):               │
+│                                                          │
+│  127.0.0.1  develop-fe.nexo.local                          │
+│  127.0.0.1  develop-be.nexo.local                      │
+│  127.0.0.1  develop-auth.nexo.local                     │
+│                                                          │
+│  127.0.0.1  qa-fe.nexo.local                               │
+│  127.0.0.1  qa-be.nexo.local                           │
+│  127.0.0.1  qa-auth.nexo.local                          │
+│                                                          │
+│  127.0.0.1  staging-fe.nexo.local                          │
+│  127.0.0.1  staging-be.nexo.local                      │
+│  127.0.0.1  staging-auth.nexo.local                     │
+│                                                          │
+│  127.0.0.1  fe.nexo.local                             │
+│  127.0.0.1  fe.nexo.local                               │
+│  127.0.0.1  be.nexo.local                               │
+│  127.0.0.1  auth.nexo.local                             │
+│                                                          │
+│  # Tooling                                              │
+│  127.0.0.1  argocd.nexo.local                           │
+│  127.0.0.1  grafana.nexo.local                          │
+│  127.0.0.1  prometheus.nexo.local                       │
+│  127.0.0.1  alertmanager.nexo.local                     │
+└────────────────────────────────────────────────────────┘
+           │
+           ▼
+┌────────────────────────────────────────────────────────┐
+│            NGINX Ingress Controller                     │
+│         (Host-based routing)                            │
+├────────────────────────────────────────────────────────┤
+│                                                          │
+│  Ingress Rules:                                         │
+│                                                          │
+│  develop-* ─────────► nexo-develop namespace            │
+│  qa-*      ─────────► nexo-qa namespace                 │
+│  staging-* ─────────► nexo-staging namespace            │
+│  {be,fe,auth}.nexo.local ► nexo-prod namespace          │
+│                                                          │
+│  argocd.*       ─────► argocd namespace                 │
+│  grafana.*      ─────► monitoring namespace             │
+└────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 📊 Resource Allocation
+
+### Cluster Total Resources
+
+```
+Total Nodes:         3 (1 server + 2 agents)
+Total CPU:           6 cores
+Total Memory:        12 GB
+Total Storage:       External SSD (/Volumes/Backup)
+Network:             Docker bridge (localhost)
+```
+
+### Resource Distribution by Namespace
+
+| Namespace     | CPU Request | CPU Limit | Memory Request | Memory Limit | Storage    |
+| ------------- | ----------- | --------- | -------------- | ------------ | ---------- |
+| argocd        | 500m        | 2000m     | 512Mi          | 2Gi          | 10Gi       |
+| monitoring    | 1000m       | 3000m     | 2Gi            | 6Gi          | 50Gi       |
+| logging       | 2000m       | 4000m     | 4Gi            | 8Gi          | 100Gi      |
+| harbor-system | 1000m       | 2000m     | 2Gi            | 4Gi          | 50Gi       |
+| nexo-local    | 2000m       | 4000m     | 3Gi            | 6Gi          | 20Gi       |
+| **TOTAL**     | **6.5**     | **15**    | **11.5 Gi**    | **26 Gi**    | **230 Gi** |
+
+---
+
+## 🔒 Security & Access Control
+
+```
+┌────────────────────────────────────────────────────────┐
+│                   Access Control                        │
+├────────────────────────────────────────────────────────┤
+│                                                          │
+│  Layer 1: Network (Docker)                              │
+│  ├── Local network only (127.0.0.1)                     │
+│  ├── No external exposure                               │
+│  └── Firewall: Docker internal bridge                   │
+│                                                          │
+│  Layer 2: Kubernetes RBAC                               │
+│  ├── ServiceAccounts per app                            │
+│  ├── Role/ClusterRole definitions                       │
+│  ├── RoleBindings per namespace                         │
+│  └── ArgoCD: admin-level cluster access                 │
+│                                                          │
+│  Layer 3: Application                                   │
+│  ├── Keycloak: OAuth2 + OIDC                            │
+│  ├── JWT tokens (15min access, 7d refresh)              │
+│  ├── Role-based permissions (admin, user, guest)        │
+│  └── Session management via Redis                       │
+│                                                          │
+│  Layer 4: Harbor Registry                               │
+│  ├── Admin: admin/Harbor12345                           │
+│  ├── Project-level access control                       │
+│  └── Vulnerability scanning (Trivy)                     │
+│                                                          │
+│  Layer 5: Database                                      │
+│  ├── PostgreSQL: user/password auth                     │
+│  ├── Network policies (only from nexo-be)               │
+│  └── Encrypted at rest (SSD encryption)                 │
+└────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 📈 Monitoring & Observability
+
+### Metrics Collection
+
+```
+┌────────────────────────────────────────────────────────┐
+│              Prometheus Metrics Flow                    │
+├────────────────────────────────────────────────────────┤
+│                                                          │
+│  ┌──────────────┐                                       │
+│  │  nexo-be     │ ─── /metrics ────┐                   │
+│  │  (NestJS)    │                  │                    │
+│  └──────────────┘                  │                    │
+│                                     │                    │
+│  ┌──────────────┐                  │                    │
+│  │ Node Exporter│ ─── :9100 ───────┤                   │
+│  │ (DaemonSet)  │                  │                    │
+│  └──────────────┘                  │                    │
+│                                     ▼                    │
+│  ┌──────────────┐           ┌──────────────┐           │
+│  │ Kube State   │ ─────────►│  Prometheus  │           │
+│  │ Metrics      │           │   (tsdb)     │           │
+│  └──────────────┘           └──────┬───────┘           │
+│                                     │                    │
+│                                     ▼                    │
+│                              ┌──────────────┐           │
+│                              │   Grafana    │           │
+│                              │ (Dashboards) │           │
+│                              └──────────────┘           │
+└────────────────────────────────────────────────────────┘
+
+Default Metrics Collected:
+• Container CPU/Memory usage
+• Pod restart count
+• Request rate & latency
+• Database connections
+• Cache hit/miss ratio
+• API endpoint performance
+```
+
+### Logging Pipeline
+
+```
+┌────────────────────────────────────────────────────────┐
+│              Logging Flow                               │
+├────────────────────────────────────────────────────────┤
+│                                                          │
+│  ┌──────────────┐                                       │
+│  │  nexo-be     │ ─── stdout/stderr ───┐               │
+│  │  (container) │                       │               │
+│  └──────────────┘                       │               │
+│                                          │               │
+│  ┌──────────────┐                       │               │
+│  │  nexo-fe     │ ─── stdout/stderr ────┤               │
+│  │  (container) │                       │               │
+│  └──────────────┘                       │               │
+│                                          ▼               │
+│                                   ┌──────────────┐      │
+│                                   │   Filebeat   │      │
+│                                   │ (DaemonSet)  │      │
+│                                   └──────┬───────┘      │
+│                                          │               │
+│                                          ▼               │
+│                                   ┌──────────────┐      │
+│                                   │Elasticsearch │      │
+│                                   │  (3 nodes)   │      │
+│                                   └──────┬───────┘      │
+│                                          │               │
+│                                          ▼               │
+│                                   ┌──────────────┐      │
+│                                   │    Kibana    │      │
+│                                   │  (Web UI)    │      │
+│                                   └──────────────┘      │
+└────────────────────────────────────────────────────────┘
+
+Log Structure:
+{
+  "@timestamp": "2025-06-10T10:30:00Z",
+  "level": "info",
+  "service": "nexo-be",
+  "namespace": "nexo-local",
+  "pod": "nexo-be-7d89f-xk2p9",
+  "message": "Request processed",
+  "context": {
+    "method": "GET",
+    "path": "/api/users",
+    "duration": 45,
+    "status": 200
+  }
+}
+```
+
+---
+
+## 🔧 Operations & Maintenance
+
+### Daily Operations
+
+```bash
+# Ver status geral do cluster
+make status
+
+# Ver uso de recursos
+make top
+
+# Ver logs de uma aplicação
+make logs SERVICE=nexo-be NAMESPACE=nexo-local
+
+# Acessar dashboards
+make dashboard    # ArgoCD
+make grafana      # Grafana
+make kibana       # Kibana
+```
+
+### Regular Maintenance
+
+```bash
+# Limpar resources não utilizados
+docker system prune -af
+
+# Backup do cluster
+make backup
+
+# Restart do cluster
+make restart
+
+# Troubleshooting completo
+make troubleshoot
+```
+
+### Emergency Procedures
+
+```bash
+# Cluster não responde
+k3d cluster stop nexo-local
+k3d cluster start nexo-local
+
+# Aplicação crashando
+kubectl delete pod -n nexo-local -l app=nexo-be
+
+# Rollback de deploy
+argocd app rollback nexo-be-local
+
+# Restaurar do backup
+make restore
+```
+
+---
+
+## 📚 Referências
+
+- [k3d Documentation](https://k3d.io/)
+- [ArgoCD Documentation](https://argo-cd.readthedocs.io/)
+- [Prometheus Operator](https://prometheus-operator.dev/)
+- [Elastic Stack](https://www.elastic.co/guide/index.html)
+- [Harbor Registry](https://goharbor.io/docs/)
+- [Kubernetes Documentation](https://kubernetes.io/docs/)

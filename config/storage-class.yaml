@@ -1,0 +1,23 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: local-path-ssd
+  annotations:
+    storageclass.kubernetes.io/is-default-class: "true"
+provisioner: rancher.io/local-path
+reclaimPolicy: Retain
+volumeBindingMode: WaitForFirstConsumer
+allowVolumeExpansion: true
+parameters:
+  nodePath: /var/lib/rancher/k3s/storage
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: local-path-fast
+provisioner: rancher.io/local-path
+reclaimPolicy: Delete
+volumeBindingMode: Immediate
+allowVolumeExpansion: true
+parameters:
+  nodePath: /var/lib/rancher/k3s/storage

@@ -1,0 +1,247 @@
+# ============================================================================
+# ServiceMonitors para monitorar aplicações Nexo no Grafana/Prometheus
+# ============================================================================
+# Prometheus já está configurado para coletar métricas de todos os namespaces
+# via servicemonitorSelectorNilUsesHelmValues: false
+#
+# Este arquivo cria ServiceMonitors para os serviços Nexo exportarem métricas
+# ============================================================================
+
+---
+# ServiceMonitor para nexo-be (Backend NestJS)
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: nexo-be
+  namespace: nexo-develop
+  labels:
+    app: nexo-be
+    environment: develop
+spec:
+  selector:
+    matchLabels:
+      app: nexo-be
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 30s
+      scrapeTimeout: 10s
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: nexo-be
+  namespace: nexo-prod
+  labels:
+    app: nexo-be
+    environment: prod
+spec:
+  selector:
+    matchLabels:
+      app: nexo-be
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 30s
+      scrapeTimeout: 10s
+
+---
+# ServiceMonitor para nexo-fe (Frontend Next.js)
+# Next.js não expõe métricas Prometheus por padrão
+# Use: https://github.com/lirantal/next-prometheus-plugin
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: nexo-fe
+  namespace: nexo-develop
+  labels:
+    app: nexo-fe
+    environment: develop
+spec:
+  selector:
+    matchLabels:
+      app: nexo-fe
+  endpoints:
+    - port: http
+      path: /api/metrics
+      interval: 30s
+      scrapeTimeout: 10s
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: nexo-fe
+  namespace: nexo-prod
+  labels:
+    app: nexo-fe
+    environment: prod
+spec:
+  selector:
+    matchLabels:
+      app: nexo-fe
+  endpoints:
+    - port: http
+      path: /api/metrics
+      interval: 30s
+      scrapeTimeout: 10s
+
+---
+# ServiceMonitor para nexo-auth (Keycloak)
+# Keycloak expõe métricas em /metrics por padrão (quando habilitado)
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: nexo-auth
+  namespace: nexo-develop
+  labels:
+    app: nexo-auth
+    environment: develop
+spec:
+  selector:
+    matchLabels:
+      app: nexo-auth
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 30s
+      scrapeTimeout: 10s
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: nexo-auth
+  namespace: nexo-prod
+  labels:
+    app: nexo-auth
+    environment: prod
+spec:
+  selector:
+    matchLabels:
+      app: nexo-auth
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 30s
+      scrapeTimeout: 10s
+
+
+# ============================================================================
+# ServiceMonitors para ambientes nexo-qa e nexo-staging
+# ============================================================================
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: nexo-be
+  namespace: nexo-qa
+  labels:
+    app: nexo-be
+    environment: qa
+spec:
+  selector:
+    matchLabels:
+      app: nexo-be
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 30s
+      scrapeTimeout: 10s
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: nexo-fe
+  namespace: nexo-qa
+  labels:
+    app: nexo-fe
+    environment: qa
+spec:
+  selector:
+    matchLabels:
+      app: nexo-fe
+  endpoints:
+    - port: http
+      path: /api/metrics
+      interval: 30s
+      scrapeTimeout: 10s
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: nexo-auth
+  namespace: nexo-qa
+  labels:
+    app: nexo-auth
+    environment: qa
+spec:
+  selector:
+    matchLabels:
+      app: nexo-auth
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 30s
+      scrapeTimeout: 10s
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: nexo-be
+  namespace: nexo-staging
+  labels:
+    app: nexo-be
+    environment: staging
+spec:
+  selector:
+    matchLabels:
+      app: nexo-be
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 30s
+      scrapeTimeout: 10s
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: nexo-fe
+  namespace: nexo-staging
+  labels:
+    app: nexo-fe
+    environment: staging
+spec:
+  selector:
+    matchLabels:
+      app: nexo-fe
+  endpoints:
+    - port: http
+      path: /api/metrics
+      interval: 30s
+      scrapeTimeout: 10s
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: nexo-auth
+  namespace: nexo-staging
+  labels:
+    app: nexo-auth
+    environment: staging
+spec:
+  selector:
+    matchLabels:
+      app: nexo-auth
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 30s
+      scrapeTimeout: 10s

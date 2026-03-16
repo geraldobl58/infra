@@ -1,0 +1,193 @@
+# =============================================================================
+# NEXO PLATFORM - DOCKERIGNORE OTIMIZADO
+# =============================================================================
+# Otimizado para builds rápidos e imagens menores
+# =============================================================================
+
+# =========================
+# DEPENDÊNCIAS (CRÍTICO - maior economia de espaço)
+# =========================
+**/node_modules
+**/.pnpm-store
+.pnp
+.pnp.js
+.pnpm-debug.log
+
+# =========================
+# BUILD / DIST / CACHE
+# =========================
+**/dist
+**/build
+**/.out
+**/.next
+**/coverage
+**/.tmp
+**/.temp
+**/.cache
+**/.turbo
+**/.parcel-cache
+**/.nuxt
+**/.output
+**/.vercel
+**/.netlify
+
+# =========================
+# LOGS
+# =========================
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+logs/
+*.log
+
+# =========================
+# AMBIENTE / SECRETS
+# =========================
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.crt
+.secrets/
+
+# =========================
+# VCS / GIT
+# =========================
+.git
+.gitignore
+.gitattributes
+.github
+.gitlab
+.gitmodules
+
+# =========================
+# DOCKER (não incluir Dockerfiles no contexto de outros builds)
+# =========================
+**/Dockerfile*
+**/docker-compose*.yml
+**/.docker
+.dockerignore
+
+# =========================
+# KUBERNETES / INFRA
+# =========================
+infra/
+local/
+k8s/
+helm/
+charts/
+**/overlays
+**/kustomization.yaml
+
+# =========================
+# EDITORES / IDE
+# =========================
+.vscode
+.idea
+*.swp
+*.swo
+*.swn
+*.sublime-*
+*.code-workspace
+
+# =========================
+# SISTEMA OPERACIONAL
+# =========================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# =========================
+# TESTES
+# =========================
+**/__tests__
+**/__mocks__
+**/__snapshots__
+**/test
+**/tests
+**/*.spec.ts
+**/*.spec.js
+**/*.test.ts
+**/*.test.js
+**/jest.config.*
+**/vitest.config.*
+**/cypress
+**/playwright
+**/.nyc_output
+
+# =========================
+# DOCUMENTAÇÃO
+# =========================
+docs/
+documentation/
+assets/docs/
+*.md
+!README.md
+LICENSE
+CHANGELOG*
+CONTRIBUTING*
+
+# =========================
+# SCRIPTS LOCAIS / DEV
+# =========================
+scripts/local
+scripts/*.sh
+Makefile
+Taskfile.*
+
+# =========================
+# TURBOREPO / MONOREPO
+# =========================
+apps/**/node_modules
+packages/**/node_modules
+# NOTA: turbo.json, pnpm-workspace.yaml e pnpm-lock.yaml
+# são NECESSÁRIOS para o build e NÃO devem ser ignorados
+
+# =========================
+# ARQUIVOS DE CONFIGURAÇÃO DESNECESSÁRIOS
+# =========================
+.editorconfig
+.prettierrc*
+.eslintrc*
+.eslintignore
+eslint.config.*
+prettier.config.*
+tsconfig*.json
+!apps/**/tsconfig.json
+jest.config.*
+vitest.config.*
+.husky
+.commitlintrc*
+.lintstagedrc*
+.nvmrc
+.node-version
+.tool-versions
+
+# =========================
+# CI/CD
+# =========================
+.circleci
+.travis.yml
+azure-pipelines.yml
+bitbucket-pipelines.yml
+Jenkinsfile
+
+# =========================
+# MISC
+# =========================
+*.tgz
+*.tar.gz
+*.zip
+*.rar
+*.7z
+.history
+.versionrc*
+CODEOWNERS

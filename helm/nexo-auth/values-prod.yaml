@@ -1,0 +1,79 @@
+# Values for Production environment
+replicaCount: 1
+
+image:
+  repository: ghcr.io/geraldobl58/nexo-auth
+  tag: "develop"
+  pullPolicy: Always
+
+imagePullSecrets:
+  - name: ghcr-secret
+
+# Keycloak management port (health + metrics)
+managementPort: 9000
+
+# Modo start-dev para Lab (nós com recursos limitados)
+args:
+  - start-dev
+  - --http-enabled=true
+  - --hostname-strict=false
+  - --metrics-enabled=true
+  - --proxy-headers=xforwarded
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-buffer-size: "128k"
+    nginx.ingress.kubernetes.io/proxy-buffers-number: "4"
+  hosts:
+    - host: auth.nexo.local
+      paths:
+        - path: /
+          pathType: Prefix
+
+livenessProbe:
+  enabled: true
+  path: /health/live
+  port: management
+  initialDelaySeconds: 300
+  periodSeconds: 15
+  timeoutSeconds: 5
+  failureThreshold: 20
+
+readinessProbe:
+  enabled: true
+  path: /health/ready
+  port: management
+  initialDelaySeconds: 240
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 20
+
+resources:
+  limits:
+    cpu: 400m
+    memory: 768Mi
+  requests:
+    cpu: 10m
+    memory: 128Mi
+
+autoscaling:
+  enabled: false
+
+env:
+  KEYCLOAK_ADMIN: "admin"
+  KEYCLOAK_ADMIN_PASSWORD: "admin"
+  KC_HOSTNAME: "http://auth.nexo.local"
+  KC_HOSTNAME_STRICT: "false"
+  KC_PROXY_HEADERS: "xforwarded"
+  KC_HTTP_ENABLED: "true"
+  KC_HEALTH_ENABLED: "true"
+  KC_METRICS_ENABLED: "true"
+
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1
+
+podAnnotations:
+  app.kubernetes.io/commit: "initial"

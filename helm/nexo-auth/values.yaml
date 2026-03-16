@@ -1,0 +1,62 @@
+replicaCount: 1
+
+image:
+  repository: quay.io/keycloak/keycloak
+  tag: "26.0.7"
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+
+service:
+  type: ClusterIP
+  port: 8080
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations: {}
+  hosts:
+    - host: auth.nexo.local
+      paths:
+        - path: /
+          pathType: Prefix
+
+resources:
+  limits:
+    cpu: 400m
+    memory: 768Mi
+  requests:
+    cpu: 10m
+    memory: 128Mi
+
+livenessProbe:
+  enabled: true
+  path: /health/live
+  initialDelaySeconds: 60
+  periodSeconds: 15
+
+readinessProbe:
+  enabled: true
+  path: /health/ready
+  initialDelaySeconds: 30
+  periodSeconds: 10
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 80
+
+env: []
+
+podDisruptionBudget:
+  enabled: false
+  minAvailable: 1
+
+podAnnotations: {}
+
+metrics:
+  enabled: false
+  path: /metrics
+  serviceMonitor:
+    enabled: false
