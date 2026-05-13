@@ -1,6 +1,6 @@
-# 🚨 Troubleshooting Guide - Nexo CloudLab
+# 🚨 Troubleshooting Guide - DevOps Lab
 
-Guia de solução de problemas comuns no CloudLab.
+Guia de solução de problemas comuns no Lab.
 
 ## Script Automático
 
@@ -56,8 +56,8 @@ kill -9 <PID>
 ls -la /Volumes/Backup
 
 # Se não existir, montar o disco ou criar diretório local
-mkdir -p ~/nexo-cloudlab-storage
-# Editar config/k3d-config.yaml para usar ~/nexo-cloudlab-storage
+mkdir -p ~/devops-lab-storage
+# Editar config/k3d-config.yaml para usar ~/devops-lab-storage
 ```
 
 ### 2. Pods em CrashLoopBackOff
@@ -145,7 +145,7 @@ kubectl create secret generic <name> --from-literal=key=value -n <namespace>
 #### Sintoma
 
 ```bash
-curl http://develop-be.nexo.local
+curl http://develop-be.devops.local
 # Connection refused / 404
 ```
 
@@ -179,10 +179,10 @@ helm upgrade --install ingress-nginx ingress-nginx/ingress-nginx \
 
 ```bash
 # Verificar /etc/hosts
-cat /etc/hosts | grep local.nexo.dev
+cat /etc/hosts | grep local.devops.dev
 
 # Adicionar se não existir
-echo "127.0.0.1 develop-be.nexo.local" | sudo tee -a /etc/hosts
+echo "127.0.0.1 develop-be.devops.local" | sudo tee -a /etc/hosts
 ```
 
 **Service não existe**
@@ -454,7 +454,7 @@ Web Crypto API is not available
 
 #### Causa
 
-O `keycloak-js` foi configurado com `pkceMethod: "S256"`, que utiliza a Web Crypto API (`crypto.subtle`). Essa API só está disponível em **secure contexts** (HTTPS ou localhost). Como o CloudLab usa HTTP com domínios `.nexo.local`, o browser bloqueia o acesso.
+O `keycloak-js` foi configurado com `pkceMethod: "S256"`, que utiliza a Web Crypto API (`crypto.subtle`). Essa API só está disponível em **secure contexts** (HTTPS ou localhost). Como o Lab usa HTTP com domínios `.devops.local`, o browser bloqueia o acesso.
 
 #### Solução
 
@@ -478,13 +478,13 @@ O Keycloak retorna 503 durante o startup. Isso é **normal** — o Keycloak leva
 
 ```bash
 # Verificar se o pod está rodando
-kubectl get pods -n nexo-develop -l app=nexo-auth
+kubectl get pods -n devops-develop -l app=devops-auth
 
 # Aguardar readiness probe (180-240s initial delay)
-kubectl wait --for=condition=ready pod -l app=nexo-auth -n nexo-develop --timeout=300s
+kubectl wait --for=condition=ready pod -l app=devops-auth -n devops-develop --timeout=300s
 
 # Testar endpoint
-curl -s -o /dev/null -w "%{http_code}" http://develop-auth.nexo.local/realms/master
+curl -s -o /dev/null -w "%{http_code}" http://develop-auth.devops.local/realms/master
 ```
 
 #### Sintoma: Keycloak em loop de restart (QA/Staging)
@@ -530,7 +530,7 @@ environment:
 #### Sintoma: "dependency postgres failed to start" / container unhealthy
 
 ```
-Container nexo-postgres-dev  Error dependency postgres failed to start
+Container devops-postgres-dev  Error dependency postgres failed to start
 ```
 
 #### Causa
@@ -549,18 +549,18 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: /Volumes/Backup/nexo-cloudlab/data/postgres
+      device: /Volumes/Backup/devops-lab/data/postgres
 
 # ❌ Bind mount direto no SSD (cria ._* files)
 volumes:
-  - /Volumes/Backup/nexo-cloudlab/data/postgres:/var/lib/postgresql/data
+  - /Volumes/Backup/devops-lab/data/postgres:/var/lib/postgresql/data
 ```
 
 Se o problema persistir, limpar os dados e reiniciar:
 
 ```bash
-rm -rf /Volumes/Backup/nexo-cloudlab/data/postgres
-mkdir -p /Volumes/Backup/nexo-cloudlab/data/postgres
+rm -rf /Volumes/Backup/devops-lab/data/postgres
+mkdir -p /Volumes/Backup/devops-lab/data/postgres
 docker compose down -v
 docker compose up -d
 ```
@@ -620,8 +620,8 @@ make install
 kubectl get events -A --sort-by='.lastTimestamp' | tail -n 50
 
 # Node logs (via Docker)
-docker logs k3d-nexo-local-server-0
-docker logs k3d-nexo-local-agent-0
+docker logs k3d-devops-lab-server-0
+docker logs k3d-devops-lab-agent-0
 ```
 
 ### Componentes
@@ -661,7 +661,7 @@ Remove apenas o cluster, mantém volumes:
 ```bash
 make delete
 # ou
-k3d cluster delete nexo-local
+k3d cluster delete devops-lab
 ```
 
 **Use quando:** Quer recriar o cluster mas manter dados (Prometheus, ES, etc)
@@ -730,7 +730,7 @@ kubectl get configmaps -A -o yaml > backup-configmaps.yaml
 kubectl get secrets -A -o yaml > backup-secrets.yaml
 ```
 
-Os backups ficam em: `/Volumes/Backup/nexo-cloudlab/backups/`
+Os backups ficam em: `/Volumes/Backup/devops-lab/backups/`
 
 ## Quando Pedir Ajuda
 

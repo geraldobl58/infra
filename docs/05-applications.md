@@ -1,36 +1,36 @@
-# 🚀 Deploy de Aplicações - Nexo CloudLab
+# 🚀 Deploy de Aplicações - DevOps Lab
 
 ## Visão Geral
 
-Este guia mostra como fazer deploy das aplicações Nexo (Backend, Frontend, Auth) no CloudLab usando ArgoCD e GitOps.
+Este guia mostra como fazer deploy das aplicações DevOps (Backend, Frontend, Auth) no Lab usando ArgoCD e GitOps.
 
 ## Arquitetura de Deploy
 
 ```
 ┌─────────────────────────────────────────────┐
 │         GitHub Repository                   │
-│  local/helm/nexo-be/values-local.yaml       │
-│  local/helm/nexo-fe/values-local.yaml       │
-│  local/helm/nexo-auth/values-local.yaml     │
+│  local/helm/devops-be/values-local.yaml       │
+│  local/helm/devops-fe/values-local.yaml       │
+│  local/helm/devops-auth/values-local.yaml     │
 └──────────────┬──────────────────────────────┘
                │
                │ ArgoCD Poll/Sync
                ↓
 ┌──────────────────────────────────────────────┐
 │            ArgoCD                            │
-│  ApplicationSet: nexo-apps-local             │
-│    - nexo-be-local                           │
-│    - nexo-fe-local                           │
-│    - nexo-auth-local                         │
+│  ApplicationSet: devops-apps-local             │
+│    - devops-be-local                           │
+│    - devops-fe-local                           │
+│    - devops-auth-local                         │
 └──────────────┬───────────────────────────────┘
                │
                │ Apply to Kubernetes
                ↓
 ┌──────────────────────────────────────────────┐
-│         nexo-local namespace                 │
-│  - nexo-be (Backend API)                     │
-│  - nexo-fe (Frontend Next.js)                │
-│  - nexo-auth (Keycloak)                      │
+│         devops-lab namespace                 │
+│  - devops-be (Backend API)                     │
+│  - devops-fe (Frontend Next.js)                │
+│  - devops-auth (Keycloak)                      │
 │  - postgres (Database)                       │
 └──────────────────────────────────────────────┘
 ```
@@ -41,36 +41,36 @@ Este guia mostra como fazer deploy das aplicações Nexo (Backend, Frontend, Aut
 
 ```bash
 # Navegar para cada aplicação
-cd apps/nexo-be
+cd apps/devops-be
 
 # Build da imagem
-docker build -t ghcr.io/geraldobl58/nexo-be:latest .
+docker build -t ghcr.io/geraldobl58/devops-be:latest .
 
 # Push para registry local
-docker push ghcr.io/geraldobl58/nexo-be:latest
+docker push ghcr.io/geraldobl58/devops-be:latest
 
-# Repetir para nexo-fe e nexo-auth
-cd ../nexo-fe
-docker build -t ghcr.io/geraldobl58/nexo-fe:latest .
-docker push ghcr.io/geraldobl58/nexo-fe:latest
+# Repetir para devops-fe e devops-auth
+cd ../devops-fe
+docker build -t ghcr.io/geraldobl58/devops-fe:latest .
+docker push ghcr.io/geraldobl58/devops-fe:latest
 
-cd ../nexo-auth
-docker build -t ghcr.io/geraldobl58/nexo-auth:latest .
-docker push ghcr.io/geraldobl58/nexo-auth:latest
+cd ../devops-auth
+docker build -t ghcr.io/geraldobl58/devops-auth:latest .
+docker push ghcr.io/geraldobl58/devops-auth:latest
 ```
 
 ### 2. Criar Secrets
 
 ```bash
 # Criar secret com credenciais do banco e outras configs
-kubectl create secret generic nexo-secrets \
-  --from-literal=database-url='postgresql://nexo:nexo123@postgres:5432/nexo_db' \
+kubectl create secret generic devops-secrets \
+  --from-literal=database-url='postgresql://devops:devops123@postgres:5432/devops_db' \
   --from-literal=jwt-secret='super-secret-key-change-in-production' \
-  --from-literal=db-username='nexo' \
-  --from-literal=db-password='nexo123' \
+  --from-literal=db-username='devops' \
+  --from-literal=db-password='devops123' \
   --from-literal=keycloak-db-url='jdbc:postgresql://postgres:5432/keycloak' \
   --from-literal=keycloak-admin-password='admin123' \
-  -n nexo-local
+  -n devops-lab
 ```
 
 ### 3. Deploy PostgreSQL
@@ -81,11 +81,11 @@ helm repo add bitnami https://charts.bitnami.com/bitnami
 helm repo update
 
 helm upgrade --install postgres bitnami/postgresql \
-  --namespace nexo-local \
+  --namespace devops-lab \
   --create-namespace \
-  --set auth.username=nexo \
-  --set auth.password=nexo123 \
-  --set auth.database=nexo_db \
+  --set auth.username=devops \
+  --set auth.password=devops123 \
+  --set auth.database=devops_db \
   --set primary.persistence.storageClass=local-path-ssd \
   --set primary.persistence.size=5Gi
 ```
@@ -110,18 +110,18 @@ kubectl apply -f - <<EOF
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
-  name: nexo-apps-local
+  name: devops-apps-local
   namespace: argocd
 spec:
   generators:
     - list:
         elements:
-          - service: nexo-be
-            path: local/helm/nexo-be
-          - service: nexo-fe
-            path: local/helm/nexo-fe
-          - service: nexo-auth
-            path: local/helm/nexo-auth
+          - service: devops-be
+            path: local/helm/devops-be
+          - service: devops-fe
+            path: local/helm/devops-fe
+          - service: devops-auth
+            path: local/helm/devops-auth
 
   template:
     metadata:
@@ -130,9 +130,9 @@ spec:
         app: "{{service}}"
         environment: local
     spec:
-      project: nexo-local
+      project: devops-lab
       source:
-        repoURL: https://github.com/geraldobl58/nexo.git
+        repoURL: https://github.com/geraldobl58/devops.git
         targetRevision: main
         path: "{{path}}"
         helm:
@@ -140,7 +140,7 @@ spec:
             - values-local.yaml
       destination:
         server: https://kubernetes.default.svc
-        namespace: nexo-local
+        namespace: devops-lab
       syncPolicy:
         automated:
           prune: true
@@ -151,9 +151,9 @@ EOF
 
 # Aguardar sync
 argocd app list
-argocd app sync nexo-be-local
-argocd app sync nexo-fe-local
-argocd app sync nexo-auth-local
+argocd app sync devops-be-local
+argocd app sync devops-fe-local
+argocd app sync devops-auth-local
 ```
 
 ## Verificar Deploy
@@ -166,45 +166,45 @@ argocd app list
 
 # Output esperado:
 # NAME              CLUSTER                         NAMESPACE    PROJECT      STATUS  HEALTH
-# nexo-be-local     https://kubernetes.default.svc  nexo-local   nexo-local   Synced  Healthy
-# nexo-fe-local     https://kubernetes.default.svc  nexo-local   nexo-local   Synced  Healthy
-# nexo-auth-local   https://kubernetes.default.svc  nexo-local   nexo-local   Synced  Healthy
+# devops-be-local     https://kubernetes.default.svc  devops-lab   devops-lab   Synced  Healthy
+# devops-fe-local     https://kubernetes.default.svc  devops-lab   devops-lab   Synced  Healthy
+# devops-auth-local   https://kubernetes.default.svc  devops-lab   devops-lab   Synced  Healthy
 ```
 
 ### Pods
 
 ```bash
-kubectl get pods -n nexo-local
+kubectl get pods -n devops-lab
 
 # Output esperado:
 # NAME                         READY   STATUS    RESTARTS   AGE
-# nexo-be-xxx                  1/1     Running   0          5m
-# nexo-fe-xxx                  1/1     Running   0          5m
-# nexo-auth-xxx                1/1     Running   0          5m
+# devops-be-xxx                  1/1     Running   0          5m
+# devops-fe-xxx                  1/1     Running   0          5m
+# devops-auth-xxx                1/1     Running   0          5m
 # postgres-xxx                 1/1     Running   0          10m
 ```
 
 ### Services e Ingress
 
 ```bash
-kubectl get svc,ingress -n nexo-local
+kubectl get svc,ingress -n devops-lab
 
 # Testar endpoints
-curl http://develop-be.nexo.local/health
-curl http://develop-fe.nexo.local
-curl http://develop-auth.nexo.local
+curl http://develop-be.devops.local/health
+curl http://develop-fe.devops.local
+curl http://develop-auth.devops.local
 ```
 
 ## Configuração dos Helm Charts
 
-### Backend (nexo-be)
+### Backend (devops-be)
 
 ```yaml
-# local/helm/nexo-be/values-local.yaml
+# local/helm/devops-be/values-local.yaml
 replicaCount: 1
 
 image:
-  repository: ghcr.io/geraldobl58/nexo-be
+  repository: ghcr.io/geraldobl58/devops-be
   tag: "latest"
 
 resources:
@@ -221,48 +221,48 @@ env:
   - name: DATABASE_URL
     valueFrom:
       secretKeyRef:
-        name: nexo-secrets
+        name: devops-secrets
         key: database-url
 
 ingress:
   enabled: true
   hosts:
-    - host: develop-be.nexo.local
+    - host: develop-be.devops.local
       paths:
         - path: /
           pathType: Prefix
 ```
 
-### Frontend (nexo-fe)
+### Frontend (devops-fe)
 
 ```yaml
-# local/helm/nexo-fe/values-local.yaml
+# local/helm/devops-fe/values-local.yaml
 replicaCount: 1
 
 image:
-  repository: ghcr.io/geraldobl58/nexo-fe
+  repository: ghcr.io/geraldobl58/devops-fe
   tag: "latest"
 
 env:
   - name: NEXT_PUBLIC_API_URL
-    value: "http://develop-be.nexo.local"
+    value: "http://develop-be.devops.local"
   - name: NEXT_PUBLIC_AUTH_URL
-    value: "http://develop-auth.nexo.local"
+    value: "http://develop-auth.devops.local"
 
 ingress:
   enabled: true
   hosts:
-    - host: develop-fe.nexo.local
+    - host: develop-fe.devops.local
 ```
 
-### Auth (nexo-auth/Keycloak)
+### Auth (devops-auth/Keycloak)
 
 ```yaml
-# local/helm/nexo-auth/values-local.yaml
+# local/helm/devops-auth/values-local.yaml
 replicaCount: 1
 
 image:
-  repository: ghcr.io/geraldobl58/nexo-auth
+  repository: ghcr.io/geraldobl58/devops-auth
   tag: "latest"
 
 env:
@@ -271,13 +271,13 @@ env:
   - name: KC_DB_URL
     valueFrom:
       secretKeyRef:
-        name: nexo-secrets
+        name: devops-secrets
         key: keycloak-db-url
 
 ingress:
   enabled: true
   hosts:
-    - host: develop-auth.nexo.local
+    - host: develop-auth.devops.local
 ```
 
 ## Workflow de Desenvolvimento
@@ -285,7 +285,7 @@ ingress:
 ### 1. Fazer Mudanças no Código
 
 ```bash
-cd apps/nexo-be
+cd apps/devops-be
 # Editar código...
 git add .
 git commit -m "feat: nova feature"
@@ -296,25 +296,25 @@ git commit -m "feat: nova feature"
 ```bash
 # Com versão específica
 VERSION=v1.2.3
-docker build -t ghcr.io/geraldobl58/nexo-be:$VERSION .
-docker push ghcr.io/geraldobl58/nexo-be:$VERSION
+docker build -t ghcr.io/geraldobl58/devops-be:$VERSION .
+docker push ghcr.io/geraldobl58/devops-be:$VERSION
 
 # Ou latest
-docker build -t ghcr.io/geraldobl58/nexo-be:latest .
-docker push ghcr.io/geraldobl58/nexo-be:latest
+docker build -t ghcr.io/geraldobl58/devops-be:latest .
+docker push ghcr.io/geraldobl58/devops-be:latest
 ```
 
 ### 3. Atualizar Helm Values (se usar versão)
 
 ```yaml
-# local/helm/nexo-be/values-local.yaml
+# local/helm/devops-be/values-local.yaml
 image:
   tag: "v1.2.3" # Atualizar
 ```
 
 ```bash
-git add local/helm/nexo-be/values-local.yaml
-git commit -m "release: nexo-be v1.2.3"
+git add local/helm/devops-be/values-local.yaml
+git commit -m "release: devops-be v1.2.3"
 git push
 ```
 
@@ -322,23 +322,23 @@ git push
 
 ```bash
 # Monitorar sync
-argocd app get nexo-be-local --watch
+argocd app get devops-be-local --watch
 
 # Ou forçar sync imediato
-argocd app sync nexo-be-local
+argocd app sync devops-be-local
 ```
 
 ### 5. Verificar Deploy
 
 ```bash
 # Ver rollout
-kubectl rollout status deployment nexo-be -n nexo-local
+kubectl rollout status deployment devops-be -n devops-lab
 
 # Ver pods novos
-kubectl get pods -n nexo-local -l app=nexo-be
+kubectl get pods -n devops-lab -l app=devops-be
 
 # Testar aplicação
-curl http://develop-be.nexo.local/health
+curl http://develop-be.devops.local/health
 ```
 
 ## Rollback
@@ -347,20 +347,20 @@ curl http://develop-be.nexo.local/health
 
 ```bash
 # Ver histórico
-argocd app history nexo-be-local
+argocd app history devops-be-local
 
 # Rollback para revisão anterior
-argocd app rollback nexo-be-local 2
+argocd app rollback devops-be-local 2
 ```
 
 ### Via Kubectl
 
 ```bash
 # Rollback deployment
-kubectl rollout undo deployment nexo-be -n nexo-local
+kubectl rollout undo deployment devops-be -n devops-lab
 
 # Rollback para revisão específica
-kubectl rollout undo deployment nexo-be --to-revision=3 -n nexo-local
+kubectl rollout undo deployment devops-be --to-revision=3 -n devops-lab
 ```
 
 ## Scaling
@@ -369,10 +369,10 @@ kubectl rollout undo deployment nexo-be --to-revision=3 -n nexo-local
 
 ```bash
 # Scale up
-kubectl scale deployment nexo-be --replicas=3 -n nexo-local
+kubectl scale deployment devops-be --replicas=3 -n devops-lab
 
 # Scale down
-kubectl scale deployment nexo-be --replicas=1 -n nexo-local
+kubectl scale deployment devops-be --replicas=1 -n devops-lab
 ```
 
 ### Horizontal Pod Autoscaler (HPA)
@@ -382,13 +382,13 @@ kubectl scale deployment nexo-be --replicas=1 -n nexo-local
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: nexo-be-hpa
-  namespace: nexo-local
+  name: devops-be-hpa
+  namespace: devops-lab
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: nexo-be
+    name: devops-be
   minReplicas: 1
   maxReplicas: 5
   metrics:
@@ -408,7 +408,7 @@ spec:
 
 ```bash
 kubectl apply -f hpa.yaml
-kubectl get hpa -n nexo-local
+kubectl get hpa -n devops-lab
 ```
 
 ## Migrations e Seeds
@@ -420,8 +420,8 @@ kubectl get hpa -n nexo-local
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: nexo-be-migration
-  namespace: nexo-local
+  name: devops-be-migration
+  namespace: devops-lab
   annotations:
     argocd.argoproj.io/hook: PreSync
     argocd.argoproj.io/hook-delete-policy: HookSucceeded
@@ -430,13 +430,13 @@ spec:
     spec:
       containers:
         - name: migrate
-          image: ghcr.io/geraldobl58/nexo-be:latest
+          image: ghcr.io/geraldobl58/devops-be:latest
           command: ["npm", "run", "migrate"]
           env:
             - name: DATABASE_URL
               valueFrom:
                 secretKeyRef:
-                  name: nexo-secrets
+                  name: devops-secrets
                   key: database-url
       restartPolicy: Never
   backoffLimit: 3
@@ -446,47 +446,47 @@ spec:
 
 ```bash
 # Via Job
-kubectl create job --from=cronjob/migrations manual-migration -n nexo-local
+kubectl create job --from=cronjob/migrations manual-migration -n devops-lab
 
 # Ou exec no pod
-kubectl exec -it <nexo-be-pod> -n nexo-local -- npm run migrate
+kubectl exec -it <devops-be-pod> -n devops-lab -- npm run migrate
 ```
 
 ## Monitoramento
 
 ### Métricas no Grafana
 
-1. Acessar: http://grafana.nexo.local
+1. Acessar: http://grafana.devops.local
 2. Dashboard → Kubernetes Pods
-3. Filtrar por namespace: nexo-local
+3. Filtrar por namespace: devops-lab
 
 ### Verificar Health
 
 ```bash
 # Backend health check
-curl http://develop-be.nexo.local/health
+curl http://develop-be.devops.local/health
 
 # Ver métricas
-curl http://develop-be.nexo.local/metrics
+curl http://develop-be.devops.local/metrics
 
 # Frontend
-curl -I http://develop-fe.nexo.local
+curl -I http://develop-fe.devops.local
 
 # Auth
-curl http://develop-auth.nexo.local/health/ready
+curl http://develop-auth.devops.local/health/ready
 ```
 
 ### Logs
 
 ```bash
 # Via kubectl
-make logs SERVICE=nexo-be
+make logs SERVICE=devops-be
 
 # Ou
-kubectl logs -n nexo-local -l app=nexo-be --follow
+kubectl logs -n devops-lab -l app=devops-be --follow
 
 # No Kibana
-# Query: kubernetes.namespace: "nexo-local"
+# Query: kubernetes.namespace: "devops-lab"
 ```
 
 ## Troubleshooting
@@ -495,43 +495,43 @@ kubectl logs -n nexo-local -l app=nexo-be --follow
 
 ```bash
 # Ver detalhes
-argocd app get nexo-be-local
+argocd app get devops-be-local
 
 # Ver diff
-argocd app diff nexo-be-local
+argocd app diff devops-be-local
 
 # Logs do sync
-argocd app logs nexo-be-local
+argocd app logs devops-be-local
 
 # Forçar refresh
-argocd app get nexo-be-local --refresh
+argocd app get devops-be-local --refresh
 ```
 
 ### Pod crashando
 
 ```bash
 # Ver logs
-kubectl logs -n nexo-local <pod> --previous
+kubectl logs -n devops-lab <pod> --previous
 
 # Describe
-kubectl describe pod -n nexo-local <pod>
+kubectl describe pod -n devops-lab <pod>
 
 # Events
-kubectl get events -n nexo-local --sort-by='.lastTimestamp'
+kubectl get events -n devops-lab --sort-by='.lastTimestamp'
 ```
 
 ### Database connection failed
 
 ```bash
 # Verificar se postgres está rodando
-kubectl get pods -n nexo-local -l app.kubernetes.io/name=postgresql
+kubectl get pods -n devops-lab -l app.kubernetes.io/name=postgresql
 
 # Testar conexão
 kubectl run -it --rm psql --image=postgres:15 --restart=Never -- \
-  psql -h postgres.nexo-local -U nexo -d nexo_db
+  psql -h postgres.devops-lab -U devops -d devops_db
 
 # Verificar secret
-kubectl get secret nexo-secrets -n nexo-local -o yaml
+kubectl get secret devops-secrets -n devops-lab -o yaml
 ```
 
 ## CI/CD Integration
@@ -540,13 +540,13 @@ kubectl get secret nexo-secrets -n nexo-local -o yaml
 
 ```yaml
 # .github/workflows/deploy-local.yml
-name: Deploy to Local CloudLab
+name: Deploy to Local Lab
 
 on:
   push:
     branches: [main]
     paths:
-      - "apps/nexo-be/**"
+      - "apps/devops-be/**"
 
 jobs:
   deploy:
@@ -556,27 +556,27 @@ jobs:
 
       - name: Build Image
         run: |
-          cd apps/nexo-be
-          docker build -t ghcr.io/geraldobl58/nexo-be:${{ github.sha }} .
-          docker tag ghcr.io/geraldobl58/nexo-be:${{ github.sha }} \
-                     ghcr.io/geraldobl58/nexo-be:latest
+          cd apps/devops-be
+          docker build -t ghcr.io/geraldobl58/devops-be:${{ github.sha }} .
+          docker tag ghcr.io/geraldobl58/devops-be:${{ github.sha }} \
+                     ghcr.io/geraldobl58/devops-be:latest
 
       - name: Push Image
         run: |
-          docker push ghcr.io/geraldobl58/nexo-be:${{ github.sha }}
-          docker push ghcr.io/geraldobl58/nexo-be:latest
+          docker push ghcr.io/geraldobl58/devops-be:${{ github.sha }}
+          docker push ghcr.io/geraldobl58/devops-be:latest
 
       - name: Update Helm Values
         run: |
           sed -i '' "s/tag: \".*\"/tag: \"${{ github.sha }}\"/" \
-            local/helm/nexo-be/values-local.yaml
-          git add local/helm/nexo-be/values-local.yaml
-          git commit -m "chore: update nexo-be to ${{ github.sha }}"
+            local/helm/devops-be/values-local.yaml
+          git add local/helm/devops-be/values-local.yaml
+          git commit -m "chore: update devops-be to ${{ github.sha }}"
           git push
 
       - name: Sync ArgoCD
         run: |
-          argocd app sync nexo-be-local --force
+          argocd app sync devops-be-local --force
 ```
 
 ## Próximos Passos

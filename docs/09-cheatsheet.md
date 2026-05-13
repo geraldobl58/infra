@@ -20,60 +20,60 @@ make status
 ```bash
 # Listar pods
 kubectl get pods -A                           # Todos namespaces
-kubectl get pods -n nexo-local               # Namespace específico
+kubectl get pods -n devops-lab               # Namespace específico
 kubectl get pods -o wide                     # Mais informações
 kubectl get pods --watch                     # Watch mode
 
 # Describe pod
-kubectl describe pod <pod-name> -n nexo-local
+kubectl describe pod <pod-name> -n devops-lab
 
 # Logs
-kubectl logs <pod-name> -n nexo-local                    # Últimos logs
-kubectl logs <pod-name> -n nexo-local --follow           # Follow logs
-kubectl logs <pod-name> -n nexo-local --previous         # Pod anterior
-kubectl logs <pod-name> -n nexo-local --tail=100         # Últimas 100 linhas
-kubectl logs -l app=nexo-be -n nexo-local --follow       # Por label
+kubectl logs <pod-name> -n devops-lab                    # Últimos logs
+kubectl logs <pod-name> -n devops-lab --follow           # Follow logs
+kubectl logs <pod-name> -n devops-lab --previous         # Pod anterior
+kubectl logs <pod-name> -n devops-lab --tail=100         # Últimas 100 linhas
+kubectl logs -l app=devops-be -n devops-lab --follow       # Por label
 
 # Shell no pod
-kubectl exec -it <pod-name> -n nexo-local -- /bin/sh
-kubectl exec -it <pod-name> -n nexo-local -- bash
+kubectl exec -it <pod-name> -n devops-lab -- /bin/sh
+kubectl exec -it <pod-name> -n devops-lab -- bash
 
 # Copiar arquivos
-kubectl cp <pod>:/path/to/file ./local-file -n nexo-local
-kubectl cp ./local-file <pod>:/path/to/file -n nexo-local
+kubectl cp <pod>:/path/to/file ./local-file -n devops-lab
+kubectl cp ./local-file <pod>:/path/to/file -n devops-lab
 
 # Delete pod
-kubectl delete pod <pod-name> -n nexo-local
-kubectl delete pods --all -n nexo-local
+kubectl delete pod <pod-name> -n devops-lab
+kubectl delete pods --all -n devops-lab
 ```
 
 ### Deployments
 
 ```bash
 # Listar deployments
-kubectl get deployments -n nexo-local
+kubectl get deployments -n devops-lab
 
 # Describe
-kubectl describe deployment nexo-be -n nexo-local
+kubectl describe deployment devops-be -n devops-lab
 
 # Scale
-kubectl scale deployment nexo-be --replicas=3 -n nexo-local
+kubectl scale deployment devops-be --replicas=3 -n devops-lab
 
 # Restart
-kubectl rollout restart deployment nexo-be -n nexo-local
+kubectl rollout restart deployment devops-be -n devops-lab
 
 # Status do rollout
-kubectl rollout status deployment nexo-be -n nexo-local
+kubectl rollout status deployment devops-be -n devops-lab
 
 # Histórico
-kubectl rollout history deployment nexo-be -n nexo-local
+kubectl rollout history deployment devops-be -n devops-lab
 
 # Rollback
-kubectl rollout undo deployment nexo-be -n nexo-local
-kubectl rollout undo deployment nexo-be --to-revision=2 -n nexo-local
+kubectl rollout undo deployment devops-be -n devops-lab
+kubectl rollout undo deployment devops-be --to-revision=2 -n devops-lab
 
 # Edit deployment
-kubectl edit deployment nexo-be -n nexo-local
+kubectl edit deployment devops-be -n devops-lab
 ```
 
 ### Services
@@ -81,13 +81,13 @@ kubectl edit deployment nexo-be -n nexo-local
 ```bash
 # Listar services
 kubectl get svc -A
-kubectl get svc -n nexo-local
+kubectl get svc -n devops-lab
 
 # Describe
-kubectl describe svc nexo-be -n nexo-local
+kubectl describe svc devops-be -n devops-lab
 
 # Endpoints
-kubectl get endpoints -n nexo-local
+kubectl get endpoints -n devops-lab
 ```
 
 ### Namespaces
@@ -103,7 +103,7 @@ kubectl create namespace my-namespace
 kubectl delete namespace my-namespace
 
 # Mudar default namespace (com kubens)
-kubens nexo-local
+kubens devops-lab
 ```
 
 ### Context
@@ -113,14 +113,14 @@ kubens nexo-local
 kubectl config get-contexts
 
 # Trocar contexto
-kubectl config use-context k3d-nexo-local
+kubectl config use-context k3d-devops-lab
 
 # Context atual
 kubectl config current-context
 
 # Com kubectx
 kubectx                      # Listar
-kubectx k3d-nexo-local      # Trocar
+kubectx k3d-devops-lab      # Trocar
 ```
 
 ## 🐳 K3d
@@ -136,58 +136,58 @@ k3d cluster create --config config/k3d-config.yaml
 k3d cluster create mycluster --agents 2
 
 # Parar cluster
-k3d cluster stop nexo-local
+k3d cluster stop devops-lab
 
 # Iniciar cluster
-k3d cluster start nexo-local
+k3d cluster start devops-lab
 
 # Deletar cluster
-k3d cluster delete nexo-local
+k3d cluster delete devops-lab
 
 # Ver nodes
 k3d node list
 
 # Importar imagem
-k3d image import myimage:latest -c nexo-local
+k3d image import myimage:latest -c devops-lab
 ```
 
 ## 🎨 ArgoCD
 
 ```bash
 # Login
-argocd login argocd.nexo.local --username admin --insecure
+argocd login argocd.devops.local --username admin --insecure
 
 # Listar apps
 argocd app list
 
 # Get app
-argocd app get nexo-be-local
+argocd app get devops-be-local
 
 # Sync app
-argocd app sync nexo-be-local
-argocd app sync nexo-be-local --prune --force
+argocd app sync devops-be-local
+argocd app sync devops-be-local --prune --force
 
 # Ver diff
-argocd app diff nexo-be-local
+argocd app diff devops-be-local
 
 # Histórico
-argocd app history nexo-be-local
+argocd app history devops-be-local
 
 # Rollback
-argocd app rollback nexo-be-local 2
+argocd app rollback devops-be-local 2
 
 # Ver logs
-argocd app logs nexo-be-local --follow
+argocd app logs devops-be-local --follow
 
 # Recursos
-argocd app resources nexo-be-local
+argocd app resources devops-be-local
 
 # Delete app
-argocd app delete nexo-be-local
+argocd app delete devops-be-local
 
 # Projects
 argocd proj list
-argocd proj get nexo-local
+argocd proj get devops-lab
 
 # Clusters
 argocd cluster list
@@ -206,32 +206,32 @@ kubectl port-forward -n monitoring svc/prometheus-operated 9090:9090
 
 ```promql
 # CPU usage por pod
-rate(container_cpu_usage_seconds_total{namespace="nexo-local"}[5m]) * 100
+rate(container_cpu_usage_seconds_total{namespace="devops-lab"}[5m]) * 100
 
 # CPU requests vs usage
-sum(rate(container_cpu_usage_seconds_total{namespace="nexo-local"}[5m])) by (pod) /
-sum(kube_pod_container_resource_requests{resource="cpu", namespace="nexo-local"}) by (pod)
+sum(rate(container_cpu_usage_seconds_total{namespace="devops-lab"}[5m])) by (pod) /
+sum(kube_pod_container_resource_requests{resource="cpu", namespace="devops-lab"}) by (pod)
 ```
 
 ### Memory
 
 ```promql
 # Memory usage
-container_memory_working_set_bytes{namespace="nexo-local"} / 1024 / 1024
+container_memory_working_set_bytes{namespace="devops-lab"} / 1024 / 1024
 
 # Memory utilization
-container_memory_working_set_bytes{namespace="nexo-local"} /
-container_spec_memory_limit_bytes{namespace="nexo-local"}
+container_memory_working_set_bytes{namespace="devops-lab"} /
+container_spec_memory_limit_bytes{namespace="devops-lab"}
 ```
 
 ### Network
 
 ```promql
 # Network RX
-rate(container_network_receive_bytes_total{namespace="nexo-local"}[5m])
+rate(container_network_receive_bytes_total{namespace="devops-lab"}[5m])
 
 # Network TX
-rate(container_network_transmit_bytes_total{namespace="nexo-local"}[5m])
+rate(container_network_transmit_bytes_total{namespace="devops-lab"}[5m])
 ```
 
 ### HTTP
@@ -265,7 +265,7 @@ curl http://localhost:9200/_cat/indices?v
 curl http://localhost:9200/filebeat-*/_stats?pretty
 
 # Buscar
-curl -X GET "localhost:9200/filebeat-*/_search?pretty&q=kubernetes.namespace:nexo-local"
+curl -X GET "localhost:9200/filebeat-*/_search?pretty&q=kubernetes.namespace:devops-lab"
 
 # Count
 curl -X GET "localhost:9200/filebeat-*/_count?pretty"
@@ -342,7 +342,7 @@ kubectl top nodes
 kubectl top pods -A
 
 # Top pods (namespace)
-kubectl top pods -n nexo-local
+kubectl top pods -n devops-lab
 
 # Top pods (ordenar)
 kubectl top pods -A --sort-by=memory
@@ -352,7 +352,7 @@ kubectl top pods -A --sort-by=cpu
 kubectl describe node | grep -A 5 "Allocated resources"
 
 # Watch resources
-watch -n 2 kubectl top pods -n nexo-local
+watch -n 2 kubectl top pods -n devops-lab
 ```
 
 ## 🐛 Debug
@@ -362,7 +362,7 @@ watch -n 2 kubectl top pods -n nexo-local
 ```bash
 # Ver eventos
 kubectl get events -A --sort-by='.lastTimestamp'
-kubectl get events -n nexo-local --sort-by='.lastTimestamp'
+kubectl get events -n devops-lab --sort-by='.lastTimestamp'
 kubectl get events --field-selector type=Warning -A
 ```
 
@@ -370,10 +370,10 @@ kubectl get events --field-selector type=Warning -A
 
 ```bash
 # Por que o pod não está rodando?
-kubectl describe pod <pod> -n nexo-local
+kubectl describe pod <pod> -n devops-lab
 
 # Ver logs anteriores
-kubectl logs <pod> -n nexo-local --previous
+kubectl logs <pod> -n devops-lab --previous
 
 # Debug com busybox
 kubectl run -it --rm debug --image=busybox --restart=Never -- sh
@@ -394,19 +394,19 @@ kubectl run -it --rm debug --image=nicolaka/netshoot --restart=Never -- bash
 
 ```bash
 # Service
-kubectl port-forward -n nexo-local svc/nexo-be 3000:3000
+kubectl port-forward -n devops-lab svc/devops-be 3000:3000
 
 # Pod
-kubectl port-forward -n nexo-local pod/nexo-be-xxx 3000:3000
+kubectl port-forward -n devops-lab pod/devops-be-xxx 3000:3000
 
 # Deployment
-kubectl port-forward -n nexo-local deployment/nexo-be 3000:3000
+kubectl port-forward -n devops-lab deployment/devops-be 3000:3000
 
 # Background
-kubectl port-forward -n nexo-local svc/nexo-be 3000:3000 &
+kubectl port-forward -n devops-lab svc/devops-be 3000:3000 &
 
 # Múltiplas portas
-kubectl port-forward -n nexo-local svc/nexo-be 3000:3000 9090:9090
+kubectl port-forward -n devops-lab svc/devops-be 3000:3000 9090:9090
 ```
 
 ## 🗑️ Cleanup
@@ -422,10 +422,10 @@ kubectl delete pods --field-selector=status.phase=Succeeded -A
 kubectl get pods -A | grep Evicted | awk '{print $2, $1}' | xargs -n2 kubectl delete pod -n
 
 # Force delete pod
-kubectl delete pod <pod> -n nexo-local --force --grace-period=0
+kubectl delete pod <pod> -n devops-lab --force --grace-period=0
 
 # Limpar finalizers (se pod travou)
-kubectl patch pod <pod> -n nexo-local -p '{"metadata":{"finalizers":[]}}' --type=merge
+kubectl patch pod <pod> -n devops-lab -p '{"metadata":{"finalizers":[]}}' --type=merge
 ```
 
 ## 🔐 Secrets
@@ -435,21 +435,21 @@ kubectl patch pod <pod> -n nexo-local -p '{"metadata":{"finalizers":[]}}' --type
 kubectl create secret generic my-secret \
   --from-literal=username=admin \
   --from-literal=password=secret \
-  -n nexo-local
+  -n devops-lab
 
 # From file
 kubectl create secret generic my-secret \
   --from-file=ssh-privatekey=~/.ssh/id_rsa \
-  -n nexo-local
+  -n devops-lab
 
 # Ver secrets
-kubectl get secrets -n nexo-local
+kubectl get secrets -n devops-lab
 
 # Decode secret
-kubectl get secret my-secret -n nexo-local -o jsonpath='{.data.password}' | base64 -d
+kubectl get secret my-secret -n devops-lab -o jsonpath='{.data.password}' | base64 -d
 
 # Edit secret
-kubectl edit secret my-secret -n nexo-local
+kubectl edit secret my-secret -n devops-lab
 ```
 
 ## 📝 ConfigMaps
@@ -459,21 +459,21 @@ kubectl edit secret my-secret -n nexo-local
 kubectl create configmap my-config \
   --from-literal=key1=value1 \
   --from-literal=key2=value2 \
-  -n nexo-local
+  -n devops-lab
 
 # From file
 kubectl create configmap my-config \
   --from-file=config.json \
-  -n nexo-local
+  -n devops-lab
 
 # Ver configmaps
-kubectl get configmaps -n nexo-local
+kubectl get configmaps -n devops-lab
 
 # Ver conteúdo
-kubectl get configmap my-config -n nexo-local -o yaml
+kubectl get configmap my-config -n devops-lab -o yaml
 
 # Edit
-kubectl edit configmap my-config -n nexo-local
+kubectl edit configmap my-config -n devops-lab
 ```
 
 ## 🎮 k9s
@@ -528,10 +528,10 @@ make urls
 make deploy-apps
 
 # Logs
-make logs SERVICE=nexo-be NAMESPACE=nexo-local
+make logs SERVICE=devops-be NAMESPACE=devops-lab
 
 # Port-forward
-make port-forward SERVICE=nexo-be PORT=3000
+make port-forward SERVICE=devops-be PORT=3000
 
 # Dashboards
 make dashboard     # ArgoCD
@@ -603,7 +603,7 @@ alias dprune='docker system prune -a'
 
 ```bash
 # Restart de todos os pods
-kubectl get pods -n nexo-local -o name | xargs kubectl delete -n nexo-local
+kubectl get pods -n devops-lab -o name | xargs kubectl delete -n devops-lab
 
 # Ver imagens usadas
 kubectl get pods -A -o jsonpath='{range .items[*]}{.spec.containers[*].image}{"\n"}{end}' | sort -u

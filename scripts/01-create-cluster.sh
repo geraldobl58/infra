@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-echo "🚀 Nexo CloudLab - Criando Cluster Kubernetes"
+echo "🚀 DevOps Lab - Criando Cluster Kubernetes"
 echo "=============================================="
 
 RED='\033[0;31m'
@@ -10,7 +10,7 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m'
 
-CLUSTER_NAME="nexo-local"
+CLUSTER_NAME="devops-lab"
 
 # Verificar se cluster já existe
 if k3d cluster list | grep -q "$CLUSTER_NAME"; then
@@ -28,7 +28,7 @@ fi
 
 # Criar diretórios no SSD se não existirem
 echo -e "${YELLOW}📁 Preparando volumes no SSD...${NC}"
-mkdir -p /Volumes/Backup/nexo-cloudlab/{data,postgres,prometheus,grafana,elasticsearch}
+mkdir -p /Volumes/Backup/devops-lab/{data,postgres,prometheus,grafana,elasticsearch}
 
 # Criar cluster
 echo -e "${YELLOW}🎯 Criando cluster Kubernetes...${NC}"
@@ -44,10 +44,10 @@ kubectl get nodes -o wide
 
 # Criar namespaces
 echo -e "${YELLOW}🏗️  Criando namespaces...${NC}"
-kubectl create namespace nexo-develop || true
-kubectl create namespace nexo-qa || true
-kubectl create namespace nexo-staging || true
-kubectl create namespace nexo-prod || true
+kubectl create namespace devops-develop || true
+kubectl create namespace devops-qa || true
+kubectl create namespace devops-staging || true
+kubectl create namespace devops-prod || true
 kubectl create namespace monitoring || true
 kubectl create namespace argocd || true
 
@@ -80,38 +80,38 @@ echo -e "${BLUE}Adicionando entradas ao /etc/hosts...${NC}"
 echo -e "${YELLOW}(Requer sudo)${NC}"
 echo ""
 
-# Entradas de hosts para o CloudLab
+# Entradas de hosts para o Lab
 HOSTS_ENTRIES="
-# Nexo CloudLab - Ferramentas
-127.0.0.1 argocd.nexo.local
-127.0.0.1 grafana.nexo.local
-127.0.0.1 prometheus.nexo.local
-127.0.0.1 alertmanager.nexo.local
+# DevOps Lab - Ferramentas
+127.0.0.1 argocd.devops.local
+127.0.0.1 grafana.devops.local
+127.0.0.1 prometheus.devops.local
+127.0.0.1 alertmanager.devops.local
 
-# Nexo CloudLab - Apps Develop
-127.0.0.1 develop-be.nexo.local
-127.0.0.1 develop-fe.nexo.local
-127.0.0.1 develop-auth.nexo.local
+# DevOps Lab - Apps Develop
+127.0.0.1 develop-be.devops.local
+127.0.0.1 develop-fe.devops.local
+127.0.0.1 develop-auth.devops.local
 
-# Nexo CloudLab - Apps QA
-127.0.0.1 qa-be.nexo.local
-127.0.0.1 qa-fe.nexo.local
-127.0.0.1 qa-auth.nexo.local
+# DevOps Lab - Apps QA
+127.0.0.1 qa-be.devops.local
+127.0.0.1 qa-fe.devops.local
+127.0.0.1 qa-auth.devops.local
 
-# Nexo CloudLab - Apps Staging
-127.0.0.1 staging-be.nexo.local
-127.0.0.1 staging-fe.nexo.local
-127.0.0.1 staging-auth.nexo.local
+# DevOps Lab - Apps Staging
+127.0.0.1 staging-be.devops.local
+127.0.0.1 staging-fe.devops.local
+127.0.0.1 staging-auth.devops.local
 
-# Nexo CloudLab - Apps Prod
-127.0.0.1 be.nexo.local
-127.0.0.1 fe.nexo.local
-127.0.0.1 auth.nexo.local
+# DevOps Lab - Apps Prod
+127.0.0.1 be.devops.local
+127.0.0.1 fe.devops.local
+127.0.0.1 auth.devops.local
 "
 
-# Remover entradas antigas do Nexo CloudLab
-sudo sed -i '' '/# Nexo CloudLab/d' /etc/hosts 2>/dev/null || true
-sudo sed -i '' '/nexo\.local/d' /etc/hosts 2>/dev/null || true
+# Remover entradas antigas do DevOps Lab
+sudo sed -i '' '/# DevOps Lab/d' /etc/hosts 2>/dev/null || true
+sudo sed -i '' '/devops\.local/d' /etc/hosts 2>/dev/null || true
 
 # Adicionar novas entradas
 echo "$HOSTS_ENTRIES" | sudo tee -a /etc/hosts > /dev/null
@@ -126,7 +126,7 @@ echo -e "${BLUE}📊 Informações do Cluster:${NC}"
 echo "  Cluster: $CLUSTER_NAME"
 echo "  Context: k3d-$CLUSTER_NAME"
 echo "  Nodes: $(kubectl get nodes --no-headers | wc -l)"
-echo "  Namespaces: nexo-develop, nexo-qa, nexo-staging, nexo-prod, monitoring, argocd"
+echo "  Namespaces: devops-develop, devops-qa, devops-staging, devops-prod, monitoring, argocd"
 echo ""
 echo -e "${BLUE}📦 Comandos úteis:${NC}"
 echo "  kubectl get nodes"

@@ -1,0 +1,51 @@
+# Values for Development environment
+replicaCount: 1
+
+image:
+  repository: ghcr.io/geraldobl58/devops-fe
+  tag: "develop-7d5d0863650869290acd1872f3a11779a2cc6216"
+  pullPolicy: Always
+
+imagePullSecrets:
+  - name: ghcr-secret
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+  hosts:
+    - host: develop-fe.devops.local
+      paths:
+        - path: /
+          pathType: Prefix
+
+resources:
+  limits:
+    cpu: 200m
+    memory: 256Mi
+  requests:
+    cpu: 10m
+    memory: 64Mi
+
+autoscaling:
+  enabled: false
+
+env:
+  NODE_ENV: development
+  API_URL: http://devops-be-develop:3000
+  NEXT_PUBLIC_API_URL: http://develop-be.devops.local
+  NEXT_PUBLIC_KEYCLOAK_URL: http://develop-auth.devops.local
+  NEXT_PUBLIC_KEYCLOAK_REALM: devops
+  NEXT_PUBLIC_KEYCLOAK_CLIENT_ID: devops-web
+
+podDisruptionBudget:
+  enabled: false
+
+podAnnotations:
+  app.kubernetes.io/commit: "7d5d086"
+
+metrics:
+  enabled: false
+  path: /api/metrics
+  serviceMonitor:
+    enabled: false

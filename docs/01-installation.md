@@ -1,8 +1,8 @@
-# 📦 Instalação e Configuração - Nexo CloudLab
+# 📦 Instalação e Configuração - DevOps Lab
 
 ## Visão Geral
 
-Este guia cobre a instalação completa do Nexo CloudLab, um ambiente de desenvolvimento local que simula uma infraestrutura cloud profissional.
+Este guia cobre a instalação completa do DevOps Lab, um ambiente de desenvolvimento local que simula uma infraestrutura cloud profissional.
 
 ## Pré-requisitos
 
@@ -47,8 +47,8 @@ df -h
 
 ```bash
 cd ~/Development/fullstack
-git clone https://github.com/geraldobl58/nexo.git
-cd nexo/local
+git clone https://github.com/geraldobl58/devops.git
+cd devops.local
 ```
 
 ### 3. Instalação Completa (Método Recomendado)
@@ -102,10 +102,10 @@ make deploy-apps
 ls -la /Volumes/Backup
 
 # Criar estrutura de diretórios
-mkdir -p /Volumes/Backup/nexo-cloudlab/{data,postgres,prometheus,grafana,elasticsearch,backups}
+mkdir -p /Volumes/Backup/devops-lab/{data,postgres,prometheus,grafana,elasticsearch,backups}
 
 # Definir permissões adequadas
-chmod -R 755 /Volumes/Backup/nexo-cloudlab
+chmod -R 755 /Volumes/Backup/devops-lab
 ```
 
 ### Configurar SSD com Nome Diferente
@@ -130,13 +130,13 @@ sudo nano /etc/hosts
 Adicionar:
 
 ```
-127.0.0.1 argocd.nexo.local
-127.0.0.1 grafana.nexo.local
-127.0.0.1 prometheus.nexo.local
-127.0.0.1 alertmanager.nexo.local
-127.0.0.1 develop-be.nexo.local
-127.0.0.1 develop-fe.nexo.local
-127.0.0.1 develop-auth.nexo.local
+127.0.0.1 argocd.devops.local
+127.0.0.1 grafana.devops.local
+127.0.0.1 prometheus.devops.local
+127.0.0.1 alertmanager.devops.local
+127.0.0.1 develop-be.devops.local
+127.0.0.1 develop-fe.devops.local
+127.0.0.1 develop-auth.devops.local
 ```
 
 Ou automaticamente durante a instalação quando solicitado.

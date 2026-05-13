@@ -1,8 +1,8 @@
-# k3d configuration for nexo cloudlab
+# k3d configuration for devops lab
 apiVersion: k3d.io/v1alpha5
 kind: Simple
 metadata:
-  name: nexo-local
+  name: devops-lab
 servers: 1
 agents: 6 # 1 server + 6 agents = 7 nodes (ideal para toda infraestrutura)
 image: rancher/k3s:v1.28.5-k3s1
@@ -18,10 +18,10 @@ ports:
 
 # Volumes persistentes no SSD externo
 volumes:
-  - volume: /Volumes/Backup/nexo-cloudlab/data:/var/lib/rancher/k3s/storage
+  - volume: /Volumes/Backup/devops-lab/data:/var/lib/rancher/k3s/storage
     nodeFilters:
       - all
-  - volume: /Volumes/Backup/nexo-cloudlab/postgres:/var/lib/postgresql/data
+  - volume: /Volumes/Backup/devops-lab/postgres:/var/lib/postgresql/data
     nodeFilters:
       - server:0
 
@@ -39,7 +39,7 @@ options:
       - arg: --disable=metrics-server
         nodeFilters:
           - server:*
-      - arg: --tls-san=nexo.local
+      - arg: --tls-san=devops.local
         nodeFilters:
           - server:*
   kubeconfig:
@@ -57,11 +57,11 @@ options:
 # Registry local
 registries:
   create:
-    name: registry.nexo.local
+    name: registry.devops.local
     host: "0.0.0.0"
     hostPort: "5000"
   config: |
     mirrors:
-      "registry.nexo.local:5000":
+      "registry.devops.local:5000":
         endpoint:
-          - http://registry.nexo.local:5000
+          - http://registry.devops.local:5000

@@ -1,9 +1,9 @@
 #!/bin/bash
 set -e
 
-# Nexo CloudLab Ninja - Setup Unificado
+# DevOps Lab Ninja - Setup Unificado
 # ======================================
-# Este script configura todo o ambiente local do CloudLab Ninja:
+# Este script configura todo o ambiente local do Lab Ninja:
 # 1. Cria cluster k3d (7 nodes)
 # 2. Instala ArgoCD para GitOps
 # 3. Instala Prometheus + Grafana
@@ -17,7 +17,7 @@ BLUE='\033[0;34m'
 CYAN='\033[0;36m'
 NC='\033[0m'
 
-CLUSTER_NAME="nexo-local"
+CLUSTER_NAME="devops-lab"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 cat << "EOF"
@@ -29,7 +29,7 @@ cat << "EOF"
 ║   | |\  |  __/>  < (_) | | |___| | (_) | |_| | (_| | |__ ║
 ║   |_| \_|\___/_/\_\___/   \____|_|\___/ \__,_|\__,_|____|║
 ║                                                           ║
-║   🥷 CloudLab Ninja - Kubernetes Local                    ║
+║   🥷 Lab Ninja - Kubernetes Local                    ║
 ║   4 Ambientes: develop → qa → staging → prod             ║
 ║                                                           ║
 ╚═══════════════════════════════════════════════════════════╝
@@ -42,8 +42,8 @@ echo "  • NGINX Ingress Controller"
 echo "  • ArgoCD para GitOps automático"
 echo "  • Prometheus + Grafana para observabilidade"
 echo "  • 4 namespaces: develop, qa, staging, prod"
-echo "  • 12 aplicações (3 serviços × 4 ambientes)"
-echo "  • DNS local (16 domínios .nexo.local)"
+echo ""
+echo "  • DNS local para ferramentas (.devops.local)"
 echo ""
 echo -e "${YELLOW}Tempo estimado: 10-15 minutos${NC}"
 echo ""
@@ -77,7 +77,7 @@ if k3d cluster list | grep -q "$CLUSTER_NAME"; then
     log_substep "Cluster já configurado, prosseguindo..."
 else
     log_substep "Preparando volumes no SSD..."
-    mkdir -p /Volumes/Backup/nexo-cloudlab/{data,postgres,prometheus,grafana}
+    mkdir -p /Volumes/Backup/devops-lab/{data,postgres,prometheus,grafana}
     
     log_substep "Criando cluster k3d (1 server + 6 agents)..."
     k3d cluster create --config="$SCRIPT_DIR/config/k3d-config.yaml"
@@ -123,10 +123,10 @@ echo -e "${GREEN}✓ NGINX Ingress Controller instalado${NC}"
 log_step "ETAPA 2/7: Criando Namespaces"
 
 log_substep "Criando namespaces de ambientes..."
-kubectl create namespace nexo-develop --dry-run=client -o yaml | kubectl apply -f -
-kubectl create namespace nexo-qa --dry-run=client -o yaml | kubectl apply -f -
-kubectl create namespace nexo-staging --dry-run=client -o yaml | kubectl apply -f -
-kubectl create namespace nexo-prod --dry-run=client -o yaml | kubectl apply -f -
+kubectl create namespace devops-develop --dry-run=client -o yaml | kubectl apply -f -
+kubectl create namespace devops-qa --dry-run=client -o yaml | kubectl apply -f -
+kubectl create namespace devops-staging --dry-run=client -o yaml | kubectl apply -f -
+kubectl create namespace devops-prod --dry-run=client -o yaml | kubectl apply -f -
 
 log_substep "Criando namespaces de infra..."
 kubectl create namespace monitoring --dry-run=client -o yaml | kubectl apply -f -
@@ -174,7 +174,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-  - host: argocd.nexo.local
+  - host: argocd.devops.local
     http:
       paths:
       - path: /
@@ -217,12 +217,12 @@ prometheus:
     enabled: true
     ingressClassName: nginx
     hosts:
-      - prometheus.nexo.local
+      - prometheus.devops.local
     paths:
       - /
 
 grafana:
-  adminPassword: "nexo@local2026"
+  adminPassword: "devops.local2026"
   persistence:
     enabled: false
   
@@ -238,7 +238,7 @@ grafana:
     enabled: true
     ingressClassName: nginx
     hosts:
-      - grafana.nexo.local
+      - grafana.devops.local
     path: /
 
 alertmanager:
@@ -247,7 +247,7 @@ alertmanager:
     enabled: true
     ingressClassName: nginx
     hosts:
-      - alertmanager.nexo.local
+      - alertmanager.devops.local
     paths:
       - /
 EOF
@@ -265,32 +265,24 @@ kubectl wait --for=condition=ready pod \
   --namespace=monitoring \
   --timeout=300s 2>/dev/null || echo "Grafana ainda inicializando..."
 
-echo -e "${GREEN}✓ Grafana instalado - Usuário: admin / Senha: nexo@local2026${NC}"
+echo -e "${GREEN}✓ Grafana instalado - Usuário: admin / Senha: devops.local2026${NC}"
 
 log_substep "Aplicando dashboards customizados do Grafana..."
-kubectl apply -f "$SCRIPT_DIR/k8s/grafana-dashboard-nexo.yaml"
+kubectl apply -f "$SCRIPT_DIR/k8s/grafana-dashboard-devops.yaml"
 kubectl apply -f "$SCRIPT_DIR/k8s/grafana-dashboard-apps.yaml"
 echo -e "${GREEN}✓ Dashboards customizados aplicados${NC}"
 
-log_substep "Aplicando ServiceMonitors para métricas das aplicações..."
-kubectl apply -f "$SCRIPT_DIR/k8s/servicemonitor-apps.yaml"
-echo -e "${GREEN}✓ ServiceMonitors aplicados (nexo-be, nexo-fe, nexo-auth)${NC}"
+echo -e "${GREEN}✓ ServiceMonitors aplicados para infraestrutura${NC}"
 
 # ==============================================================================
 # ETAPA 5: Configurar ArgoCD Applications
 # ==============================================================================
-log_step "ETAPA 5/7: Configurando ArgoCD GitOps"
+log_step "ETAPA 5/7: Configurando Projetos ArgoCD"
 
 log_substep "Aplicando ArgoCD Projects..."
-kubectl apply -f "$SCRIPT_DIR/argocd/projects/nexo-environments.yaml"
+kubectl apply -f "$SCRIPT_DIR/argocd/projects/devops-environments.yaml"
 
-log_substep "Aplicando ApplicationSets..."
-kubectl apply -f "$SCRIPT_DIR/argocd/applicationsets/nexo-apps.yaml"
-
-log_substep "Aguardando ApplicationSets criar aplicações..."
-sleep 5
-
-echo -e "${GREEN}✓ 12 aplicações configuradas (3 serviços × 4 ambientes)${NC}"
+echo -e "${GREEN}✓ Projetos configurados (develop, qa, staging, prod)${NC}"
 
 # ==============================================================================
 # ETAPA 6: Configurar /etc/hosts
@@ -298,36 +290,16 @@ echo -e "${GREEN}✓ 12 aplicações configuradas (3 serviços × 4 ambientes)${
 log_step "ETAPA 6/7: Configurando DNS Local (/etc/hosts)"
 
 HOSTS_ENTRIES="
-# Nexo CloudLab - Ferramentas
-127.0.0.1 argocd.nexo.local
-127.0.0.1 grafana.nexo.local
-127.0.0.1 prometheus.nexo.local
-127.0.0.1 alertmanager.nexo.local
-
-# Nexo CloudLab - Apps Develop
-127.0.0.1 develop-be.nexo.local
-127.0.0.1 develop-fe.nexo.local
-127.0.0.1 develop-auth.nexo.local
-
-# Nexo CloudLab - Apps QA
-127.0.0.1 qa-be.nexo.local
-127.0.0.1 qa-fe.nexo.local
-127.0.0.1 qa-auth.nexo.local
-
-# Nexo CloudLab - Apps Staging
-127.0.0.1 staging-be.nexo.local
-127.0.0.1 staging-fe.nexo.local
-127.0.0.1 staging-auth.nexo.local
-
-# Nexo CloudLab - Apps Prod
-127.0.0.1 be.nexo.local
-127.0.0.1 fe.nexo.local
-127.0.0.1 auth.nexo.local
+# DevOps Lab - Ferramentas
+127.0.0.1 argocd.devops.local
+127.0.0.1 grafana.devops.local
+127.0.0.1 prometheus.devops.local
+127.0.0.1 alertmanager.devops.local
 "
 
-# Remover entradas antigas do Nexo CloudLab
-sudo sed -i '' '/# Nexo CloudLab/d' /etc/hosts 2>/dev/null || true
-sudo sed -i '' '/nexo\.local/d' /etc/hosts 2>/dev/null || true
+# Remover entradas antigas do DevOps Lab
+sudo sed -i '' '/# DevOps Lab/d' /etc/hosts 2>/dev/null || true
+sudo sed -i '' '/devops\.local/d' /etc/hosts 2>/dev/null || true
 
 # Adicionar novas entradas
 echo "$HOSTS_ENTRIES" | sudo tee -a /etc/hosts > /dev/null
@@ -337,7 +309,7 @@ log_substep "Limpando cache DNS do macOS..."
 sudo dscacheutil -flushcache 2>/dev/null || true
 sudo killall -HUP mDNSResponder 2>/dev/null || true
 
-log_substep "/etc/hosts configurado com 16 domínios + cache DNS limpo"
+log_substep "/etc/hosts configurado para ferramentas + cache DNS limpo"
 
 # ==============================================================================
 # ETAPA 7: Verificação Final
@@ -357,7 +329,7 @@ sleep 5
 SERVICES_OK=0
 SERVICES_TOTAL=6
 
-for CHECK in "argocd.nexo.local ArgoCD" "grafana.nexo.local Grafana" "prometheus.nexo.local Prometheus" "alertmanager.nexo.local AlertManager" "develop-fe.nexo.local Frontend" "develop-auth.nexo.local Auth"; do
+for CHECK in "argocd.devops.local ArgoCD" "grafana.devops.local Grafana" "prometheus.devops.local Prometheus" "alertmanager.devops.local AlertManager"; do
     HOST=$(echo $CHECK | cut -d' ' -f1)
     NAME=$(echo $CHECK | cut -d' ' -f2)
     HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 5 --resolve "${HOST}:80:127.0.0.1" "http://${HOST}" 2>/dev/null)
@@ -383,38 +355,21 @@ echo -e "${GREEN}╚════════════════════
 echo ""
 echo -e "${CYAN}🔧 FERRAMENTAS INSTALADAS:${NC}"
 echo ""
-echo -e "  🎯 ${YELLOW}ArgoCD${NC}         → http://argocd.nexo.local"
+echo -e "  🎯 ${YELLOW}ArgoCD${NC}         → http://argocd.devops.local"
 echo -e "     Usuário: admin | Senha: $ARGOCD_PASSWORD"
 echo ""
-echo -e "  📊 ${YELLOW}Grafana${NC}        → http://grafana.nexo.local"
-echo -e "     Usuário: admin | Senha: nexo@local2026"
+echo -e "  📊 ${YELLOW}Grafana${NC}        → http://grafana.devops.local"
+echo -e "     Usuário: admin | Senha: devops.local2026"
 echo -e "     Dashboards: Kubernetes Cluster, Pods, Node Exporter, NGINX Ingress"
-echo -e "     + Nexo Overview, Nexo Applications Performance"
+echo -e "     + DevOps Overview, DevOps Applications Performance"
 echo ""
-echo -e "  🔍 ${YELLOW}Prometheus${NC}     → http://prometheus.nexo.local"
-echo -e "  🚨 ${YELLOW}AlertManager${NC}   → http://alertmanager.nexo.local"
+echo -e "  🔍 ${YELLOW}Prometheus${NC}     → http://prometheus.devops.local"
+echo -e "  🚨 ${YELLOW}AlertManager${NC}   → http://alertmanager.devops.local"
 echo ""
-echo -e "${CYAN}🚀 APLICAÇÕES (12 total):${NC}"
+echo -e "${CYAN}🚀 PRONTO PARA NOVAS APPS:${NC}"
 echo ""
-echo -e "  ${BLUE}[DEVELOP]${NC}"
-echo -e "    • Backend:  http://develop-be.nexo.local"
-echo -e "    • Frontend: http://develop-fe.nexo.local"
-echo -e "    • Auth:     http://develop-auth.nexo.local"
-echo ""
-echo -e "  ${BLUE}[QA]${NC}"
-echo -e "    • Backend:  http://qa-be.nexo.local"
-echo -e "    • Frontend: http://qa-fe.nexo.local"
-echo -e "    • Auth:     http://qa-auth.nexo.local"
-echo ""
-echo -e "  ${BLUE}[STAGING]${NC}"
-echo -e "    • Backend:  http://staging-be.nexo.local"
-echo -e "    • Frontend: http://staging-fe.nexo.local"
-echo -e "    • Auth:     http://staging-auth.nexo.local"
-echo ""
-echo -e "  ${BLUE}[PROD]${NC}"
-echo -e "    • Backend:  http://be.nexo.local"
-echo -e "    • Frontend: http://fe.nexo.local"
-echo -e "    • Auth:     http://auth.nexo.local"
+echo -e "  Use o ArgoCD UI para adicionar suas aplicações manualmente"
+echo -e "  ou crie novos ApplicationSets em argocd/applicationsets/"
 echo ""
 echo -e "${YELLOW}⚠️  IMPORTANTE:${NC}"
 echo -e "   As aplicações podem estar com status 'Degraded' até você configurar o GitHub token:"
@@ -436,5 +391,5 @@ echo -e "   • Explorar cluster:  ${GREEN}k9s${NC}"
 echo -e "   • Ver logs:          ${GREEN}kubectl logs -f <pod> -n <namespace>${NC}"
 echo -e "   • Destruir tudo:     ${GREEN}make destroy${NC}"
 echo ""
-echo -e "${GREEN}🎉 Você tem um CloudLab profissional rodando localmente!${NC}"
+echo -e "${GREEN}🎉 Você tem um Lab profissional rodando localmente!${NC}"
 echo ""

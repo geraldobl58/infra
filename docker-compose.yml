@@ -1,33 +1,33 @@
 # ═══════════════════════════════════════════════════════════════════════════════
-# NEXO PLATFORM - Docker Compose (Development)
+# DEVOPS PLATFORM - Docker Compose (Development)
 # ═══════════════════════════════════════════════════════════════════════════════
 services:
   # ════════════════════════════════════════════════════════════════════════════
   # 🗄️  PostgreSQL - Banco de Dados
   # ════════════════════════════════════════════════════════════════════════════
   # Bancos criados automaticamente:
-  #   - nexo_keycloak: Para o Keycloak (Identity & Access Management)
-  #   - nexo_app: Para a aplicação Nexo (Backend)
+  #   - devops_keycloak: Para o Keycloak (Identity & Access Management)
+  #   - devops_app: Para a aplicação DevOps (Backend)
   # ════════════════════════════════════════════════════════════════════════════
   postgres:
     image: postgres:16-alpine
-    container_name: nexo-postgres-dev
+    container_name: devops-postgres-dev
     restart: unless-stopped
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_DB: nexo_db
-      POSTGRES_USER: nexo
-      POSTGRES_PASSWORD: nexo_password
+      POSTGRES_DB: devops_db
+      POSTGRES_USER: devops
+      POSTGRES_PASSWORD: devops_password
       # PGDATA em subdiretório evita conflito com ._* metadata do macOS
       PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
       - postgres-data:/var/lib/postgresql/data
       - ./local/init-databases.sh:/docker-entrypoint-initdb.d/init-databases.sh:ro
     networks:
-      - nexo-network
+      - devops-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U nexo -d nexo_db"]
+      test: ["CMD-SHELL", "pg_isready -U devops -d devops_db"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -42,11 +42,11 @@ services:
   # ════════════════════════════════════════════════════════════════════════════
   #  Keycloak - Identity & Access Management
   # ════════════════════════════════════════════════════════════════════════════
-  # Conexão: jdbc:postgresql://postgres:5432/nexo_keycloak
+  # Conexão: jdbc:postgresql://postgres:5432/devops_keycloak
   # ════════════════════════════════════════════════════════════════════════════
   keycloak:
     image: quay.io/keycloak/keycloak:26.5
-    container_name: nexo-auth-dev
+    container_name: devops-auth-dev
     command:
       - start-dev
       - --http-port=8080
@@ -61,9 +61,9 @@ services:
 
       # Database (PostgreSQL) - Banco separado para Keycloak
       KC_DB: postgres
-      KC_DB_URL: jdbc:postgresql://postgres:5432/nexo_keycloak
-      KC_DB_USERNAME: nexo
-      KC_DB_PASSWORD: nexo_password
+      KC_DB_URL: jdbc:postgresql://postgres:5432/devops_keycloak
+      KC_DB_USERNAME: devops
+      KC_DB_PASSWORD: devops_password
 
       # HTTP Only - Sem HTTPS em desenvolvimento
       KC_HTTP_ENABLED: "true"
@@ -82,9 +82,9 @@ services:
       KC_LOG_LEVEL: INFO
     volumes:
       - keycloak-data:/opt/keycloak/data
-      - ./apps/nexo-auth/themes:/opt/keycloak/themes
+      - ./apps/devops-auth/themes:/opt/keycloak/themes
     networks:
-      - nexo-network
+      - devops-network
     depends_on:
       postgres:
         condition: service_healthy
@@ -99,15 +99,15 @@ services:
 # 🌐 Networks
 # ═══════════════════════════════════════════════════════════════════════════════
 networks:
-  nexo-network:
+  devops-network:
     driver: bridge
-    name: nexo-network
+    name: devops-network
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # 💾 Volumes - Gerenciados pelo Docker (armazenados localmente no Mac)
 # ═══════════════════════════════════════════════════════════════════════════════
 volumes:
   postgres-data:
-    name: nexo-postgres-data
+    name: devops-postgres-data
   keycloak-data:
-    name: nexo-keycloak-data
+    name: devops-keycloak-data

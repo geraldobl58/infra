@@ -1,6 +1,6 @@
-# 🏗️ Arquitetura da CloudLab
+# 🏗️ Arquitetura da Lab
 
-Visão geral da infraestrutura local completa do projeto Nexo.
+Visão geral da infraestrutura local completa do projeto DevOps.
 
 ---
 
@@ -12,7 +12,7 @@ Visão geral da infraestrutura local completa do projeto Nexo.
 │  ┌────────────────────────────────────────────────────────────────────────┐ │
 │  │                        Docker Desktop                                   │ │
 │  │  ┌──────────────────────────────────────────────────────────────────┐  │ │
-│  │  │                  k3d Cluster (nexo-local)                         │  │ │
+│  │  │                  k3d Cluster (devops-lab)                         │  │ │
 │  │  │                                                                    │  │ │
 │  │  │  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐  │  │ │
 │  │  │  │  k3d-server-0   │  │  k3d-agent-0    │  │  k3d-agent-1    │  │  │ │
@@ -29,22 +29,22 @@ Visão geral da infraestrutura local completa do projeto Nexo.
 │  │  │  │                                                              │  │ │ │
 │  │  │  │  • argocd         (GitOps)                                  │  │ │ │
 │  │  │  │  • monitoring     (Prometheus + Grafana)                    │  │ │ │
-│  │  │  │  • nexo-develop   (Apps: nexo-be, nexo-fe, nexo-auth)      │  │ │ │
-│  │  │  │  • nexo-qa        (Apps: nexo-be, nexo-fe, nexo-auth)      │  │ │ │
-│  │  │  │  • nexo-staging   (Apps: nexo-be, nexo-fe, nexo-auth)      │  │ │ │
-│  │  │  │  • nexo-prod      (Apps: nexo-be, nexo-fe, nexo-auth)      │  │ │ │
+│  │  │  │  • devops-develop   (Apps: devops-be, devops-fe, devops-auth)      │  │ │ │
+│  │  │  │  • devops-qa        (Apps: devops-be, devops-fe, devops-auth)      │  │ │ │
+│  │  │  │  • devops-staging   (Apps: devops-be, devops-fe, devops-auth)      │  │ │ │
+│  │  │  │  • devops-prod      (Apps: devops-be, devops-fe, devops-auth)      │  │ │ │
 │  │  │  └────────────────────────────────────────────────────────────┘  │  │ │
 │  │  └──────────────────────────────────────────────────────────────────┘  │ │
 │  └────────────────────────────────────────────────────────────────────────┘ │
 │                                                                               │
 │  ┌────────────────────────────────────────────────────────────────────────┐ │
-│  │              External SSD: /Volumes/Backup/nexo-cloudlab               │ │
+│  │              External SSD: /Volumes/Backup/devops-lab               │ │
 │  │         (Persistent Volumes for DBs)                               │ │
 │  └────────────────────────────────────────────────────────────────────────┘ │
 │                                                                               │
 │  /etc/hosts mappings:                                                        │
-│  127.0.0.1  *-fe.nexo.local *-be.nexo.local *-auth.nexo.local               │
-│  127.0.0.1  argocd.nexo.local grafana.nexo.local prometheus.nexo.local ...   │
+│  127.0.0.1  *-fe.devops.local *-be.devops.local *-auth.devops.local               │
+│  127.0.0.1  argocd.devops.local grafana.devops.local prometheus.devops.local ...   │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -55,7 +55,7 @@ Visão geral da infraestrutura local completa do projeto Nexo.
 ### 1. Cluster Kubernetes (k3d)
 
 ```
-k3d-nexo-local
+k3d-devops-lab
 ├── k3d-server-0  (Control Plane + etcd)
 │   ├── CPU: 2 cores
 │   ├── Memory: 4GB
@@ -72,7 +72,7 @@ k3d-nexo-local
     └── Roles: worker
 
 Volumes montados:
-- /Volumes/Backup/nexo-cloudlab → /mnt/data (em cada node)
+- /Volumes/Backup/devops-lab → /mnt/data (em cada node)
 ```
 
 ### 2. GitOps Stack (ArgoCD)
@@ -82,7 +82,7 @@ Namespace: argocd
 
 ┌────────────────────────────────────────┐
 │           ArgoCD Server                │
-│  http://argocd.nexo.local              │
+│  http://argocd.devops.local              │
 ├────────────────────────────────────────┤
 │  • Application Controller              │
 │  • Repo Server                         │
@@ -91,16 +91,16 @@ Namespace: argocd
 └────────────────────────────────────────┘
           │
           ├─── Git Repository (GitHub)
-          │    https://github.com/usuario/nexo
-          │    ├── apps/nexo-be/**
-          │    ├── apps/nexo-fe/**
-          │    ├── apps/nexo-auth/**
+          │    https://github.com/usuario/devops
+          │    ├── apps/devops-be/**
+          │    ├── apps/devops-fe/**
+          │    ├── apps/devops-auth/**
           │    └── local/helm/**
           │
           └─── Auto-sync com apps:
-               ├── nexo-be-local
-               ├── nexo-fe-local
-               └── nexo-auth-local
+               ├── devops-be-local
+               ├── devops-fe-local
+               └── devops-auth-local
 ```
 
 ### 3. Observability Stack (Prometheus + Grafana)
@@ -121,13 +121,13 @@ Namespace: monitoring
 │         │                           │                     │
 │  ┌──────▼──────────────────────────▼──────┐             │
 │  │           Grafana                       │             │
-│  │   http://grafana.nexo.local             │             │
+│  │   http://grafana.devops.local             │             │
 │  │                                          │             │
 │  │  Dashboards:                             │             │
-│  │  • Nexo CloudLab - Overview              │             │
-│  │  • Nexo CloudLab - Backend API           │             │
-│  │  • Nexo CloudLab - Frontend              │             │
-│  │  • Nexo CloudLab - Auth/Keycloak         │             │
+│  │  • DevOps Lab - Overview              │             │
+│  │  • DevOps Lab - Backend API           │             │
+│  │  • DevOps Lab - Frontend              │             │
+│  │  • DevOps Lab - Auth/Keycloak         │             │
 │  └──────────────────────────────────────────┘             │
 └──────────────────────────────────────────────────────────┘
 
@@ -138,18 +138,18 @@ Integrations:
 └── Alert Rules (notificações via webhook)
 ```
 
-### 4. Application Stack (Nexo Apps)
+### 4. Application Stack (DevOps Apps)
 
 ```
-Namespace: nexo-local
+Namespace: devops-lab
 
 ┌──────────────────────────────────────────────────────────┐
-│                     Nexo Applications                     │
+│                     DevOps Applications                     │
 │                                                            │
 │  Frontend (Next.js)                                       │
 │  ┌────────────────────────────────────────────┐          │
-│  │  nexo-fe                                    │          │
-│  │  http://develop-fe.nexo.local                  │          │
+│  │  devops-fe                                    │          │
+│  │  http://develop-fe.devops.local                  │          │
 │  │  ├── Replicas: 2                            │          │
 │  │  ├── Resources: 512Mi RAM, 500m CPU        │          │
 │  │  └── Env: NEXT_PUBLIC_API_URL,             │          │
@@ -160,8 +160,8 @@ Namespace: nexo-local
 │                      ▼                                     │
 │  Backend (NestJS)                                         │
 │  ┌────────────────────────────────────────────┐          │
-│  │  nexo-be                                    │          │
-│  │  http://develop-be.nexo.local              │          │
+│  │  devops-be                                    │          │
+│  │  http://develop-be.devops.local              │          │
 │  │  ├── Replicas: 2                            │          │
 │  │  ├── Resources: 1Gi RAM, 1000m CPU         │          │
 │  │  ├── Health: /health/live, /health/ready   │          │
@@ -175,20 +175,20 @@ Namespace: nexo-local
 │                      ▼                                     │
 │  Auth Service (Keycloak)                                  │
 │  ┌────────────────────────────────────────────┐          │
-│  │  nexo-auth                                  │          │
-│  │  http://develop-auth.nexo.local             │          │
+│  │  devops-auth                                  │          │
+│  │  http://develop-auth.devops.local             │          │
 │  │  ├── Replicas: 1                            │          │
 │  │  ├── Resources: 1Gi RAM, 500m CPU          │          │
-│  │  ├── Realm: nexo                            │          │
-│  │  ├── Clients: nexo-fe, nexo-be             │          │
-│  │  └── Custom Themes: /themes/nexo           │          │
+│  │  ├── Realm: devops                            │          │
+│  │  ├── Clients: devops-fe, devops-be             │          │
+│  │  └── Custom Themes: /themes/devops           │          │
 │  └────────────────────────────────────────────┘          │
 │                      │                                     │
 │  Databases                                                 │
 │  ┌────────────────────────────────────────────┐          │
 │  │  PostgreSQL 16                              │          │
-│  │  ├── Databases: nexo, nexo_auth, nexo_qa   │          │
-│  │  └── PVC: /Volumes/Backup/nexo-cloudlab    │          │
+│  │  ├── Databases: devops, devops_auth, devops_qa   │          │
+│  │  └── PVC: /Volumes/Backup/devops-lab    │          │
 │  └────────────────────────────────────────────┘          │
 │  ┌────────────────────────────────────────────┐          │
 │  │  Redis 7                                    │          │
@@ -267,28 +267,28 @@ Developer ──┐
 │                                                          │
 │  /etc/hosts configuration (auto-managed):               │
 │                                                          │
-│  127.0.0.1  develop-fe.nexo.local                          │
-│  127.0.0.1  develop-be.nexo.local                      │
-│  127.0.0.1  develop-auth.nexo.local                     │
+│  127.0.0.1  develop-fe.devops.local                          │
+│  127.0.0.1  develop-be.devops.local                      │
+│  127.0.0.1  develop-auth.devops.local                     │
 │                                                          │
-│  127.0.0.1  qa-fe.nexo.local                               │
-│  127.0.0.1  qa-be.nexo.local                           │
-│  127.0.0.1  qa-auth.nexo.local                          │
+│  127.0.0.1  qa-fe.devops.local                               │
+│  127.0.0.1  qa-be.devops.local                           │
+│  127.0.0.1  qa-auth.devops.local                          │
 │                                                          │
-│  127.0.0.1  staging-fe.nexo.local                          │
-│  127.0.0.1  staging-be.nexo.local                      │
-│  127.0.0.1  staging-auth.nexo.local                     │
+│  127.0.0.1  staging-fe.devops.local                          │
+│  127.0.0.1  staging-be.devops.local                      │
+│  127.0.0.1  staging-auth.devops.local                     │
 │                                                          │
-│  127.0.0.1  fe.nexo.local                             │
-│  127.0.0.1  fe.nexo.local                               │
-│  127.0.0.1  be.nexo.local                               │
-│  127.0.0.1  auth.nexo.local                             │
+│  127.0.0.1  fe.devops.local                             │
+│  127.0.0.1  fe.devops.local                               │
+│  127.0.0.1  be.devops.local                               │
+│  127.0.0.1  auth.devops.local                             │
 │                                                          │
 │  # Tooling                                              │
-│  127.0.0.1  argocd.nexo.local                           │
-│  127.0.0.1  grafana.nexo.local                          │
-│  127.0.0.1  prometheus.nexo.local                       │
-│  127.0.0.1  alertmanager.nexo.local                     │
+│  127.0.0.1  argocd.devops.local                           │
+│  127.0.0.1  grafana.devops.local                          │
+│  127.0.0.1  prometheus.devops.local                       │
+│  127.0.0.1  alertmanager.devops.local                     │
 └────────────────────────────────────────────────────────┘
            │
            ▼
@@ -299,10 +299,10 @@ Developer ──┐
 │                                                          │
 │  Ingress Rules:                                         │
 │                                                          │
-│  develop-* ─────────► nexo-develop namespace            │
-│  qa-*      ─────────► nexo-qa namespace                 │
-│  staging-* ─────────► nexo-staging namespace            │
-│  {be,fe,auth}.nexo.local ► nexo-prod namespace          │
+│  develop-* ─────────► devops-develop namespace            │
+│  qa-*      ─────────► devops-qa namespace                 │
+│  staging-* ─────────► devops-staging namespace            │
+│  {be,fe,auth}.devops.local ► devops-prod namespace          │
 │                                                          │
 │  argocd.*       ─────► argocd namespace                 │
 │  grafana.*      ─────► monitoring namespace             │
@@ -331,7 +331,7 @@ Network:             Docker bridge (localhost)
 | monitoring    | 1000m       | 3000m     | 2Gi            | 6Gi          | 50Gi       |
 | logging       | 2000m       | 4000m     | 4Gi            | 8Gi          | 100Gi      |
 | harbor-system | 1000m       | 2000m     | 2Gi            | 4Gi          | 50Gi       |
-| nexo-local    | 2000m       | 4000m     | 3Gi            | 6Gi          | 20Gi       |
+| devops-lab    | 2000m       | 4000m     | 3Gi            | 6Gi          | 20Gi       |
 | **TOTAL**     | **6.5**     | **15**    | **11.5 Gi**    | **26 Gi**    | **230 Gi** |
 
 ---
@@ -367,7 +367,7 @@ Network:             Docker bridge (localhost)
 │                                                          │
 │  Layer 5: Database                                      │
 │  ├── PostgreSQL: user/password auth                     │
-│  ├── Network policies (only from nexo-be)               │
+│  ├── Network policies (only from devops-be)               │
 │  └── Encrypted at rest (SSD encryption)                 │
 └────────────────────────────────────────────────────────┘
 ```
@@ -384,7 +384,7 @@ Network:             Docker bridge (localhost)
 ├────────────────────────────────────────────────────────┤
 │                                                          │
 │  ┌──────────────┐                                       │
-│  │  nexo-be     │ ─── /metrics ────┐                   │
+│  │  devops-be     │ ─── /metrics ────┐                   │
 │  │  (NestJS)    │                  │                    │
 │  └──────────────┘                  │                    │
 │                                     │                    │
@@ -422,12 +422,12 @@ Default Metrics Collected:
 ├────────────────────────────────────────────────────────┤
 │                                                          │
 │  ┌──────────────┐                                       │
-│  │  nexo-be     │ ─── stdout/stderr ───┐               │
+│  │  devops-be     │ ─── stdout/stderr ───┐               │
 │  │  (container) │                       │               │
 │  └──────────────┘                       │               │
 │                                          │               │
 │  ┌──────────────┐                       │               │
-│  │  nexo-fe     │ ─── stdout/stderr ────┤               │
+│  │  devops-fe     │ ─── stdout/stderr ────┤               │
 │  │  (container) │                       │               │
 │  └──────────────┘                       │               │
 │                                          ▼               │
@@ -453,9 +453,9 @@ Log Structure:
 {
   "@timestamp": "2025-06-10T10:30:00Z",
   "level": "info",
-  "service": "nexo-be",
-  "namespace": "nexo-local",
-  "pod": "nexo-be-7d89f-xk2p9",
+  "service": "devops-be",
+  "namespace": "devops-lab",
+  "pod": "devops-be-7d89f-xk2p9",
   "message": "Request processed",
   "context": {
     "method": "GET",
@@ -480,7 +480,7 @@ make status
 make top
 
 # Ver logs de uma aplicação
-make logs SERVICE=nexo-be NAMESPACE=nexo-local
+make logs SERVICE=devops-be NAMESPACE=devops-lab
 
 # Acessar dashboards
 make dashboard    # ArgoCD
@@ -508,14 +508,14 @@ make troubleshoot
 
 ```bash
 # Cluster não responde
-k3d cluster stop nexo-local
-k3d cluster start nexo-local
+k3d cluster stop devops-lab
+k3d cluster start devops-lab
 
 # Aplicação crashando
-kubectl delete pod -n nexo-local -l app=nexo-be
+kubectl delete pod -n devops-lab -l app=devops-be
 
 # Rollback de deploy
-argocd app rollback nexo-be-local
+argocd app rollback devops-be-local
 
 # Restaurar do backup
 make restore

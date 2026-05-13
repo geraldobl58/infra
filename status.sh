@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# Nexo CloudLab Ninja - Status do Ambiente
+# DevOps Lab Ninja - Status do Ambiente
 # =========================================
-# Verifica o status de todos os componentes do CloudLab Ninja
+# Verifica o status de todos os componentes do Lab Ninja
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -11,7 +11,7 @@ BLUE='\033[0;34m'
 CYAN='\033[0;36m'
 NC='\033[0m'
 
-CLUSTER_NAME="nexo-local"
+CLUSTER_NAME="devops-lab"
 
 cat << "EOF"
 ╔═══════════════════════════════════════════════════════════╗
@@ -22,7 +22,7 @@ cat << "EOF"
 ║   | |\  |  __/>  < (_) | | |___| | (_) | |_| | (_| | |__ ║
 ║   |_| \_|\___/_/\_\___/   \____|_|\___/ \__,_|\__,_|____|║
 ║                                                           ║
-║   🥷 CloudLab Ninja - Status Report                      ║
+║   🥷 Lab Ninja - Status Report                      ║
 ║                                                           ║
 ╚═══════════════════════════════════════════════════════════╝
 EOF
@@ -69,7 +69,7 @@ echo -e "${YELLOW}📦 NAMESPACES${NC}"
 echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo ""
 
-for ns in nexo-develop nexo-qa nexo-staging nexo-prod monitoring argocd; do
+for ns in devops-develop devops-qa devops-staging devops-prod monitoring argocd; do
     if kubectl get namespace "$ns" &>/dev/null; then
         echo -e "  ${GREEN}✓${NC} $ns"
     else
@@ -89,7 +89,7 @@ echo ""
 
 if kubectl get deployment argocd-server -n argocd &>/dev/null; then
     echo -e "${GREEN}✓${NC} ArgoCD instalado"
-    echo -e "  URL: ${BLUE}http://argocd.nexo.local${NC}"
+    echo -e "  URL: ${BLUE}http://argocd.devops.local${NC}"
     
     # Verificar pods
     ARGOCD_READY=$(kubectl get pods -n argocd --no-headers 2>/dev/null | grep -c "Running")
@@ -140,8 +140,8 @@ echo ""
 # Grafana
 if kubectl get deployment kube-prometheus-stack-grafana -n monitoring &>/dev/null; then
     echo -e "${GREEN}✓${NC} Grafana"
-    echo -e "  URL: ${BLUE}http://grafana.nexo.local${NC}"
-    echo -e "  Login: ${GREEN}admin${NC} / ${GREEN}nexo@local2026${NC}"
+    echo -e "  URL: ${BLUE}http://grafana.devops.local${NC}"
+    echo -e "  Login: ${GREEN}admin${NC} / ${GREEN}devops.local2026${NC}"
 else
     echo -e "${RED}✗${NC} Grafana não instalado"
 fi
@@ -152,7 +152,7 @@ echo ""
 if kubectl get deployment kube-prometheus-stack-prometheus -n monitoring &>/dev/null 2>&1 || \
    kubectl get statefulset prometheus-kube-prometheus-stack-prometheus -n monitoring &>/dev/null 2>&1; then
     echo -e "${GREEN}✓${NC} Prometheus"
-    echo -e "  URL: ${BLUE}http://prometheus.nexo.local${NC}"
+    echo -e "  URL: ${BLUE}http://prometheus.devops.local${NC}"
 else
     echo -e "${RED}✗${NC} Prometheus não instalado"
 fi
@@ -163,7 +163,7 @@ echo ""
 if kubectl get deployment alertmanager-kube-prometheus-stack-alertmanager -n monitoring &>/dev/null 2>&1 || \
    kubectl get statefulset alertmanager-kube-prometheus-stack-alertmanager -n monitoring &>/dev/null 2>&1; then
     echo -e "${GREEN}✓${NC} AlertManager"
-    echo -e "  URL: ${BLUE}http://alertmanager.nexo.local${NC}"
+    echo -e "  URL: ${BLUE}http://alertmanager.devops.local${NC}"
 else
     echo -e "${RED}✗${NC} AlertManager não instalado"
 fi
@@ -174,7 +174,7 @@ echo ""
 # Verificar Aplicações por Namespace
 # ==============================================================================
 for ENV in develop qa staging prod; do
-    NS="nexo-$ENV"
+    NS="devops-$ENV"
     if [ "$ENV" == "prod" ]; then
         DOMAIN_PREFIX=""
     else
@@ -190,9 +190,9 @@ for ENV in develop qa staging prod; do
     if [ "$POD_COUNT" -eq "0" ]; then
         echo -e "  ${YELLOW}⚠${NC} Nenhum pod encontrado"
         echo -e "  ${BLUE}URLs:${NC}"
-        echo -e "    • Backend:  http://${DOMAIN_PREFIX}be.nexo.local"
-        echo -e "    • Frontend: http://${DOMAIN_PREFIX}fe.nexo.local"
-        echo -e "    • Auth:     http://${DOMAIN_PREFIX}auth.nexo.local"
+        echo -e "    • Backend:  http://${DOMAIN_PREFIX}be.devops.local"
+        echo -e "    • Frontend: http://${DOMAIN_PREFIX}fe.devops.local"
+        echo -e "    • Auth:     http://${DOMAIN_PREFIX}auth.devops.local"
     else
         echo -e "${BLUE}Pods ($POD_COUNT):${NC}"
         kubectl get pods -n "$NS" --no-headers 2>/dev/null | while read line; do
@@ -211,9 +211,9 @@ for ENV in develop qa staging prod; do
         
         echo ""
         echo -e "${BLUE}URLs:${NC}"
-        echo -e "  • Backend:  http://${DOMAIN_PREFIX}be.nexo.local"
-        echo -e "  • Frontend: http://${DOMAIN_PREFIX}fe.nexo.local"
-        echo -e "  • Auth:     http://${DOMAIN_PREFIX}auth.nexo.local"
+        echo -e "  • Backend:  http://${DOMAIN_PREFIX}be.devops.local"
+        echo -e "  • Frontend: http://${DOMAIN_PREFIX}fe.devops.local"
+        echo -e "  • Auth:     http://${DOMAIN_PREFIX}auth.devops.local"
     fi
     
     echo ""

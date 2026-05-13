@@ -1,0 +1,52 @@
+# Values for Production environment
+replicaCount: 1
+
+image:
+  repository: ghcr.io/geraldobl58/devops-fe
+  tag: "develop"
+  pullPolicy: Always
+
+imagePullSecrets:
+  - name: ghcr-secret
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+  hosts:
+    - host: fe.devops.local
+      paths:
+        - path: /
+          pathType: Prefix
+
+resources:
+  limits:
+    cpu: 200m
+    memory: 256Mi
+  requests:
+    cpu: 10m
+    memory: 64Mi
+
+autoscaling:
+  enabled: false
+
+env:
+  NODE_ENV: production
+  API_URL: http://devops-be-prod:3000
+  NEXT_PUBLIC_API_URL: http://be.devops.local
+  NEXT_PUBLIC_KEYCLOAK_URL: http://auth.devops.local
+  NEXT_PUBLIC_KEYCLOAK_REALM: devops
+  NEXT_PUBLIC_KEYCLOAK_CLIENT_ID: devops-web
+
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1
+
+podAnnotations:
+  app.kubernetes.io/commit: "initial"
+
+metrics:
+  enabled: false
+  path: /api/metrics
+  serviceMonitor:
+    enabled: false

@@ -1,0 +1,133 @@
+# ============================================================================
+# ArgoCD ApplicationSet - Multi-Environment Deployment (Local Lab Ninja)
+# ============================================================================
+# Branch Flow: feature/* -> develop -> qa -> staging -> main (production)
+# Registry: ghcr.io/geraldobl58/*
+# Domains: *.devops.local (local /etc/hosts)
+#
+# Ambientes: develop, qa, staging, prod (todos com auto-sync)
+# Lab/estudo: recursos minimos, 4 ambientes completos
+#
+# Nota: Separado em 2 ApplicationSets porque o template do ArgoCD
+# nao suporta booleans dinamicos via generators (prune/selfHeal).
+# ============================================================================
+
+# --- Auto-sync environments (develop, qa, staging) ---
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: devops-apps-auto
+  namespace: argocd
+spec:
+  generators:
+    - matrix:
+        generators:
+          - list:
+              elements:
+                - env: develop
+                  namespace: devops-develop
+                  branch: develop
+                - env: qa
+                  namespace: devops-qa
+                  branch: qa
+                - env: staging
+                  namespace: devops-staging
+                  branch: staging
+          - list:
+              elements:
+                - service: devops-be
+                  path: local/helm/devops-be
+                - service: devops-fe
+                  path: local/helm/devops-fe
+                - service: devops-auth
+                  path: local/helm/devops-auth
+
+  template:
+    metadata:
+      name: "{{service}}-{{env}}"
+      labels:
+        app: "{{service}}"
+        environment: "{{env}}"
+    spec:
+      project: "devops-{{env}}"
+      source:
+        repoURL: https://github.com/geraldobl58/devops.git
+        targetRevision: "{{branch}}"
+        path: "{{path}}"
+        helm:
+          valueFiles:
+            - values.yaml
+            - "values-{{env}}.yaml"
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: "{{namespace}}"
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+          - PruneLast=true
+        retry:
+          limit: 3
+          backoff:
+            duration: 5s
+            factor: 2
+            maxDuration: 3m
+
+  syncPolicy:
+    preserveResourcesOnDeletion: true
+
+---
+# --- Auto-sync environment (prod) ---
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: devops-apps-prod
+  namespace: argocd
+spec:
+  generators:
+    - list:
+        elements:
+          - service: devops-be
+            path: local/helm/devops-be
+          - service: devops-fe
+            path: local/helm/devops-fe
+          - service: devops-auth
+            path: local/helm/devops-auth
+
+  template:
+    metadata:
+      name: "{{service}}-prod"
+      labels:
+        app: "{{service}}"
+        environment: prod
+    spec:
+      project: devops-prod
+      source:
+        repoURL: https://github.com/geraldobl58/devops.git
+        targetRevision: main
+        path: "{{path}}"
+        helm:
+          valueFiles:
+            - values.yaml
+            - values-prod.yaml
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: devops-prod
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+          - PruneLast=true
+        retry:
+          limit: 3
+          backoff:
+            duration: 5s
+            factor: 2
+            maxDuration: 3m
+
+  syncPolicy:
+    preserveResourcesOnDeletion: true

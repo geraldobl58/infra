@@ -82,7 +82,7 @@ setup-*.log
 local/setup*.log
 
 # KIND data
-/tmp/nexo-local/
+/tmp/devops-local/
 
 # Helm (only ignore .tgz packages, not infra/charts/)
 *.tgz

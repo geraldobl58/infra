@@ -1,15 +1,15 @@
-# 🌍 Ambientes CloudLab Local
+# 🌍 Ambientes Lab Local
 
 ## Visão Geral
 
-O CloudLab Nexo possui **4 ambientes** completos rodando localmente:
+O Lab DevOps possui **4 ambientes** completos rodando localmente:
 
 | Ambiente   | Branch    | Namespace      | URL Base                          | Auto-Deploy |
 | ---------- | --------- | -------------- | --------------------------------- | ----------- |
-| Develop    | `develop` | `nexo-develop` | `develop-{fe,be,auth}.nexo.local` | ✅ Sim      |
-| QA         | `qa`      | `nexo-qa`      | `qa-{fe,be,auth}.nexo.local`      | ✅ Sim      |
-| Staging    | `staging` | `nexo-staging` | `staging-{fe,be,auth}.nexo.local` | ✅ Sim      |
-| Production | `main`    | `nexo-prod`    | `{fe,be,auth}.nexo.local`         | ✅ Sim      |
+| Develop    | `develop` | `devops-develop` | `develop-{fe,be,auth}.devops.local` | ✅ Sim      |
+| QA         | `qa`      | `devops-qa`      | `qa-{fe,be,auth}.devops.local`      | ✅ Sim      |
+| Staging    | `staging` | `devops-staging` | `staging-{fe,be,auth}.devops.local` | ✅ Sim      |
+| Production | `main`    | `devops-prod`    | `{fe,be,auth}.devops.local`         | ✅ Sim      |
 
 > 💡 **100% LOCAL:** Todos os ambientes rodam em k3d no seu Mac, sem dependências de cloud.
 
@@ -20,14 +20,14 @@ O CloudLab Nexo possui **4 ambientes** completos rodando localmente:
 ### 🔧 Develop (Desenvolvimento)
 
 **Branch:** `develop` (default)  
-**Namespace:** `nexo-develop`  
+**Namespace:** `devops-develop`  
 **Propósito:** Integração contínua de features
 
 #### URLs:
 
-- **Frontend:** http://develop-fe.nexo.local
-- **Backend API:** http://develop-be.nexo.local
-- **Auth (Keycloak):** http://develop-auth.nexo.local
+- **Frontend:** http://develop-fe.devops.local
+- **Backend API:** http://develop-be.devops.local
+- **Auth (Keycloak):** http://develop-auth.devops.local
 
 #### Características:
 
@@ -59,14 +59,14 @@ git push origin feature/nova-feature
 ### 🧪 QA (Quality Assurance)
 
 **Branch:** `qa`  
-**Namespace:** `nexo-qa`  
+**Namespace:** `devops-qa`  
 **Propósito:** Testes de qualidade e validações do QA team
 
 #### URLs:
 
-- **Frontend:** http://qa-fe.nexo.local
-- **Backend API:** http://qa-be.nexo.local
-- **Auth (Keycloak):** http://qa-auth.nexo.local
+- **Frontend:** http://qa-fe.devops.local
+- **Backend API:** http://qa-be.devops.local
+- **Auth (Keycloak):** http://qa-auth.devops.local
 
 #### Características:
 
@@ -101,14 +101,14 @@ git push origin qa
 ### 🎭 Staging (Homologação)
 
 **Branch:** `staging`  
-**Namespace:** `nexo-staging`  
+**Namespace:** `devops-staging`  
 **Propósito:** Ambiente espelho de produção para testes finais
 
 #### URLs:
 
-- **Frontend:** http://staging-fe.nexo.local
-- **Backend API:** http://staging-be.nexo.local
-- **Auth (Keycloak):** http://staging-auth.nexo.local
+- **Frontend:** http://staging-fe.devops.local
+- **Backend API:** http://staging-be.devops.local
+- **Auth (Keycloak):** http://staging-auth.devops.local
 
 #### Características:
 
@@ -145,14 +145,14 @@ git push origin staging
 ### 🚀 Production (Produção)
 
 **Branch:** `main`  
-**Namespace:** `nexo-prod`  
+**Namespace:** `devops-prod`  
 **Propósito:** Ambiente de produção (simulado localmente)
 
 #### URLs:
 
-- **Frontend:** http://fe.nexo.local
-- **Backend API:** http://be.nexo.local
-- **Auth (Keycloak):** http://auth.nexo.local
+- **Frontend:** http://fe.devops.local
+- **Backend API:** http://be.devops.local
+- **Auth (Keycloak):** http://auth.devops.local
 
 #### Características:
 
@@ -178,9 +178,9 @@ git push origin v1.0.0
 
 #### Monitoramento:
 
-- 📊 Grafana: http://grafana.nexo.local
-- 📊 Prometheus: http://prometheus.nexo.local
-- 📊 AlertManager: http://alertmanager.nexo.local
+- 📊 Grafana: http://grafana.devops.local
+- 📊 Prometheus: http://prometheus.devops.local
+- 📊 AlertManager: http://alertmanager.devops.local
 
 ---
 
@@ -191,13 +191,13 @@ git push origin v1.0.0
 ```
 1. Feature Branch
    ↓ PR + Merge
-2. Develop (nexo-develop)
+2. Develop (devops-develop)
    ↓ Merge após testes iniciais
-3. QA (nexo-qa)
+3. QA (devops-qa)
    ↓ Merge após testes de qualidade
-4. Staging (nexo-staging)
+4. Staging (devops-staging)
    ↓ Merge após homologação
-5. Production (nexo-prod)
+5. Production (devops-prod)
 ```
 
 ### Comandos Git para Promoção
@@ -231,7 +231,7 @@ git push origin main
 
 # Opção 2: Usar release tag anterior
 # No ArgoCD UI:
-# Applications → nexo-{service}-prod →
+# Applications → devops-{service}-prod →
 # APP DETAILS → Sync → Revision: v1.0.0 (tag anterior)
 ```
 
@@ -292,9 +292,9 @@ Todos os ambientes compartilham os mesmos limites (ambiente de estudos):
 
 | Serviço   | CPU Limit | Memory Limit | CPU Request | Memory Request |
 | --------- | --------- | ------------ | ----------- | -------------- |
-| nexo-be   | 200m      | 256Mi        | 10m         | 64Mi           |
-| nexo-fe   | 200m      | 256Mi        | 10m         | 64Mi           |
-| nexo-auth | 400m      | 768Mi        | 10m         | 128Mi          |
+| devops-be   | 200m      | 256Mi        | 10m         | 64Mi           |
+| devops-fe   | 200m      | 256Mi        | 10m         | 64Mi           |
+| devops-auth | 400m      | 768Mi        | 10m         | 128Mi          |
 
 ### Réplicas
 
@@ -315,10 +315,10 @@ Cada ambiente possui seus próprios secrets:
 
 ```bash
 # Listar secrets
-kubectl get secrets -n nexo-develop
-kubectl get secrets -n nexo-qa
-kubectl get secrets -n nexo-staging
-kubectl get secrets -n nexo-prod
+kubectl get secrets -n devops-develop
+kubectl get secrets -n devops-qa
+kubectl get secrets -n devops-staging
+kubectl get secrets -n devops-prod
 
 # Secrets comuns em todos:
 # - ghcr-secret (pull images do GitHub Container Registry)
@@ -334,12 +334,12 @@ kubectl create secret docker-registry ghcr-secret \
   --docker-server=ghcr.io \
   --docker-username=geraldobl58 \
   --docker-password=$GITHUB_TOKEN \
-  -n nexo-qa
+  -n devops-qa
 
 kubectl create secret generic postgres-secret \
   --from-literal=host=postgres-qa.internal \
   --from-literal=password=qa-pass \
-  -n nexo-qa
+  -n devops-qa
 ```
 
 ---
@@ -350,24 +350,24 @@ kubectl create secret generic postgres-secret \
 
 Cada ambiente tem seus próprios ServiceMonitors:
 
-- `nexo-be-develop` → `http://nexo-be-develop:3000/metrics`
-- `nexo-be-qa` → `http://nexo-be-qa:3000/metrics`
-- `nexo-be-staging` → `http://nexo-be-staging:3000/metrics`
-- `nexo-be-prod` → `http://nexo-be-prod:3000/metrics`
+- `devops-be-develop` → `http://devops-be-develop:3000/metrics`
+- `devops-be-qa` → `http://devops-be-qa:3000/metrics`
+- `devops-be-staging` → `http://devops-be-staging:3000/metrics`
+- `devops-be-prod` → `http://devops-be-prod:3000/metrics`
 
 ### Grafana Dashboards
 
 Acesse Grafana e filtre por namespace:
 
 ```
-http://grafana.nexo.local
-Login: admin / nexo@local2026
+http://grafana.devops.local
+Login: admin / devops.local2026
 
 # No dashboard, filtrar por:
-- namespace: nexo-develop
-- namespace: nexo-qa
-- namespace: nexo-staging
-- namespace: nexo-prod
+- namespace: devops-develop
+- namespace: devops-qa
+- namespace: devops-staging
+- namespace: devops-prod
 ```
 
 ---
@@ -403,23 +403,23 @@ Login: admin / nexo@local2026
 
 ```bash
 # Ver todos os ambientes
-kubectl get namespaces | grep nexo
+kubectl get namespaces | grep devops
 
 # Ver apps em cada ambiente
-kubectl get pods -n nexo-develop
-kubectl get pods -n nexo-qa
-kubectl get pods -n nexo-staging
-kubectl get pods -n nexo-prod
+kubectl get pods -n devops-develop
+kubectl get pods -n devops-qa
+kubectl get pods -n devops-staging
+kubectl get pods -n devops-prod
 
 # Ver deployments do ArgoCD
-kubectl get applications -n argocd | grep nexo
+kubectl get applications -n argocd | grep devops
 
 # Ver projetos do ArgoCD
 kubectl get appproject -n argocd
 
 # Forçar sync de um app
-argocd app sync nexo-be-qa
-argocd app sync nexo-fe-staging
+argocd app sync devops-be-qa
+argocd app sync devops-fe-staging
 ```
 
 ---

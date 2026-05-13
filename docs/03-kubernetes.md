@@ -1,4 +1,4 @@
-# 🎯 Kubernetes Local com k3d - Nexo CloudLab
+# 🎯 Kubernetes Local com k3d - DevOps Lab
 
 ## O que é k3d?
 
@@ -45,7 +45,7 @@ make create-cluster
 k3d cluster create --config config/k3d-config.yaml
 
 # Com mais workers
-k3d cluster create nexo-local --agents 3 --servers 1
+k3d cluster create devops-lab --agents 3 --servers 1
 ```
 
 ### Listar Clusters
@@ -55,7 +55,7 @@ k3d cluster list
 
 # Output:
 # NAME         SERVERS   AGENTS   LOADBALANCER
-# nexo-local   1/1       2/2      true
+# devops-lab   1/1       2/2      true
 ```
 
 ### Parar/Iniciar Cluster
@@ -64,12 +64,12 @@ k3d cluster list
 # Parar (mantém dados)
 make stop
 # ou
-k3d cluster stop nexo-local
+k3d cluster stop devops-lab
 
 # Iniciar
 make start
 # ou
-k3d cluster start nexo-local
+k3d cluster start devops-lab
 
 # Reiniciar
 make restart
@@ -92,14 +92,14 @@ make clean
 kubectl config get-contexts
 
 # Trocar de contexto
-kubectl config use-context k3d-nexo-local
+kubectl config use-context k3d-devops-lab
 
 # Ver contexto atual
 kubectl config current-context
 
 # Ferramenta kubectx facilita
 kubectx                    # Lista contextos
-kubectx k3d-nexo-local    # Troca contexto
+kubectx k3d-devops-lab    # Troca contexto
 ```
 
 ## Namespaces
@@ -114,7 +114,7 @@ kubectl get namespaces
 # default           Active   10m
 # kube-system       Active   10m
 # kube-public       Active   10m
-# nexo-local        Active   10m
+# devops-lab        Active   10m
 # argocd            Active   10m
 # monitoring        Active   10m
 # logging           Active   10m
@@ -125,13 +125,13 @@ kubectl get namespaces
 
 ```bash
 # Ver pods em namespace específico
-kubectl get pods -n nexo-local
+kubectl get pods -n devops-lab
 
 # Ver todos os pods
 kubectl get pods -A
 
 # Mudar namespace padrão (com kubens)
-kubens nexo-local
+kubens devops-lab
 
 # Ver recursos em todos namespaces
 kubectl get all -A
@@ -149,7 +149,7 @@ kubectl get nodes
 kubectl get nodes -o wide
 
 # Describe node
-kubectl describe node k3d-nexo-local-server-0
+kubectl describe node k3d-devops-lab-server-0
 
 # Recursos dos nodes
 kubectl top nodes
@@ -162,10 +162,10 @@ kubectl top nodes
 kubectl get nodes --show-labels
 
 # Adicionar label
-kubectl label node k3d-nexo-local-agent-0 disktype=ssd
+kubectl label node k3d-devops-lab-agent-0 disktype=ssd
 
 # Remover label
-kubectl label node k3d-nexo-local-agent-0 disktype-
+kubectl label node k3d-devops-lab-agent-0 disktype-
 ```
 
 ## Storage
@@ -212,7 +212,7 @@ EOF
 
 ```bash
 # Volumes estão em:
-ls -la /Volumes/Backup/nexo-cloudlab/data
+ls -la /Volumes/Backup/devops-lab/data
 
 # Backup manual
 make backup
@@ -243,23 +243,23 @@ kubectl get ingress -A
 kubectl describe ingress <ingress-name> -n <namespace>
 
 # Testar ingress
-curl -H "Host: develop-be.nexo.local" http://localhost
+curl -H "Host: develop-be.devops.local" http://localhost
 ```
 
 ### Port Forwarding
 
 ```bash
 # Port-forward de um service
-make port-forward SERVICE=nexo-be PORT=3000
+make port-forward SERVICE=devops-be PORT=3000
 
 # Ou manualmente
-kubectl port-forward -n nexo-local svc/nexo-be 3000:3000
+kubectl port-forward -n devops-lab svc/devops-be 3000:3000
 
 # Port-forward de um pod
-kubectl port-forward -n nexo-local pod/nexo-be-xxx 3000:3000
+kubectl port-forward -n devops-lab pod/devops-be-xxx 3000:3000
 
 # Múltiplas portas
-kubectl port-forward -n nexo-local svc/nexo-be 3000:3000 9090:9090
+kubectl port-forward -n devops-lab svc/devops-be 3000:3000 9090:9090
 ```
 
 ### Network Policies
@@ -274,11 +274,11 @@ apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: allow-from-monitoring
-  namespace: nexo-local
+  namespace: devops-lab
 spec:
   podSelector:
     matchLabels:
-      app: nexo-be
+      app: devops-be
   policyTypes:
   - Ingress
   ingress:
@@ -298,14 +298,14 @@ EOF
 # ghcr.io/geraldobl58
 
 # Fazer build e push
-docker build -t ghcr.io/geraldobl58/nexo-be:latest .
-docker push ghcr.io/geraldobl58/nexo-be:latest
+docker build -t ghcr.io/geraldobl58/devops-be:latest .
+docker push ghcr.io/geraldobl58/devops-be:latest
 
 # Listar imagens no registry
 curl http://localhost:5000/v2/_catalog
 
 # Tags de uma imagem
-curl http://localhost:5000/v2/nexo-be/tags/list
+curl http://localhost:5000/v2/devops-be/tags/list
 ```
 
 ### Configurar Docker para Registry Local
@@ -336,7 +336,7 @@ kubectl top nodes
 kubectl top pods -A
 
 # Por namespace
-kubectl top pods -n nexo-local
+kubectl top pods -n devops-lab
 
 # Ordenar por memória
 kubectl top pods -A --sort-by=memory
@@ -356,8 +356,8 @@ cat <<EOF | kubectl apply -f -
 apiVersion: v1
 kind: ResourceQuota
 metadata:
-  name: nexo-quota
-  namespace: nexo-local
+  name: devops-quota
+  namespace: devops-lab
 spec:
   hard:
     requests.cpu: "4"
@@ -408,10 +408,10 @@ kubectl krew install tree     # Ver hierarquia de recursos
 
 ```bash
 # Ver logs do Docker
-docker logs k3d-nexo-local-server-0
+docker logs k3d-devops-lab-server-0
 
 # Recriar cluster
-k3d cluster delete nexo-local
+k3d cluster delete devops-lab
 make create-cluster
 ```
 
@@ -435,7 +435,7 @@ kubectl get events -n <namespace> --sort-by='.lastTimestamp'
 kubectl run -it --rm debug --image=busybox --restart=Never -- nslookup kubernetes.default
 
 # Testar conectividade
-kubectl run -it --rm debug --image=busybox --restart=Never -- wget -O- http://nexo-be.nexo-local:3000/health
+kubectl run -it --rm debug --image=busybox --restart=Never -- wget -O- http://devops-be.devops-lab:3000/health
 ```
 
 ### Limpar Recursos

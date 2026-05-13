@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# Nexo CloudLab Ninja - Destruir Ambiente
+# DevOps Lab Ninja - Destruir Ambiente
 # ========================================
-# Remove completamente o CloudLab Ninja local:
+# Remove completamente o Lab Ninja local:
 # - Deleta cluster k3d
 # - Remove entradas do /etc/hosts
 # - Limpa contexto do kubeconfig
@@ -14,7 +14,7 @@ BLUE='\033[0;34m'
 CYAN='\033[0;36m'
 NC='\033[0m'
 
-CLUSTER_NAME="nexo-local"
+CLUSTER_NAME="devops-lab"
 
 cat << "EOF"
 ╔═══════════════════════════════════════════════════════════╗
@@ -25,13 +25,13 @@ cat << "EOF"
 ║   | |\  |  __/>  < (_) | | |___| | (_) | |_| | (_| | |__ ║
 ║   |_| \_|\___/_/\_\___/   \____|_|\___/ \__,_|\__,_|____|║
 ║                                                           ║
-║   🥷 Destroy CloudLab Ninja                              ║
+║   🥷 Destroy Lab Ninja                              ║
 ║                                                           ║
 ╚═══════════════════════════════════════════════════════════╝
 EOF
 
 echo ""
-echo -e "${RED}⚠️  AVISO: Esta ação irá destruir completamente o CloudLab!${NC}"
+echo -e "${RED}⚠️  AVISO: Esta ação irá destruir completamente o Lab!${NC}"
 echo ""
 echo -e "${YELLOW}Será removido:${NC}"
 echo "  • Cluster Kubernetes (k3d)"
@@ -56,7 +56,7 @@ fi
 
 echo ""
 echo -e "${RED}╔═══════════════════════════════════════════════════════════╗${NC}"
-echo -e "${RED}║           INICIANDO DESTRUIÇÃO DO CLOUDLAB               ║${NC}"
+echo -e "${RED}║           INICIANDO DESTRUIÇÃO DO LAB               ║${NC}"
 echo -e "${RED}╚═══════════════════════════════════════════════════════════╝${NC}"
 echo ""
 
@@ -72,7 +72,7 @@ else
     echo ""
     
     echo -e "${BLUE}Namespaces:${NC}"
-    kubectl get namespaces --no-headers 2>/dev/null | grep -E "nexo-|argocd|monitoring" | awk '{print "  • " $1}' || echo "  (nenhum encontrado)"
+    kubectl get namespaces --no-headers 2>/dev/null | grep -E "devops-|argocd|monitoring" | awk '{print "  • " $1}' || echo "  (nenhum encontrado)"
     echo ""
     
     echo -e "${BLUE}Applications ArgoCD:${NC}"
@@ -108,16 +108,16 @@ echo ""
 echo -e "${YELLOW}🧹 Limpando /etc/hosts...${NC}"
 
 # Contar entradas antes
-ENTRIES_BEFORE=$(grep -c "nexo.local" /etc/hosts 2>/dev/null || echo "0")
+ENTRIES_BEFORE=$(grep -c "devops.local" /etc/hosts 2>/dev/null || echo "0")
 
 if [ "$ENTRIES_BEFORE" -gt "0" ]; then
     echo -e "${BLUE}  Removendo $ENTRIES_BEFORE entradas do /etc/hosts...${NC}"
     
-    # Remover entradas do Nexo CloudLab
-    sudo sed -i '' '/# Nexo CloudLab/d' /etc/hosts 2>/dev/null || true
-    sudo sed -i '' '/nexo\.local/d' /etc/hosts 2>/dev/null || true
+    # Remover entradas do DevOps Lab
+    sudo sed -i '' '/# DevOps Lab/d' /etc/hosts 2>/dev/null || true
+    sudo sed -i '' '/devops\.local/d' /etc/hosts 2>/dev/null || true
     
-    ENTRIES_AFTER=$(grep -c "nexo.local" /etc/hosts 2>/dev/null || echo "0")
+    ENTRIES_AFTER=$(grep -c "devops.local" /etc/hosts 2>/dev/null || echo "0")
     
     if [ "$ENTRIES_AFTER" -eq "0" ]; then
         echo -e "${GREEN}✓ Entradas removidas do /etc/hosts${NC}"
@@ -148,14 +148,14 @@ echo ""
 # ==============================================================================
 # Opcional: Limpar volumes (pergunta antes)
 # ==============================================================================
-if [ -d "/Volumes/Backup/nexo-cloudlab" ]; then
-    echo -e "${YELLOW}📦 Volumes persistentes encontrados em: /Volumes/Backup/nexo-cloudlab${NC}"
+if [ -d "/Volumes/Backup/devops-lab" ]; then
+    echo -e "${YELLOW}📦 Volumes persistentes encontrados em: /Volumes/Backup/devops-lab${NC}"
     read -p "Deseja remover os volumes também? (y/N): " -n 1 -r
     echo
     
     if [[ $REPLY =~ ^[Yy]$ ]]; then
         echo -e "${YELLOW}🗑️  Removendo volumes...${NC}"
-        sudo rm -rf /Volumes/Backup/nexo-cloudlab
+        sudo rm -rf /Volumes/Backup/devops-lab
         echo -e "${GREEN}✓ Volumes removidos${NC}"
     else
         echo -e "${BLUE}ℹ️  Volumes mantidos (podem ser reutilizados no próximo setup)${NC}"
@@ -169,7 +169,7 @@ echo ""
 # ==============================================================================
 echo -e "${GREEN}╔═══════════════════════════════════════════════════════════╗${NC}"
 echo -e "${GREEN}║                                                           ║${NC}"
-echo -e "${GREEN}║          ✨  CLOUDLAB DESTRUÍDO COM SUCESSO!  ✨         ║${NC}"
+echo -e "${GREEN}║          ✨  LAB DESTRUÍDO COM SUCESSO!  ✨         ║${NC}"
 echo -e "${GREEN}║                                                           ║${NC}"
 echo -e "${GREEN}╚═══════════════════════════════════════════════════════════╝${NC}"
 echo ""

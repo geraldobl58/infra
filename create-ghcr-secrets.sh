@@ -7,7 +7,7 @@
 
 set -e
 
-NAMESPACES=("nexo-develop" "nexo-qa" "nexo-staging" "nexo-prod")
+NAMESPACES=("devops-develop" "devops-qa" "devops-staging" "devops-prod")
 REGISTRY="ghcr.io"
 USERNAME="geraldobl58"
 
@@ -80,7 +80,7 @@ for NS in "${NAMESPACES[@]}"; do
 done
 echo ""
 echo "Restartar pods para puxar imagens:"
-echo "  kubectl rollout restart deployment -n nexo-develop"
-echo "  kubectl rollout restart deployment -n nexo-qa"
-echo "  kubectl rollout restart deployment -n nexo-staging"
-echo "  kubectl rollout restart deployment -n nexo-prod"
+echo "  kubectl rollout restart deployment -n devops-develop"
+echo "  kubectl rollout restart deployment -n devops-qa"
+echo "  kubectl rollout restart deployment -n devops-staging"
+echo "  kubectl rollout restart deployment -n devops-prod"

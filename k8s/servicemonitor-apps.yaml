@@ -1,26 +1,26 @@
 # ============================================================================
-# ServiceMonitors para monitorar aplicações Nexo no Grafana/Prometheus
+# ServiceMonitors para monitorar aplicações DevOps no Grafana/Prometheus
 # ============================================================================
 # Prometheus já está configurado para coletar métricas de todos os namespaces
 # via servicemonitorSelectorNilUsesHelmValues: false
 #
-# Este arquivo cria ServiceMonitors para os serviços Nexo exportarem métricas
+# Este arquivo cria ServiceMonitors para os serviços DevOps exportarem métricas
 # ============================================================================
 
 ---
-# ServiceMonitor para nexo-be (Backend NestJS)
+# ServiceMonitor para devops-be (Backend NestJS)
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: nexo-be
-  namespace: nexo-develop
+  name: devops-be
+  namespace: devops-develop
   labels:
-    app: nexo-be
+    app: devops-be
     environment: develop
 spec:
   selector:
     matchLabels:
-      app: nexo-be
+      app: devops-be
   endpoints:
     - port: http
       path: /metrics
@@ -31,15 +31,15 @@ spec:
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: nexo-be
-  namespace: nexo-prod
+  name: devops-be
+  namespace: devops-prod
   labels:
-    app: nexo-be
+    app: devops-be
     environment: prod
 spec:
   selector:
     matchLabels:
-      app: nexo-be
+      app: devops-be
   endpoints:
     - port: http
       path: /metrics
@@ -47,21 +47,21 @@ spec:
       scrapeTimeout: 10s
 
 ---
-# ServiceMonitor para nexo-fe (Frontend Next.js)
+# ServiceMonitor para devops-fe (Frontend Next.js)
 # Next.js não expõe métricas Prometheus por padrão
 # Use: https://github.com/lirantal/next-prometheus-plugin
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: nexo-fe
-  namespace: nexo-develop
+  name: devops-fe
+  namespace: devops-develop
   labels:
-    app: nexo-fe
+    app: devops-fe
     environment: develop
 spec:
   selector:
     matchLabels:
-      app: nexo-fe
+      app: devops-fe
   endpoints:
     - port: http
       path: /api/metrics
@@ -72,15 +72,15 @@ spec:
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: nexo-fe
-  namespace: nexo-prod
+  name: devops-fe
+  namespace: devops-prod
   labels:
-    app: nexo-fe
+    app: devops-fe
     environment: prod
 spec:
   selector:
     matchLabels:
-      app: nexo-fe
+      app: devops-fe
   endpoints:
     - port: http
       path: /api/metrics
@@ -88,20 +88,20 @@ spec:
       scrapeTimeout: 10s
 
 ---
-# ServiceMonitor para nexo-auth (Keycloak)
+# ServiceMonitor para devops-auth (Keycloak)
 # Keycloak expõe métricas em /metrics por padrão (quando habilitado)
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: nexo-auth
-  namespace: nexo-develop
+  name: devops-auth
+  namespace: devops-develop
   labels:
-    app: nexo-auth
+    app: devops-auth
     environment: develop
 spec:
   selector:
     matchLabels:
-      app: nexo-auth
+      app: devops-auth
   endpoints:
     - port: http
       path: /metrics
@@ -112,15 +112,15 @@ spec:
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: nexo-auth
-  namespace: nexo-prod
+  name: devops-auth
+  namespace: devops-prod
   labels:
-    app: nexo-auth
+    app: devops-auth
     environment: prod
 spec:
   selector:
     matchLabels:
-      app: nexo-auth
+      app: devops-auth
   endpoints:
     - port: http
       path: /metrics
@@ -129,22 +129,22 @@ spec:
 
 
 # ============================================================================
-# ServiceMonitors para ambientes nexo-qa e nexo-staging
+# ServiceMonitors para ambientes devops-qa e devops-staging
 # ============================================================================
 
 ---
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: nexo-be
-  namespace: nexo-qa
+  name: devops-be
+  namespace: devops-qa
   labels:
-    app: nexo-be
+    app: devops-be
     environment: qa
 spec:
   selector:
     matchLabels:
-      app: nexo-be
+      app: devops-be
   endpoints:
     - port: http
       path: /metrics
@@ -155,15 +155,15 @@ spec:
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: nexo-fe
-  namespace: nexo-qa
+  name: devops-fe
+  namespace: devops-qa
   labels:
-    app: nexo-fe
+    app: devops-fe
     environment: qa
 spec:
   selector:
     matchLabels:
-      app: nexo-fe
+      app: devops-fe
   endpoints:
     - port: http
       path: /api/metrics
@@ -174,15 +174,15 @@ spec:
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: nexo-auth
-  namespace: nexo-qa
+  name: devops-auth
+  namespace: devops-qa
   labels:
-    app: nexo-auth
+    app: devops-auth
     environment: qa
 spec:
   selector:
     matchLabels:
-      app: nexo-auth
+      app: devops-auth
   endpoints:
     - port: http
       path: /metrics
@@ -193,15 +193,15 @@ spec:
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: nexo-be
-  namespace: nexo-staging
+  name: devops-be
+  namespace: devops-staging
   labels:
-    app: nexo-be
+    app: devops-be
     environment: staging
 spec:
   selector:
     matchLabels:
-      app: nexo-be
+      app: devops-be
   endpoints:
     - port: http
       path: /metrics
@@ -212,15 +212,15 @@ spec:
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: nexo-fe
-  namespace: nexo-staging
+  name: devops-fe
+  namespace: devops-staging
   labels:
-    app: nexo-fe
+    app: devops-fe
     environment: staging
 spec:
   selector:
     matchLabels:
-      app: nexo-fe
+      app: devops-fe
   endpoints:
     - port: http
       path: /api/metrics
@@ -231,15 +231,15 @@ spec:
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: nexo-auth
-  namespace: nexo-staging
+  name: devops-auth
+  namespace: devops-staging
   labels:
-    app: nexo-auth
+    app: devops-auth
     environment: staging
 spec:
   selector:
     matchLabels:
-      app: nexo-auth
+      app: devops-auth
   endpoints:
     - port: http
       path: /metrics

@@ -1,8 +1,8 @@
-# 📊 Observabilidade - Nexo CloudLab
+# 📊 Observabilidade - DevOps Lab
 
 ## Stack Completa
 
-O CloudLab inclui uma stack completa de observabilidade:
+O Lab inclui uma stack completa de observabilidade:
 
 - **Prometheus**: Coleta e armazenamento de métricas
 - **Grafana**: Visualização e dashboards
@@ -15,7 +15,7 @@ O CloudLab inclui uma stack completa de observabilidade:
 ```
 ┌───────────────────────────────────────────────────┐
 │                  Applications                     │
-│          (nexo-be, nexo-fe, nexo-auth)           │
+│          (devops-be, devops-fe, devops-auth)           │
 │                Expose /metrics                    │
 └────────────────────┬──────────────────────────────┘
                      │
@@ -50,9 +50,9 @@ O CloudLab inclui uma stack completa de observabilidade:
 # Abrir Grafana
 make grafana
 
-# URL: http://grafana.nexo.local
+# URL: http://grafana.devops.local
 # User: admin
-# Pass: nexo@local2026
+# Pass: devops.local2026
 
 # Ou port-forward
 kubectl port-forward -n monitoring svc/kube-prometheus-stack-grafana 3000:80
@@ -65,7 +65,7 @@ open http://localhost:3000
 # Abrir Prometheus
 make prometheus
 
-# URL: http://prometheus.nexo.local
+# URL: http://prometheus.devops.local
 
 # Queries úteis:
 # up                                    # Status dos targets
@@ -79,16 +79,16 @@ make prometheus
 # Abrir AlertManager
 make alertmanager
 
-# URL: http://alertmanager.nexo.local
+# URL: http://alertmanager.devops.local
 ```
 
 ## Dashboards Pré-configurados
 
-### Nexo CloudLab (Folder)
+### DevOps Lab (Folder)
 
-Os dashboards customizados do Nexo ficam na pasta **Nexo CloudLab** no Grafana:
+Os dashboards customizados do DevOps ficam na pasta **DevOps Lab** no Grafana:
 
-#### Nexo CloudLab - Overview
+#### DevOps Lab - Overview
 
 Visão geral de todos os ambientes (develop, qa, staging, prod):
 
@@ -98,7 +98,7 @@ Visão geral de todos os ambientes (develop, qa, staging, prod):
 - Pod restarts nos últimos 30 min
 - Uptime dos deployments
 
-#### Backend API (nexo-be)
+#### Backend API (devops-be)
 
 Dashboard dedicado ao backend com filtro por namespace:
 
@@ -108,7 +108,7 @@ Dashboard dedicado ao backend com filtro por namespace:
 - Pod restarts
 - Comparação CPU vs Memory por namespace
 
-#### Frontend (nexo-fe)
+#### Frontend (devops-fe)
 
 Dashboard dedicado ao frontend com filtro por namespace:
 
@@ -118,7 +118,7 @@ Dashboard dedicado ao frontend com filtro por namespace:
 - Pod restarts
 - Comparação CPU vs Memory por namespace
 
-#### Auth / Keycloak (nexo-auth)
+#### Auth / Keycloak (devops-auth)
 
 Dashboard dedicado ao Keycloak com filtro por namespace:
 
@@ -129,7 +129,7 @@ Dashboard dedicado ao Keycloak com filtro por namespace:
 - Comparação CPU vs Memory por namespace
 
 > **Nota:** Todos os dashboards possuem variável `$namespace` que permite
-> filtrar por `nexo-develop`, `nexo-qa`, `nexo-staging` ou `nexo-prod`.
+> filtrar por `devops-develop`, `devops-qa`, `devops-staging` ou `devops-prod`.
 
 ### Dashboards Built-in do Kubernetes
 
@@ -176,7 +176,7 @@ Métricas do Ingress:
 ### Instrumentar Aplicação Node.js
 
 ```typescript
-// Backend: nexo-be/src/libs/metrics.ts
+// Backend: devops-be/src/libs/metrics.ts
 import promClient from "prom-client";
 
 // Registro
@@ -211,7 +211,7 @@ export async function metricsHandler(req, res) {
 ### Middleware de Métricas
 
 ```typescript
-// nexo-be/src/middleware/metrics.middleware.ts
+// devops-be/src/middleware/metrics.middleware.ts
 export function metricsMiddleware(req, res, next) {
   const start = Date.now();
 
@@ -244,17 +244,17 @@ export function metricsMiddleware(req, res, next) {
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: nexo-be
+  name: devops-be
   namespace: monitoring
   labels:
     release: kube-prometheus-stack
 spec:
   selector:
     matchLabels:
-      app: nexo-be
+      app: devops-be
   namespaceSelector:
     matchNames:
-      - nexo-local
+      - devops-lab
   endpoints:
     - port: http
       path: /metrics
@@ -305,13 +305,13 @@ for: 5m
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
 metadata:
-  name: nexo-custom-alerts
+  name: devops-custom-alerts
   namespace: monitoring
   labels:
     release: kube-prometheus-stack
 spec:
   groups:
-    - name: nexo.api.rules
+    - name: devops.api.rules
       interval: 30s
       rules:
         # Alta taxa de erros 5xx
@@ -427,7 +427,7 @@ kube_event_count
 
 ### Criar Dashboard Customizado
 
-1. **Acessar Grafana**: http://grafana.nexo.local
+1. **Acessar Grafana**: http://grafana.devops.local
 2. **Create** → **Dashboard** → **Add visualization**
 3. **Selecionar Prometheus** como datasource
 4. **Adicionar query**
@@ -468,15 +468,15 @@ Usar em queries: `{namespace="$namespace", pod="$pod"}`
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: nexo-dashboard
+  name: devops-dashboard
   namespace: monitoring
   labels:
     grafana_dashboard: "1"
 data:
-  nexo-api.json: |
+  devops-api.json: |
     {
       "dashboard": {
-        "title": "Nexo API",
+        "title": "DevOps API",
         "panels": [...]
       }
     }
@@ -536,32 +536,32 @@ Para queries pesadas, use recording rules:
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
 metadata:
-  name: nexo-recording-rules
+  name: devops-recording-rules
   namespace: monitoring
 spec:
   groups:
-    - name: nexo.recording.rules
+    - name: devops.recording.rules
       interval: 30s
       rules:
         # Request rate por minuto
-        - record: nexo:http_requests:rate1m
+        - record: devops:http_requests:rate1m
           expr: sum(rate(http_requests_total[1m])) by (service, method, route)
 
         # Error rate por minuto
-        - record: nexo:http_errors:rate1m
+        - record: devops:http_errors:rate1m
           expr: |
             sum(rate(http_requests_total{status_code=~"5.."}[1m])) by (service) /
             sum(rate(http_requests_total[1m])) by (service)
 
         # P95 latency
-        - record: nexo:http_request_duration:p95
+        - record: devops:http_request_duration:p95
           expr: |
             histogram_quantile(0.95,
               sum(rate(http_request_duration_seconds_bucket[5m])) by (le, service)
             )
 ```
 
-Usar em queries: `nexo:http_requests:rate1m`
+Usar em queries: `devops:http_requests:rate1m`
 
 ## Retention e Storage
 

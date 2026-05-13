@@ -1,4 +1,4 @@
-# Nexo CloudLab Ninja - Documentation
+# DevOps Lab Ninja - Documentation
 
 > Local Kubernetes development platform with 4 environments, GitOps, and full observability.
 
@@ -32,19 +32,19 @@ make destroy
 
 | Service      | URL                            | Credentials                 |
 | ------------ | ------------------------------ | --------------------------- |
-| ArgoCD       | http://argocd.nexo.local       | `admin` / (run `make urls`) |
-| Grafana      | http://grafana.nexo.local      | `admin` / `nexo@local2026`  |
-| Prometheus   | http://prometheus.nexo.local   | —                           |
-| AlertManager | http://alertmanager.nexo.local | —                           |
+| ArgoCD       | http://argocd.devops.local       | `admin` / (run `make urls`) |
+| Grafana      | http://grafana.devops.local      | `admin` / `devops.local2026`  |
+| Prometheus   | http://prometheus.devops.local   | —                           |
+| AlertManager | http://alertmanager.devops.local | —                           |
 
 ### Applications
 
 | Env         | Frontend                     | Backend                      | Auth                           |
 | ----------- | ---------------------------- | ---------------------------- | ------------------------------ |
-| **Develop** | http://develop-fe.nexo.local | http://develop-be.nexo.local | http://develop-auth.nexo.local |
-| **QA**      | http://qa-fe.nexo.local      | http://qa-be.nexo.local      | http://qa-auth.nexo.local      |
-| **Staging** | http://staging-fe.nexo.local | http://staging-be.nexo.local | http://staging-auth.nexo.local |
-| **Prod**    | http://fe.nexo.local         | http://be.nexo.local         | http://auth.nexo.local         |
+| **Develop** | http://develop-fe.devops.local | http://develop-be.devops.local | http://develop-auth.devops.local |
+| **QA**      | http://qa-fe.devops.local      | http://qa-be.devops.local      | http://qa-auth.devops.local      |
+| **Staging** | http://staging-fe.devops.local | http://staging-be.devops.local | http://staging-auth.devops.local |
+| **Prod**    | http://fe.devops.local         | http://be.devops.local         | http://auth.devops.local         |
 
 ## Make Commands
 
@@ -55,7 +55,7 @@ make stop          # Parar cluster
 make restart       # Reiniciar cluster
 make destroy       # Destruir tudo - INTERATIVO
 make status        # Status completo
-make logs          # Logs: make logs SERVICE=nexo-be NAMESPACE=nexo-develop
+make logs          # Logs: make logs SERVICE=devops-be NAMESPACE=devops-develop
 make k9s           # Interface visual para K8s
 make grafana       # Abrir Grafana no browser
 make argocd        # Abrir ArgoCD no browser
@@ -66,7 +66,7 @@ make argocd        # Abrir ArgoCD no browser
 ```
 feature/* → develop → qa → staging → main
               ↓         ↓       ↓        ↓
-          nexo-develop  nexo-qa  nexo-staging  nexo-prod
+          devops-develop  devops-qa  devops-staging  devops-prod
 ```
 
 ## CI/CD Pipeline
@@ -123,14 +123,14 @@ local/
 │   ├── secrets.example.yaml   # Template de secrets
 │   └── storage-class.yaml     # StorageClass para SSD
 ├── helm/
-│   ├── nexo-be/               # Helm chart: Backend (NestJS)
-│   ├── nexo-fe/               # Helm chart: Frontend (Next.js)
-│   └── nexo-auth/             # Helm chart: Auth (Keycloak)
+│   ├── devops-be/               # Helm chart: Backend (NestJS)
+│   ├── devops-fe/               # Helm chart: Frontend (Next.js)
+│   └── devops-auth/             # Helm chart: Auth (Keycloak)
 ├── argocd/
 │   ├── projects/              # ArgoCD Projects (4 envs)
 │   └── applicationsets/       # ApplicationSets (12 apps)
 ├── k8s/
-│   ├── grafana-dashboard-nexo.yaml    # Dashboard: Overview
+│   ├── grafana-dashboard-devops.yaml    # Dashboard: Overview
 │   ├── grafana-dashboard-apps.yaml    # Dashboards: Backend, Frontend, Auth (por app)
 │   └── servicemonitor-apps.yaml       # ServiceMonitors
 └── docs/                      # ← Você está aqui
@@ -183,8 +183,8 @@ Iniciar setup? (y/N): _
 **Fluxo de execução (6 etapas):**
 
 1. **Criar cluster k3d** — 1 server + 6 agents via `config/k3d-config.yaml`
-2. **Criar namespaces** — nexo-develop, nexo-qa, nexo-staging, nexo-prod, monitoring, argocd
-3. **Instalar ArgoCD** — Helm chart + Ingress em `argocd.nexo.local`
+2. **Criar namespaces** — devops-develop, devops-qa, devops-staging, devops-prod, monitoring, argocd
+3. **Instalar ArgoCD** — Helm chart + Ingress em `argocd.devops.local`
 4. **Instalar observabilidade** — kube-prometheus-stack (Prometheus, Grafana, AlertManager)
 5. **Configurar ArgoCD GitOps** — Aplica projects + ApplicationSets (12 apps)
 6. **Configurar DNS local** — Adiciona 16 entradas em `/etc/hosts` (requer sudo)
@@ -202,7 +202,7 @@ O destroy é **interativo** com 2 confirmações:
    → Precisa digitar "yes" (não apenas "y")
 
 2. Deseja remover os volumes também? (y/N): _
-   → Remove /Volumes/Backup/nexo-cloudlab (dados do Prometheus, Grafana)
+   → Remove /Volumes/Backup/devops-lab (dados do Prometheus, Grafana)
 ```
 
 **O que é removido:**
@@ -227,3 +227,5 @@ Não é interativo — apenas exibe informações. Verifica:
 - ArgoCD (pods running + applications health/sync)
 - Grafana, Prometheus, AlertManager
 - Pods por ambiente (develop/qa/staging/prod)
+
+Adicionar Redis e RabitMQ

@@ -1,4 +1,4 @@
-# 🚀 ArgoCD GitOps - Nexo CloudLab
+# 🚀 ArgoCD GitOps - DevOps Lab
 
 ## O que é ArgoCD?
 
@@ -32,7 +32,7 @@ ArgoCD é uma ferramenta declarativa de entrega contínua para Kubernetes que se
                ↓
 ┌──────────────────────────────────────────────┐
 │         Kubernetes Cluster                   │
-│   (nexo-local namespace)                     │
+│   (devops-lab namespace)                     │
 └──────────────────────────────────────────────┘
 ```
 
@@ -47,7 +47,7 @@ make urls
 # Abrir dashboard
 make dashboard
 
-# URL: http://argocd.nexo.local
+# URL: http://argocd.devops.local
 # User: admin
 # Pass: Obtido do secret
 ```
@@ -57,7 +57,7 @@ make dashboard
 ```bash
 # Fazer login
 ARGOCD_PASSWORD=$(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)
-argocd login argocd.nexo.local --username admin --password "$ARGOCD_PASSWORD" --insecure
+argocd login argocd.devops.local --username admin --password "$ARGOCD_PASSWORD" --insecure
 
 # Verificar versão
 argocd version
@@ -76,20 +76,20 @@ Uma Application é um recurso que conecta um repositório Git a um namespace Kub
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: nexo-be-local
+  name: devops-be-local
   namespace: argocd
 spec:
-  project: nexo-local
+  project: devops-lab
   source:
-    repoURL: https://github.com/geraldobl58/nexo.git
+    repoURL: https://github.com/geraldobl58/devops.git
     targetRevision: main
-    path: local/helm/nexo-be
+    path: local/helm/devops-be
     helm:
       valueFiles:
         - values-local.yaml
   destination:
     server: https://kubernetes.default.svc
-    namespace: nexo-local
+    namespace: devops-lab
   syncPolicy:
     automated:
       prune: true
@@ -104,15 +104,15 @@ ApplicationSet permite criar múltiplas Applications a partir de um template:
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
-  name: nexo-apps-local
+  name: devops-apps-local
   namespace: argocd
 spec:
   generators:
     - list:
         elements:
-          - service: nexo-be
-          - service: nexo-fe
-          - service: nexo-auth
+          - service: devops-be
+          - service: devops-fe
+          - service: devops-auth
   template:
     metadata:
       name: "{{service}}-local"
@@ -128,14 +128,14 @@ Projects fornecem isolamento lógico:
 apiVersion: argoproj.io/v1alpha1
 kind: AppProject
 metadata:
-  name: nexo-local
+  name: devops-lab
   namespace: argocd
 spec:
-  description: Nexo local development
+  description: DevOps local development
   sourceRepos:
     - "*"
   destinations:
-    - namespace: nexo-local
+    - namespace: devops-lab
       server: https://kubernetes.default.svc
   clusterResourceWhitelist:
     - group: "*"
@@ -154,52 +154,52 @@ argocd app list
 kubectl get applications -n argocd
 
 # Detalhes
-argocd app get nexo-be-local
+argocd app get devops-be-local
 ```
 
 ### Sincronizar Aplicações
 
 ```bash
 # Sync manual
-argocd app sync nexo-be-local
+argocd app sync devops-be-local
 
 # Sync todas
 argocd app sync -l environment=local
 
 # Sync com prune (remove recursos órfãos)
-argocd app sync nexo-be-local --prune
+argocd app sync devops-be-local --prune
 
 # Sync forçado
-argocd app sync nexo-be-local --force
+argocd app sync devops-be-local --force
 ```
 
 ### Ver Status
 
 ```bash
 # Status de uma app
-argocd app get nexo-be-local
+argocd app get devops-be-local
 
 # Ver diferenças (drift detection)
-argocd app diff nexo-be-local
+argocd app diff devops-be-local
 
 # Ver histórico
-argocd app history nexo-be-local
+argocd app history devops-be-local
 
 # Ver recursos
-argocd app resources nexo-be-local
+argocd app resources devops-be-local
 ```
 
 ### Rollback
 
 ```bash
 # Ver histórico
-argocd app history nexo-be-local
+argocd app history devops-be-local
 
 # Rollback para revisão anterior
-argocd app rollback nexo-be-local 2
+argocd app rollback devops-be-local 2
 
 # Rollback via kubectl
-kubectl patch application nexo-be-local -n argocd --type merge -p '{"spec":{"source":{"targetRevision":"previous-commit"}}}'
+kubectl patch application devops-be-local -n argocd --type merge -p '{"spec":{"source":{"targetRevision":"previous-commit"}}}'
 ```
 
 ## Sync Policies
@@ -262,7 +262,7 @@ spec:
     spec:
       containers:
         - name: migrations
-          image: nexo-be:latest
+          image: devops-be:latest
           command: ["npm", "run", "migrate"]
       restartPolicy: Never
 ```
@@ -320,7 +320,7 @@ kubectl apply -f https://github.com/bitnami-labs/sealed-secrets/releases/downloa
 brew install kubeseal
 
 # Criar secret selado
-kubectl create secret generic nexo-secrets \
+kubectl create secret generic devops-secrets \
   --from-literal=database-url='postgres://...' \
   --dry-run=client -o yaml | \
   kubeseal --format yaml > sealed-secret.yaml
@@ -388,11 +388,11 @@ argocd cluster list
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: nexo-be-prod
+  name: devops-be-prod
 spec:
   destination:
     server: https://prod-cluster.example.com
-    namespace: nexo-prod
+    namespace: devops-prod
   # ... resto da config
 ```
 
@@ -461,37 +461,37 @@ git commit -m "feat: nova feature"
 git push
 
 # 2. Build e push da imagem
-docker build -t ghcr.io/geraldobl58/nexo-be:v1.2.3 .
-docker push ghcr.io/geraldobl58/nexo-be:v1.2.3
+docker build -t ghcr.io/geraldobl58/devops-be:v1.2.3 .
+docker push ghcr.io/geraldobl58/devops-be:v1.2.3
 
 # 3. Atualizar Helm values
-# Editar local/helm/nexo-be/values-local.yaml
+# Editar local/helm/devops-be/values-local.yaml
 # Mudar tag: "v1.2.3"
 
 # 4. Commit e push
-git add local/helm/nexo-be/values-local.yaml
-git commit -m "release: nexo-be v1.2.3"
+git add local/helm/devops-be/values-local.yaml
+git commit -m "release: devops-be v1.2.3"
 git push
 
 # 5. ArgoCD faz sync automaticamente em ~3 minutos
 # Ou forçar sync:
-argocd app sync nexo-be-local
+argocd app sync devops-be-local
 ```
 
 ### Debug de Sync Failures
 
 ```bash
 # Ver detalhes do erro
-argocd app get nexo-be-local
+argocd app get devops-be-local
 
 # Ver logs do sync
-argocd app logs nexo-be-local
+argocd app logs devops-be-local
 
 # Ver eventos
-kubectl get events -n nexo-local --sort-by='.lastTimestamp'
+kubectl get events -n devops-lab --sort-by='.lastTimestamp'
 
 # Ver diff
-argocd app diff nexo-be-local
+argocd app diff devops-be-local
 ```
 
 ## Monitoramento com Prometheus
@@ -530,10 +530,10 @@ argocd app list | grep OutOfSync
 argocd app sync -l environment=local
 
 # Ver logs de sync
-argocd app logs nexo-be-local --follow
+argocd app logs devops-be-local --follow
 
 # Ver recursos de uma app
-argocd app resources nexo-be-local
+argocd app resources devops-be-local
 
 # Info do servidor
 argocd admin settings resource-overrides
@@ -542,7 +542,7 @@ argocd admin settings resource-overrides
 argocd proj list
 
 # Export de app (backup)
-argocd app get nexo-be-local -o yaml > backup.yaml
+argocd app get devops-be-local -o yaml > backup.yaml
 ```
 
 ## Troubleshooting
@@ -551,40 +551,40 @@ argocd app get nexo-be-local -o yaml > backup.yaml
 
 ```bash
 # Ver detalhes
-kubectl describe application nexo-be-local -n argocd
+kubectl describe application devops-be-local -n argocd
 
 # Ver pods
-kubectl get pods -n nexo-local
+kubectl get pods -n devops-lab
 
 # Ver eventos
-kubectl get events -n nexo-local
+kubectl get events -n devops-lab
 ```
 
 ### Image Pull Errors
 
 ```bash
 # Verificar imagePullSecrets
-kubectl get deployment nexo-be -n nexo-local -o yaml | grep -A 5 imagePullSecrets
+kubectl get deployment devops-be -n devops-lab -o yaml | grep -A 5 imagePullSecrets
 
 # Criar secret se necessário
 kubectl create secret docker-registry ghcr-secret \
   --docker-server=ghcr.io \
   --docker-username=usuario \
   --docker-password=token \
-  -n nexo-local
+  -n devops-lab
 ```
 
 ### Out of Sync mas igual
 
 ```bash
 # Pode ser differences ignoráveis
-argocd app diff nexo-be-local
+argocd app diff devops-be-local
 
 # Forçar refresh
-argocd app get nexo-be-local --refresh
+argocd app get devops-be-local --refresh
 
 # Hard refresh
-argocd app get nexo-be-local --hard-refresh
+argocd app get devops-be-local --hard-refresh
 ```
 
 ## Próximos Passos
