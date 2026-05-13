@@ -36,11 +36,11 @@ spec:
           - list:
               elements:
                 - service: crivo-be
-                  path: local/helm/crivo-be
+                  path: helm/crivo-be
                 - service: crivo-fe
-                  path: local/helm/crivo-fe
+                  path: helm/crivo-fe
                 - service: crivo-auth
-                  path: local/helm/crivo-auth
+                  path: helm/crivo-auth
 
   template:
     metadata:
@@ -49,9 +49,9 @@ spec:
         app: "{{service}}"
         environment: "{{env}}"
     spec:
-      project: "devops-{{env}}"
+      project: "crivo-{{env}}"
       source:
-        repoURL: https://github.com/geraldobl58/devops.git
+        repoURL: https://github.com/geraldobl58/infra.git
         targetRevision: "{{branch}}"
         path: "{{path}}"
         helm:
@@ -90,11 +90,11 @@ spec:
     - list:
         elements:
           - service: crivo-be
-            path: local/helm/crivo-be
+            path: helm/crivo-be
           - service: crivo-fe
-            path: local/helm/crivo-fe
+            path: helm/crivo-fe
           - service: crivo-auth
-            path: local/helm/crivo-auth
+            path: helm/crivo-auth
 
   template:
     metadata:
@@ -105,7 +105,7 @@ spec:
     spec:
       project: crivo-prod
       source:
-        repoURL: https://github.com/geraldobl58/devops.git
+        repoURL: https://github.com/geraldobl58/infra.git
         targetRevision: main
         path: "{{path}}"
         helm:
