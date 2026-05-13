@@ -75,7 +75,7 @@ kubectl get pods -n monitoring --no-headers 2>/dev/null | wc -l | xargs echo "  
 # echo "Namespace: logging"
 # kubectl get pods -n logging --no-headers 2>/dev/null | wc -l | xargs echo "  Pods:"
 
-for NS in devops-develop devops-qa devops-staging devops-prod; do
+for NS in crivo-develop crivo-qa crivo-staging crivo-prod; do
   echo "Namespace: $NS"
   kubectl get pods -n $NS --no-headers 2>/dev/null | wc -l | xargs echo "  Pods:"
 done

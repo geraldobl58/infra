@@ -29,10 +29,10 @@ Visão geral da infraestrutura local completa do projeto DevOps.
 │  │  │  │                                                              │  │ │ │
 │  │  │  │  • argocd         (GitOps)                                  │  │ │ │
 │  │  │  │  • monitoring     (Prometheus + Grafana)                    │  │ │ │
-│  │  │  │  • devops-develop   (Apps: devops-be, devops-fe, devops-auth)      │  │ │ │
-│  │  │  │  • devops-qa        (Apps: devops-be, devops-fe, devops-auth)      │  │ │ │
-│  │  │  │  • devops-staging   (Apps: devops-be, devops-fe, devops-auth)      │  │ │ │
-│  │  │  │  • devops-prod      (Apps: devops-be, devops-fe, devops-auth)      │  │ │ │
+│  │  │  │  • crivo-develop   (Apps: crivo-be, crivo-fe, crivo-auth)      │  │ │ │
+│  │  │  │  • crivo-qa        (Apps: crivo-be, crivo-fe, crivo-auth)      │  │ │ │
+│  │  │  │  • crivo-staging   (Apps: crivo-be, crivo-fe, crivo-auth)      │  │ │ │
+│  │  │  │  • crivo-prod      (Apps: crivo-be, crivo-fe, crivo-auth)      │  │ │ │
 │  │  │  └────────────────────────────────────────────────────────────┘  │  │ │
 │  │  └──────────────────────────────────────────────────────────────────┘  │ │
 │  └────────────────────────────────────────────────────────────────────────┘ │
@@ -92,15 +92,15 @@ Namespace: argocd
           │
           ├─── Git Repository (GitHub)
           │    https://github.com/usuario/devops
-          │    ├── apps/devops-be/**
-          │    ├── apps/devops-fe/**
-          │    ├── apps/devops-auth/**
+          │    ├── apps/crivo-be/**
+          │    ├── apps/crivo-fe/**
+          │    ├── apps/crivo-auth/**
           │    └── local/helm/**
           │
           └─── Auto-sync com apps:
-               ├── devops-be-local
-               ├── devops-fe-local
-               └── devops-auth-local
+               ├── crivo-be-local
+               ├── crivo-fe-local
+               └── crivo-auth-local
 ```
 
 ### 3. Observability Stack (Prometheus + Grafana)
@@ -148,7 +148,7 @@ Namespace: devops-lab
 │                                                            │
 │  Frontend (Next.js)                                       │
 │  ┌────────────────────────────────────────────┐          │
-│  │  devops-fe                                    │          │
+│  │  crivo-fe                                    │          │
 │  │  http://develop-fe.devops.local                  │          │
 │  │  ├── Replicas: 2                            │          │
 │  │  ├── Resources: 512Mi RAM, 500m CPU        │          │
@@ -160,7 +160,7 @@ Namespace: devops-lab
 │                      ▼                                     │
 │  Backend (NestJS)                                         │
 │  ┌────────────────────────────────────────────┐          │
-│  │  devops-be                                    │          │
+│  │  crivo-be                                    │          │
 │  │  http://develop-be.devops.local              │          │
 │  │  ├── Replicas: 2                            │          │
 │  │  ├── Resources: 1Gi RAM, 1000m CPU         │          │
@@ -175,12 +175,12 @@ Namespace: devops-lab
 │                      ▼                                     │
 │  Auth Service (Keycloak)                                  │
 │  ┌────────────────────────────────────────────┐          │
-│  │  devops-auth                                  │          │
+│  │  crivo-auth                                  │          │
 │  │  http://develop-auth.devops.local             │          │
 │  │  ├── Replicas: 1                            │          │
 │  │  ├── Resources: 1Gi RAM, 500m CPU          │          │
 │  │  ├── Realm: devops                            │          │
-│  │  ├── Clients: devops-fe, devops-be             │          │
+│  │  ├── Clients: crivo-fe, crivo-be             │          │
 │  │  └── Custom Themes: /themes/devops           │          │
 │  └────────────────────────────────────────────┘          │
 │                      │                                     │
@@ -299,10 +299,10 @@ Developer ──┐
 │                                                          │
 │  Ingress Rules:                                         │
 │                                                          │
-│  develop-* ─────────► devops-develop namespace            │
-│  qa-*      ─────────► devops-qa namespace                 │
-│  staging-* ─────────► devops-staging namespace            │
-│  {be,fe,auth}.devops.local ► devops-prod namespace          │
+│  develop-* ─────────► crivo-develop namespace            │
+│  qa-*      ─────────► crivo-qa namespace                 │
+│  staging-* ─────────► crivo-staging namespace            │
+│  {be,fe,auth}.devops.local ► crivo-prod namespace          │
 │                                                          │
 │  argocd.*       ─────► argocd namespace                 │
 │  grafana.*      ─────► monitoring namespace             │
@@ -367,7 +367,7 @@ Network:             Docker bridge (localhost)
 │                                                          │
 │  Layer 5: Database                                      │
 │  ├── PostgreSQL: user/password auth                     │
-│  ├── Network policies (only from devops-be)               │
+│  ├── Network policies (only from crivo-be)               │
 │  └── Encrypted at rest (SSD encryption)                 │
 └────────────────────────────────────────────────────────┘
 ```
@@ -384,7 +384,7 @@ Network:             Docker bridge (localhost)
 ├────────────────────────────────────────────────────────┤
 │                                                          │
 │  ┌──────────────┐                                       │
-│  │  devops-be     │ ─── /metrics ────┐                   │
+│  │  crivo-be     │ ─── /metrics ────┐                   │
 │  │  (NestJS)    │                  │                    │
 │  └──────────────┘                  │                    │
 │                                     │                    │
@@ -422,12 +422,12 @@ Default Metrics Collected:
 ├────────────────────────────────────────────────────────┤
 │                                                          │
 │  ┌──────────────┐                                       │
-│  │  devops-be     │ ─── stdout/stderr ───┐               │
+│  │  crivo-be     │ ─── stdout/stderr ───┐               │
 │  │  (container) │                       │               │
 │  └──────────────┘                       │               │
 │                                          │               │
 │  ┌──────────────┐                       │               │
-│  │  devops-fe     │ ─── stdout/stderr ────┤               │
+│  │  crivo-fe     │ ─── stdout/stderr ────┤               │
 │  │  (container) │                       │               │
 │  └──────────────┘                       │               │
 │                                          ▼               │
@@ -453,9 +453,9 @@ Log Structure:
 {
   "@timestamp": "2025-06-10T10:30:00Z",
   "level": "info",
-  "service": "devops-be",
+  "service": "crivo-be",
   "namespace": "devops-lab",
-  "pod": "devops-be-7d89f-xk2p9",
+  "pod": "crivo-be-7d89f-xk2p9",
   "message": "Request processed",
   "context": {
     "method": "GET",
@@ -480,7 +480,7 @@ make status
 make top
 
 # Ver logs de uma aplicação
-make logs SERVICE=devops-be NAMESPACE=devops-lab
+make logs SERVICE=crivo-be NAMESPACE=devops-lab
 
 # Acessar dashboards
 make dashboard    # ArgoCD
@@ -512,10 +512,10 @@ k3d cluster stop devops-lab
 k3d cluster start devops-lab
 
 # Aplicação crashando
-kubectl delete pod -n devops-lab -l app=devops-be
+kubectl delete pod -n devops-lab -l app=crivo-be
 
 # Rollback de deploy
-argocd app rollback devops-be-local
+argocd app rollback crivo-be-local
 
 # Restaurar do backup
 make restore

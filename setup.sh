@@ -123,10 +123,10 @@ echo -e "${GREEN}✓ NGINX Ingress Controller instalado${NC}"
 log_step "ETAPA 2/7: Criando Namespaces"
 
 log_substep "Criando namespaces de ambientes..."
-kubectl create namespace devops-develop --dry-run=client -o yaml | kubectl apply -f -
-kubectl create namespace devops-qa --dry-run=client -o yaml | kubectl apply -f -
-kubectl create namespace devops-staging --dry-run=client -o yaml | kubectl apply -f -
-kubectl create namespace devops-prod --dry-run=client -o yaml | kubectl apply -f -
+kubectl create namespace crivo-develop --dry-run=client -o yaml | kubectl apply -f -
+kubectl create namespace crivo-qa --dry-run=client -o yaml | kubectl apply -f -
+kubectl create namespace crivo-staging --dry-run=client -o yaml | kubectl apply -f -
+kubectl create namespace crivo-prod --dry-run=client -o yaml | kubectl apply -f -
 
 log_substep "Criando namespaces de infra..."
 kubectl create namespace monitoring --dry-run=client -o yaml | kubectl apply -f -

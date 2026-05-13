@@ -32,7 +32,7 @@ kubectl logs <pod-name> -n devops-lab                    # Últimos logs
 kubectl logs <pod-name> -n devops-lab --follow           # Follow logs
 kubectl logs <pod-name> -n devops-lab --previous         # Pod anterior
 kubectl logs <pod-name> -n devops-lab --tail=100         # Últimas 100 linhas
-kubectl logs -l app=devops-be -n devops-lab --follow       # Por label
+kubectl logs -l app=crivo-be -n devops-lab --follow       # Por label
 
 # Shell no pod
 kubectl exec -it <pod-name> -n devops-lab -- /bin/sh
@@ -54,26 +54,26 @@ kubectl delete pods --all -n devops-lab
 kubectl get deployments -n devops-lab
 
 # Describe
-kubectl describe deployment devops-be -n devops-lab
+kubectl describe deployment crivo-be -n devops-lab
 
 # Scale
-kubectl scale deployment devops-be --replicas=3 -n devops-lab
+kubectl scale deployment crivo-be --replicas=3 -n devops-lab
 
 # Restart
-kubectl rollout restart deployment devops-be -n devops-lab
+kubectl rollout restart deployment crivo-be -n devops-lab
 
 # Status do rollout
-kubectl rollout status deployment devops-be -n devops-lab
+kubectl rollout status deployment crivo-be -n devops-lab
 
 # Histórico
-kubectl rollout history deployment devops-be -n devops-lab
+kubectl rollout history deployment crivo-be -n devops-lab
 
 # Rollback
-kubectl rollout undo deployment devops-be -n devops-lab
-kubectl rollout undo deployment devops-be --to-revision=2 -n devops-lab
+kubectl rollout undo deployment crivo-be -n devops-lab
+kubectl rollout undo deployment crivo-be --to-revision=2 -n devops-lab
 
 # Edit deployment
-kubectl edit deployment devops-be -n devops-lab
+kubectl edit deployment crivo-be -n devops-lab
 ```
 
 ### Services
@@ -84,7 +84,7 @@ kubectl get svc -A
 kubectl get svc -n devops-lab
 
 # Describe
-kubectl describe svc devops-be -n devops-lab
+kubectl describe svc crivo-be -n devops-lab
 
 # Endpoints
 kubectl get endpoints -n devops-lab
@@ -161,29 +161,29 @@ argocd login argocd.devops.local --username admin --insecure
 argocd app list
 
 # Get app
-argocd app get devops-be-local
+argocd app get crivo-be-local
 
 # Sync app
-argocd app sync devops-be-local
-argocd app sync devops-be-local --prune --force
+argocd app sync crivo-be-local
+argocd app sync crivo-be-local --prune --force
 
 # Ver diff
-argocd app diff devops-be-local
+argocd app diff crivo-be-local
 
 # Histórico
-argocd app history devops-be-local
+argocd app history crivo-be-local
 
 # Rollback
-argocd app rollback devops-be-local 2
+argocd app rollback crivo-be-local 2
 
 # Ver logs
-argocd app logs devops-be-local --follow
+argocd app logs crivo-be-local --follow
 
 # Recursos
-argocd app resources devops-be-local
+argocd app resources crivo-be-local
 
 # Delete app
-argocd app delete devops-be-local
+argocd app delete crivo-be-local
 
 # Projects
 argocd proj list
@@ -394,19 +394,19 @@ kubectl run -it --rm debug --image=nicolaka/netshoot --restart=Never -- bash
 
 ```bash
 # Service
-kubectl port-forward -n devops-lab svc/devops-be 3000:3000
+kubectl port-forward -n devops-lab svc/crivo-be 3000:3000
 
 # Pod
-kubectl port-forward -n devops-lab pod/devops-be-xxx 3000:3000
+kubectl port-forward -n devops-lab pod/crivo-be-xxx 3000:3000
 
 # Deployment
-kubectl port-forward -n devops-lab deployment/devops-be 3000:3000
+kubectl port-forward -n devops-lab deployment/crivo-be 3000:3000
 
 # Background
-kubectl port-forward -n devops-lab svc/devops-be 3000:3000 &
+kubectl port-forward -n devops-lab svc/crivo-be 3000:3000 &
 
 # Múltiplas portas
-kubectl port-forward -n devops-lab svc/devops-be 3000:3000 9090:9090
+kubectl port-forward -n devops-lab svc/crivo-be 3000:3000 9090:9090
 ```
 
 ## 🗑️ Cleanup
@@ -528,10 +528,10 @@ make urls
 make deploy-apps
 
 # Logs
-make logs SERVICE=devops-be NAMESPACE=devops-lab
+make logs SERVICE=crivo-be NAMESPACE=devops-lab
 
 # Port-forward
-make port-forward SERVICE=devops-be PORT=3000
+make port-forward SERVICE=crivo-be PORT=3000
 
 # Dashboards
 make dashboard     # ArgoCD

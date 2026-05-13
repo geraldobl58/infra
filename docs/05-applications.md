@@ -9,9 +9,9 @@ Este guia mostra como fazer deploy das aplicações DevOps (Backend, Frontend, A
 ```
 ┌─────────────────────────────────────────────┐
 │         GitHub Repository                   │
-│  local/helm/devops-be/values-local.yaml       │
-│  local/helm/devops-fe/values-local.yaml       │
-│  local/helm/devops-auth/values-local.yaml     │
+│  local/helm/crivo-be/values-local.yaml       │
+│  local/helm/crivo-fe/values-local.yaml       │
+│  local/helm/crivo-auth/values-local.yaml     │
 └──────────────┬──────────────────────────────┘
                │
                │ ArgoCD Poll/Sync
@@ -19,18 +19,18 @@ Este guia mostra como fazer deploy das aplicações DevOps (Backend, Frontend, A
 ┌──────────────────────────────────────────────┐
 │            ArgoCD                            │
 │  ApplicationSet: devops-apps-local             │
-│    - devops-be-local                           │
-│    - devops-fe-local                           │
-│    - devops-auth-local                         │
+│    - crivo-be-local                           │
+│    - crivo-fe-local                           │
+│    - crivo-auth-local                         │
 └──────────────┬───────────────────────────────┘
                │
                │ Apply to Kubernetes
                ↓
 ┌──────────────────────────────────────────────┐
 │         devops-lab namespace                 │
-│  - devops-be (Backend API)                     │
-│  - devops-fe (Frontend Next.js)                │
-│  - devops-auth (Keycloak)                      │
+│  - crivo-be (Backend API)                     │
+│  - crivo-fe (Frontend Next.js)                │
+│  - crivo-auth (Keycloak)                      │
 │  - postgres (Database)                       │
 └──────────────────────────────────────────────┘
 ```
@@ -41,22 +41,22 @@ Este guia mostra como fazer deploy das aplicações DevOps (Backend, Frontend, A
 
 ```bash
 # Navegar para cada aplicação
-cd apps/devops-be
+cd apps/crivo-be
 
 # Build da imagem
-docker build -t ghcr.io/geraldobl58/devops-be:latest .
+docker build -t ghcr.io/geraldobl58/crivo-be:latest .
 
 # Push para registry local
-docker push ghcr.io/geraldobl58/devops-be:latest
+docker push ghcr.io/geraldobl58/crivo-be:latest
 
-# Repetir para devops-fe e devops-auth
-cd ../devops-fe
-docker build -t ghcr.io/geraldobl58/devops-fe:latest .
-docker push ghcr.io/geraldobl58/devops-fe:latest
+# Repetir para crivo-fe e crivo-auth
+cd ../crivo-fe
+docker build -t ghcr.io/geraldobl58/crivo-fe:latest .
+docker push ghcr.io/geraldobl58/crivo-fe:latest
 
-cd ../devops-auth
-docker build -t ghcr.io/geraldobl58/devops-auth:latest .
-docker push ghcr.io/geraldobl58/devops-auth:latest
+cd ../crivo-auth
+docker build -t ghcr.io/geraldobl58/crivo-auth:latest .
+docker push ghcr.io/geraldobl58/crivo-auth:latest
 ```
 
 ### 2. Criar Secrets
@@ -116,12 +116,12 @@ spec:
   generators:
     - list:
         elements:
-          - service: devops-be
-            path: local/helm/devops-be
-          - service: devops-fe
-            path: local/helm/devops-fe
-          - service: devops-auth
-            path: local/helm/devops-auth
+          - service: crivo-be
+            path: local/helm/crivo-be
+          - service: crivo-fe
+            path: local/helm/crivo-fe
+          - service: crivo-auth
+            path: local/helm/crivo-auth
 
   template:
     metadata:
@@ -151,9 +151,9 @@ EOF
 
 # Aguardar sync
 argocd app list
-argocd app sync devops-be-local
-argocd app sync devops-fe-local
-argocd app sync devops-auth-local
+argocd app sync crivo-be-local
+argocd app sync crivo-fe-local
+argocd app sync crivo-auth-local
 ```
 
 ## Verificar Deploy
@@ -166,9 +166,9 @@ argocd app list
 
 # Output esperado:
 # NAME              CLUSTER                         NAMESPACE    PROJECT      STATUS  HEALTH
-# devops-be-local     https://kubernetes.default.svc  devops-lab   devops-lab   Synced  Healthy
-# devops-fe-local     https://kubernetes.default.svc  devops-lab   devops-lab   Synced  Healthy
-# devops-auth-local   https://kubernetes.default.svc  devops-lab   devops-lab   Synced  Healthy
+# crivo-be-local     https://kubernetes.default.svc  devops-lab   devops-lab   Synced  Healthy
+# crivo-fe-local     https://kubernetes.default.svc  devops-lab   devops-lab   Synced  Healthy
+# crivo-auth-local   https://kubernetes.default.svc  devops-lab   devops-lab   Synced  Healthy
 ```
 
 ### Pods
@@ -178,9 +178,9 @@ kubectl get pods -n devops-lab
 
 # Output esperado:
 # NAME                         READY   STATUS    RESTARTS   AGE
-# devops-be-xxx                  1/1     Running   0          5m
-# devops-fe-xxx                  1/1     Running   0          5m
-# devops-auth-xxx                1/1     Running   0          5m
+# crivo-be-xxx                  1/1     Running   0          5m
+# crivo-fe-xxx                  1/1     Running   0          5m
+# crivo-auth-xxx                1/1     Running   0          5m
 # postgres-xxx                 1/1     Running   0          10m
 ```
 
@@ -197,14 +197,14 @@ curl http://develop-auth.devops.local
 
 ## Configuração dos Helm Charts
 
-### Backend (devops-be)
+### Backend (crivo-be)
 
 ```yaml
-# local/helm/devops-be/values-local.yaml
+# local/helm/crivo-be/values-local.yaml
 replicaCount: 1
 
 image:
-  repository: ghcr.io/geraldobl58/devops-be
+  repository: ghcr.io/geraldobl58/crivo-be
   tag: "latest"
 
 resources:
@@ -233,14 +233,14 @@ ingress:
           pathType: Prefix
 ```
 
-### Frontend (devops-fe)
+### Frontend (crivo-fe)
 
 ```yaml
-# local/helm/devops-fe/values-local.yaml
+# local/helm/crivo-fe/values-local.yaml
 replicaCount: 1
 
 image:
-  repository: ghcr.io/geraldobl58/devops-fe
+  repository: ghcr.io/geraldobl58/crivo-fe
   tag: "latest"
 
 env:
@@ -255,14 +255,14 @@ ingress:
     - host: develop-fe.devops.local
 ```
 
-### Auth (devops-auth/Keycloak)
+### Auth (crivo-auth/Keycloak)
 
 ```yaml
-# local/helm/devops-auth/values-local.yaml
+# local/helm/crivo-auth/values-local.yaml
 replicaCount: 1
 
 image:
-  repository: ghcr.io/geraldobl58/devops-auth
+  repository: ghcr.io/geraldobl58/crivo-auth
   tag: "latest"
 
 env:
@@ -285,7 +285,7 @@ ingress:
 ### 1. Fazer Mudanças no Código
 
 ```bash
-cd apps/devops-be
+cd apps/crivo-be
 # Editar código...
 git add .
 git commit -m "feat: nova feature"
@@ -296,25 +296,25 @@ git commit -m "feat: nova feature"
 ```bash
 # Com versão específica
 VERSION=v1.2.3
-docker build -t ghcr.io/geraldobl58/devops-be:$VERSION .
-docker push ghcr.io/geraldobl58/devops-be:$VERSION
+docker build -t ghcr.io/geraldobl58/crivo-be:$VERSION .
+docker push ghcr.io/geraldobl58/crivo-be:$VERSION
 
 # Ou latest
-docker build -t ghcr.io/geraldobl58/devops-be:latest .
-docker push ghcr.io/geraldobl58/devops-be:latest
+docker build -t ghcr.io/geraldobl58/crivo-be:latest .
+docker push ghcr.io/geraldobl58/crivo-be:latest
 ```
 
 ### 3. Atualizar Helm Values (se usar versão)
 
 ```yaml
-# local/helm/devops-be/values-local.yaml
+# local/helm/crivo-be/values-local.yaml
 image:
   tag: "v1.2.3" # Atualizar
 ```
 
 ```bash
-git add local/helm/devops-be/values-local.yaml
-git commit -m "release: devops-be v1.2.3"
+git add local/helm/crivo-be/values-local.yaml
+git commit -m "release: crivo-be v1.2.3"
 git push
 ```
 
@@ -322,20 +322,20 @@ git push
 
 ```bash
 # Monitorar sync
-argocd app get devops-be-local --watch
+argocd app get crivo-be-local --watch
 
 # Ou forçar sync imediato
-argocd app sync devops-be-local
+argocd app sync crivo-be-local
 ```
 
 ### 5. Verificar Deploy
 
 ```bash
 # Ver rollout
-kubectl rollout status deployment devops-be -n devops-lab
+kubectl rollout status deployment crivo-be -n devops-lab
 
 # Ver pods novos
-kubectl get pods -n devops-lab -l app=devops-be
+kubectl get pods -n devops-lab -l app=crivo-be
 
 # Testar aplicação
 curl http://develop-be.devops.local/health
@@ -347,20 +347,20 @@ curl http://develop-be.devops.local/health
 
 ```bash
 # Ver histórico
-argocd app history devops-be-local
+argocd app history crivo-be-local
 
 # Rollback para revisão anterior
-argocd app rollback devops-be-local 2
+argocd app rollback crivo-be-local 2
 ```
 
 ### Via Kubectl
 
 ```bash
 # Rollback deployment
-kubectl rollout undo deployment devops-be -n devops-lab
+kubectl rollout undo deployment crivo-be -n devops-lab
 
 # Rollback para revisão específica
-kubectl rollout undo deployment devops-be --to-revision=3 -n devops-lab
+kubectl rollout undo deployment crivo-be --to-revision=3 -n devops-lab
 ```
 
 ## Scaling
@@ -369,10 +369,10 @@ kubectl rollout undo deployment devops-be --to-revision=3 -n devops-lab
 
 ```bash
 # Scale up
-kubectl scale deployment devops-be --replicas=3 -n devops-lab
+kubectl scale deployment crivo-be --replicas=3 -n devops-lab
 
 # Scale down
-kubectl scale deployment devops-be --replicas=1 -n devops-lab
+kubectl scale deployment crivo-be --replicas=1 -n devops-lab
 ```
 
 ### Horizontal Pod Autoscaler (HPA)
@@ -382,13 +382,13 @@ kubectl scale deployment devops-be --replicas=1 -n devops-lab
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: devops-be-hpa
+  name: crivo-be-hpa
   namespace: devops-lab
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: devops-be
+    name: crivo-be
   minReplicas: 1
   maxReplicas: 5
   metrics:
@@ -420,7 +420,7 @@ kubectl get hpa -n devops-lab
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: devops-be-migration
+  name: crivo-be-migration
   namespace: devops-lab
   annotations:
     argocd.argoproj.io/hook: PreSync
@@ -430,7 +430,7 @@ spec:
     spec:
       containers:
         - name: migrate
-          image: ghcr.io/geraldobl58/devops-be:latest
+          image: ghcr.io/geraldobl58/crivo-be:latest
           command: ["npm", "run", "migrate"]
           env:
             - name: DATABASE_URL
@@ -449,7 +449,7 @@ spec:
 kubectl create job --from=cronjob/migrations manual-migration -n devops-lab
 
 # Ou exec no pod
-kubectl exec -it <devops-be-pod> -n devops-lab -- npm run migrate
+kubectl exec -it <crivo-be-pod> -n devops-lab -- npm run migrate
 ```
 
 ## Monitoramento
@@ -480,10 +480,10 @@ curl http://develop-auth.devops.local/health/ready
 
 ```bash
 # Via kubectl
-make logs SERVICE=devops-be
+make logs SERVICE=crivo-be
 
 # Ou
-kubectl logs -n devops-lab -l app=devops-be --follow
+kubectl logs -n devops-lab -l app=crivo-be --follow
 
 # No Kibana
 # Query: kubernetes.namespace: "devops-lab"
@@ -495,16 +495,16 @@ kubectl logs -n devops-lab -l app=devops-be --follow
 
 ```bash
 # Ver detalhes
-argocd app get devops-be-local
+argocd app get crivo-be-local
 
 # Ver diff
-argocd app diff devops-be-local
+argocd app diff crivo-be-local
 
 # Logs do sync
-argocd app logs devops-be-local
+argocd app logs crivo-be-local
 
 # Forçar refresh
-argocd app get devops-be-local --refresh
+argocd app get crivo-be-local --refresh
 ```
 
 ### Pod crashando
@@ -546,7 +546,7 @@ on:
   push:
     branches: [main]
     paths:
-      - "apps/devops-be/**"
+      - "apps/crivo-be/**"
 
 jobs:
   deploy:
@@ -556,27 +556,27 @@ jobs:
 
       - name: Build Image
         run: |
-          cd apps/devops-be
-          docker build -t ghcr.io/geraldobl58/devops-be:${{ github.sha }} .
-          docker tag ghcr.io/geraldobl58/devops-be:${{ github.sha }} \
-                     ghcr.io/geraldobl58/devops-be:latest
+          cd apps/crivo-be
+          docker build -t ghcr.io/geraldobl58/crivo-be:${{ github.sha }} .
+          docker tag ghcr.io/geraldobl58/crivo-be:${{ github.sha }} \
+                     ghcr.io/geraldobl58/crivo-be:latest
 
       - name: Push Image
         run: |
-          docker push ghcr.io/geraldobl58/devops-be:${{ github.sha }}
-          docker push ghcr.io/geraldobl58/devops-be:latest
+          docker push ghcr.io/geraldobl58/crivo-be:${{ github.sha }}
+          docker push ghcr.io/geraldobl58/crivo-be:latest
 
       - name: Update Helm Values
         run: |
           sed -i '' "s/tag: \".*\"/tag: \"${{ github.sha }}\"/" \
-            local/helm/devops-be/values-local.yaml
-          git add local/helm/devops-be/values-local.yaml
-          git commit -m "chore: update devops-be to ${{ github.sha }}"
+            local/helm/crivo-be/values-local.yaml
+          git add local/helm/crivo-be/values-local.yaml
+          git commit -m "chore: update crivo-be to ${{ github.sha }}"
           git push
 
       - name: Sync ArgoCD
         run: |
-          argocd app sync devops-be-local --force
+          argocd app sync crivo-be-local --force
 ```
 
 ## Próximos Passos

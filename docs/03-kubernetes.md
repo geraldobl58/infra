@@ -250,16 +250,16 @@ curl -H "Host: develop-be.devops.local" http://localhost
 
 ```bash
 # Port-forward de um service
-make port-forward SERVICE=devops-be PORT=3000
+make port-forward SERVICE=crivo-be PORT=3000
 
 # Ou manualmente
-kubectl port-forward -n devops-lab svc/devops-be 3000:3000
+kubectl port-forward -n devops-lab svc/crivo-be 3000:3000
 
 # Port-forward de um pod
-kubectl port-forward -n devops-lab pod/devops-be-xxx 3000:3000
+kubectl port-forward -n devops-lab pod/crivo-be-xxx 3000:3000
 
 # Múltiplas portas
-kubectl port-forward -n devops-lab svc/devops-be 3000:3000 9090:9090
+kubectl port-forward -n devops-lab svc/crivo-be 3000:3000 9090:9090
 ```
 
 ### Network Policies
@@ -278,7 +278,7 @@ metadata:
 spec:
   podSelector:
     matchLabels:
-      app: devops-be
+      app: crivo-be
   policyTypes:
   - Ingress
   ingress:
@@ -298,14 +298,14 @@ EOF
 # ghcr.io/geraldobl58
 
 # Fazer build e push
-docker build -t ghcr.io/geraldobl58/devops-be:latest .
-docker push ghcr.io/geraldobl58/devops-be:latest
+docker build -t ghcr.io/geraldobl58/crivo-be:latest .
+docker push ghcr.io/geraldobl58/crivo-be:latest
 
 # Listar imagens no registry
 curl http://localhost:5000/v2/_catalog
 
 # Tags de uma imagem
-curl http://localhost:5000/v2/devops-be/tags/list
+curl http://localhost:5000/v2/crivo-be/tags/list
 ```
 
 ### Configurar Docker para Registry Local
@@ -435,7 +435,7 @@ kubectl get events -n <namespace> --sort-by='.lastTimestamp'
 kubectl run -it --rm debug --image=busybox --restart=Never -- nslookup kubernetes.default
 
 # Testar conectividade
-kubectl run -it --rm debug --image=busybox --restart=Never -- wget -O- http://devops-be.devops-lab:3000/health
+kubectl run -it --rm debug --image=busybox --restart=Never -- wget -O- http://crivo-be.devops-lab:3000/health
 ```
 
 ### Limpar Recursos

@@ -13,13 +13,13 @@ NC='\033[0m'
 
 if [ "$#" -lt 2 ]; then
     echo -e "${YELLOW}Uso: $0 <nome-do-app> <diretorio-do-helm-chart> [namespace]${NC}"
-    echo -e "Exemplo: $0 meu-app ./helm/meu-app devops-develop"
+    echo -e "Exemplo: $0 meu-app ./helm/meu-app crivo-develop"
     exit 1
 fi
 
 APP_NAME=$1
 HELM_PATH=$2
-NAMESPACE=${3:-devops-develop}
+NAMESPACE=${3:-crivo-develop}
 
 echo -e "${BLUE}🚀 Fazendo deploy de $APP_NAME em $NAMESPACE...${NC}"
 

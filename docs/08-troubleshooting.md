@@ -478,10 +478,10 @@ O Keycloak retorna 503 durante o startup. Isso é **normal** — o Keycloak leva
 
 ```bash
 # Verificar se o pod está rodando
-kubectl get pods -n devops-develop -l app=devops-auth
+kubectl get pods -n crivo-develop -l app=crivo-auth
 
 # Aguardar readiness probe (180-240s initial delay)
-kubectl wait --for=condition=ready pod -l app=devops-auth -n devops-develop --timeout=300s
+kubectl wait --for=condition=ready pod -l app=crivo-auth -n crivo-develop --timeout=300s
 
 # Testar endpoint
 curl -s -o /dev/null -w "%{http_code}" http://develop-auth.devops.local/realms/master

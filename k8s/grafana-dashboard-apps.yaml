@@ -1,5 +1,5 @@
 # ============================================================================
-# Grafana Dashboard - devops-be (Backend API)
+# Grafana Dashboard - crivo-be (Backend API)
 # ============================================================================
 apiVersion: v1
 kind: ConfigMap
@@ -14,7 +14,7 @@ data:
   devops-backend.json: |-
     {
       "uid": "devops-backend",
-      "title": "Backend API (devops-be)",
+      "title": "Backend API (crivo-be)",
       "tags": ["devops", "backend", "api"],
       "timezone": "America/Sao_Paulo",
       "editable": true,
@@ -41,7 +41,7 @@ data:
           "title": "Status",
           "type": "stat",
           "gridPos": { "h": 4, "w": 6, "x": 0, "y": 0 },
-          "targets": [{ "expr": "count(kube_pod_status_phase{namespace=~\"$namespace\", pod=~\"devops-be-.*\", phase=\"Running\"})", "legendFormat": "Running Pods", "refId": "A" }],
+          "targets": [{ "expr": "count(kube_pod_status_phase{namespace=~\"$namespace\", pod=~\"crivo-be-.*\", phase=\"Running\"})", "legendFormat": "Running Pods", "refId": "A" }],
           "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "steps": [{ "color": "red", "value": 0 }, { "color": "green", "value": 1 }] } } }
         },
         {
@@ -49,7 +49,7 @@ data:
           "title": "Réplicas por Namespace",
           "type": "stat",
           "gridPos": { "h": 4, "w": 18, "x": 6, "y": 0 },
-          "targets": [{ "expr": "kube_deployment_status_replicas_ready{namespace=~\"$namespace\", deployment=~\"devops-be.*\"}", "legendFormat": "{{ namespace }}", "refId": "A" }],
+          "targets": [{ "expr": "kube_deployment_status_replicas_ready{namespace=~\"$namespace\", deployment=~\"crivo-be.*\"}", "legendFormat": "{{ namespace }}", "refId": "A" }],
           "fieldConfig": { "defaults": { "color": { "mode": "palette-classic" } } }
         },
         {
@@ -57,7 +57,7 @@ data:
           "title": "CPU Usage",
           "type": "timeseries",
           "gridPos": { "h": 8, "w": 12, "x": 0, "y": 4 },
-          "targets": [{ "expr": "sum(rate(container_cpu_usage_seconds_total{namespace=~\"$namespace\", pod=~\"devops-be-.*\", container!=\"\", container!=\"POD\"}[5m])) by (namespace, pod)", "legendFormat": "{{ namespace }} / {{ pod }}", "refId": "A" }],
+          "targets": [{ "expr": "sum(rate(container_cpu_usage_seconds_total{namespace=~\"$namespace\", pod=~\"crivo-be-.*\", container!=\"\", container!=\"POD\"}[5m])) by (namespace, pod)", "legendFormat": "{{ namespace }} / {{ pod }}", "refId": "A" }],
           "fieldConfig": { "defaults": { "unit": "short", "custom": { "fillOpacity": 10, "showPoints": "never" } } }
         },
         {
@@ -65,7 +65,7 @@ data:
           "title": "Memory Usage",
           "type": "timeseries",
           "gridPos": { "h": 8, "w": 12, "x": 12, "y": 4 },
-          "targets": [{ "expr": "sum(container_memory_working_set_bytes{namespace=~\"$namespace\", pod=~\"devops-be-.*\", container!=\"\", container!=\"POD\"}) by (namespace, pod) / 1024 / 1024", "legendFormat": "{{ namespace }} / {{ pod }}", "refId": "A" }],
+          "targets": [{ "expr": "sum(container_memory_working_set_bytes{namespace=~\"$namespace\", pod=~\"crivo-be-.*\", container!=\"\", container!=\"POD\"}) by (namespace, pod) / 1024 / 1024", "legendFormat": "{{ namespace }} / {{ pod }}", "refId": "A" }],
           "fieldConfig": { "defaults": { "unit": "decmbytes", "custom": { "fillOpacity": 10, "showPoints": "never" } } }
         },
         {
@@ -73,7 +73,7 @@ data:
           "title": "Network RX",
           "type": "timeseries",
           "gridPos": { "h": 8, "w": 12, "x": 0, "y": 12 },
-          "targets": [{ "expr": "sum(rate(container_network_receive_bytes_total{namespace=~\"$namespace\", pod=~\"devops-be-.*\"}[5m])) by (namespace, pod)", "legendFormat": "{{ namespace }} / {{ pod }}", "refId": "A" }],
+          "targets": [{ "expr": "sum(rate(container_network_receive_bytes_total{namespace=~\"$namespace\", pod=~\"crivo-be-.*\"}[5m])) by (namespace, pod)", "legendFormat": "{{ namespace }} / {{ pod }}", "refId": "A" }],
           "fieldConfig": { "defaults": { "unit": "Bps", "custom": { "fillOpacity": 10, "showPoints": "never" } } }
         },
         {
@@ -81,7 +81,7 @@ data:
           "title": "Network TX",
           "type": "timeseries",
           "gridPos": { "h": 8, "w": 12, "x": 12, "y": 12 },
-          "targets": [{ "expr": "sum(rate(container_network_transmit_bytes_total{namespace=~\"$namespace\", pod=~\"devops-be-.*\"}[5m])) by (namespace, pod)", "legendFormat": "{{ namespace }} / {{ pod }}", "refId": "A" }],
+          "targets": [{ "expr": "sum(rate(container_network_transmit_bytes_total{namespace=~\"$namespace\", pod=~\"crivo-be-.*\"}[5m])) by (namespace, pod)", "legendFormat": "{{ namespace }} / {{ pod }}", "refId": "A" }],
           "fieldConfig": { "defaults": { "unit": "Bps", "custom": { "fillOpacity": 10, "showPoints": "never" } } }
         },
         {
@@ -89,7 +89,7 @@ data:
           "title": "Pod Restarts",
           "type": "timeseries",
           "gridPos": { "h": 8, "w": 12, "x": 0, "y": 20 },
-          "targets": [{ "expr": "increase(kube_pod_container_status_restarts_total{namespace=~\"$namespace\", pod=~\"devops-be-.*\"}[30m])", "legendFormat": "{{ namespace }} / {{ pod }}", "refId": "A" }],
+          "targets": [{ "expr": "increase(kube_pod_container_status_restarts_total{namespace=~\"$namespace\", pod=~\"crivo-be-.*\"}[30m])", "legendFormat": "{{ namespace }} / {{ pod }}", "refId": "A" }],
           "fieldConfig": { "defaults": { "custom": { "fillOpacity": 10, "showPoints": "never" } } }
         },
         {
@@ -98,8 +98,8 @@ data:
           "type": "bargauge",
           "gridPos": { "h": 8, "w": 12, "x": 12, "y": 20 },
           "targets": [
-            { "expr": "sum(rate(container_cpu_usage_seconds_total{namespace=~\"$namespace\", pod=~\"devops-be-.*\", container!=\"\", container!=\"POD\"}[5m])) by (namespace) * 1000", "legendFormat": "{{ namespace }} CPU (mCores)", "refId": "A" },
-            { "expr": "sum(container_memory_working_set_bytes{namespace=~\"$namespace\", pod=~\"devops-be-.*\", container!=\"\", container!=\"POD\"}) by (namespace) / 1024 / 1024", "legendFormat": "{{ namespace }} MEM (Mi)", "refId": "B" }
+            { "expr": "sum(rate(container_cpu_usage_seconds_total{namespace=~\"$namespace\", pod=~\"crivo-be-.*\", container!=\"\", container!=\"POD\"}[5m])) by (namespace) * 1000", "legendFormat": "{{ namespace }} CPU (mCores)", "refId": "A" },
+            { "expr": "sum(container_memory_working_set_bytes{namespace=~\"$namespace\", pod=~\"crivo-be-.*\", container!=\"\", container!=\"POD\"}) by (namespace) / 1024 / 1024", "legendFormat": "{{ namespace }} MEM (Mi)", "refId": "B" }
           ],
           "options": { "orientation": "horizontal", "displayMode": "gradient" }
         },
@@ -139,7 +139,7 @@ data:
     }
 ---
 # ============================================================================
-# Grafana Dashboard - devops-fe (Frontend)
+# Grafana Dashboard - crivo-fe (Frontend)
 # ============================================================================
 apiVersion: v1
 kind: ConfigMap
@@ -154,7 +154,7 @@ data:
   devops-frontend.json: |-
     {
       "uid": "devops-frontend",
-      "title": "Frontend (devops-fe)",
+      "title": "Frontend (crivo-fe)",
       "tags": ["devops", "frontend", "nextjs"],
       "timezone": "America/Sao_Paulo",
       "editable": true,
@@ -181,7 +181,7 @@ data:
           "title": "Status",
           "type": "stat",
           "gridPos": { "h": 4, "w": 6, "x": 0, "y": 0 },
-          "targets": [{ "expr": "count(kube_pod_status_phase{namespace=~\"$namespace\", pod=~\"devops-fe-.*\", phase=\"Running\"})", "legendFormat": "Running Pods", "refId": "A" }],
+          "targets": [{ "expr": "count(kube_pod_status_phase{namespace=~\"$namespace\", pod=~\"crivo-fe-.*\", phase=\"Running\"})", "legendFormat": "Running Pods", "refId": "A" }],
           "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "steps": [{ "color": "red", "value": 0 }, { "color": "green", "value": 1 }] } } }
         },
         {
@@ -189,7 +189,7 @@ data:
           "title": "Réplicas por Namespace",
           "type": "stat",
           "gridPos": { "h": 4, "w": 18, "x": 6, "y": 0 },
-          "targets": [{ "expr": "kube_deployment_status_replicas_ready{namespace=~\"$namespace\", deployment=~\"devops-fe.*\"}", "legendFormat": "{{ namespace }}", "refId": "A" }],
+          "targets": [{ "expr": "kube_deployment_status_replicas_ready{namespace=~\"$namespace\", deployment=~\"crivo-fe.*\"}", "legendFormat": "{{ namespace }}", "refId": "A" }],
           "fieldConfig": { "defaults": { "color": { "mode": "palette-classic" } } }
         },
         {
@@ -197,7 +197,7 @@ data:
           "title": "CPU Usage",
           "type": "timeseries",
           "gridPos": { "h": 8, "w": 12, "x": 0, "y": 4 },
-          "targets": [{ "expr": "sum(rate(container_cpu_usage_seconds_total{namespace=~\"$namespace\", pod=~\"devops-fe-.*\", container!=\"\", container!=\"POD\"}[5m])) by (namespace, pod)", "legendFormat": "{{ namespace }} / {{ pod }}", "refId": "A" }],
+          "targets": [{ "expr": "sum(rate(container_cpu_usage_seconds_total{namespace=~\"$namespace\", pod=~\"crivo-fe-.*\", container!=\"\", container!=\"POD\"}[5m])) by (namespace, pod)", "legendFormat": "{{ namespace }} / {{ pod }}", "refId": "A" }],
           "fieldConfig": { "defaults": { "unit": "short", "custom": { "fillOpacity": 10, "showPoints": "never" } } }
         },
         {
@@ -205,7 +205,7 @@ data:
           "title": "Memory Usage",
           "type": "timeseries",
           "gridPos": { "h": 8, "w": 12, "x": 12, "y": 4 },
-          "targets": [{ "expr": "sum(container_memory_working_set_bytes{namespace=~\"$namespace\", pod=~\"devops-fe-.*\", container!=\"\", container!=\"POD\"}) by (namespace, pod) / 1024 / 1024", "legendFormat": "{{ namespace }} / {{ pod }}", "refId": "A" }],
+          "targets": [{ "expr": "sum(container_memory_working_set_bytes{namespace=~\"$namespace\", pod=~\"crivo-fe-.*\", container!=\"\", container!=\"POD\"}) by (namespace, pod) / 1024 / 1024", "legendFormat": "{{ namespace }} / {{ pod }}", "refId": "A" }],
           "fieldConfig": { "defaults": { "unit": "decmbytes", "custom": { "fillOpacity": 10, "showPoints": "never" } } }
         },
         {
@@ -213,7 +213,7 @@ data:
           "title": "Network RX",
           "type": "timeseries",
           "gridPos": { "h": 8, "w": 12, "x": 0, "y": 12 },
-          "targets": [{ "expr": "sum(rate(container_network_receive_bytes_total{namespace=~\"$namespace\", pod=~\"devops-fe-.*\"}[5m])) by (namespace, pod)", "legendFormat": "{{ namespace }} / {{ pod }}", "refId": "A" }],
+          "targets": [{ "expr": "sum(rate(container_network_receive_bytes_total{namespace=~\"$namespace\", pod=~\"crivo-fe-.*\"}[5m])) by (namespace, pod)", "legendFormat": "{{ namespace }} / {{ pod }}", "refId": "A" }],
           "fieldConfig": { "defaults": { "unit": "Bps", "custom": { "fillOpacity": 10, "showPoints": "never" } } }
         },
         {
@@ -221,7 +221,7 @@ data:
           "title": "Network TX",
           "type": "timeseries",
           "gridPos": { "h": 8, "w": 12, "x": 12, "y": 12 },
-          "targets": [{ "expr": "sum(rate(container_network_transmit_bytes_total{namespace=~\"$namespace\", pod=~\"devops-fe-.*\"}[5m])) by (namespace, pod)", "legendFormat": "{{ namespace }} / {{ pod }}", "refId": "A" }],
+          "targets": [{ "expr": "sum(rate(container_network_transmit_bytes_total{namespace=~\"$namespace\", pod=~\"crivo-fe-.*\"}[5m])) by (namespace, pod)", "legendFormat": "{{ namespace }} / {{ pod }}", "refId": "A" }],
           "fieldConfig": { "defaults": { "unit": "Bps", "custom": { "fillOpacity": 10, "showPoints": "never" } } }
         },
         {
@@ -229,7 +229,7 @@ data:
           "title": "Pod Restarts",
           "type": "timeseries",
           "gridPos": { "h": 8, "w": 12, "x": 0, "y": 20 },
-          "targets": [{ "expr": "increase(kube_pod_container_status_restarts_total{namespace=~\"$namespace\", pod=~\"devops-fe-.*\"}[30m])", "legendFormat": "{{ namespace }} / {{ pod }}", "refId": "A" }],
+          "targets": [{ "expr": "increase(kube_pod_container_status_restarts_total{namespace=~\"$namespace\", pod=~\"crivo-fe-.*\"}[30m])", "legendFormat": "{{ namespace }} / {{ pod }}", "refId": "A" }],
           "fieldConfig": { "defaults": { "custom": { "fillOpacity": 10, "showPoints": "never" } } }
         },
         {
@@ -238,8 +238,8 @@ data:
           "type": "bargauge",
           "gridPos": { "h": 8, "w": 12, "x": 12, "y": 20 },
           "targets": [
-            { "expr": "sum(rate(container_cpu_usage_seconds_total{namespace=~\"$namespace\", pod=~\"devops-fe-.*\", container!=\"\", container!=\"POD\"}[5m])) by (namespace) * 1000", "legendFormat": "{{ namespace }} CPU (mCores)", "refId": "A" },
-            { "expr": "sum(container_memory_working_set_bytes{namespace=~\"$namespace\", pod=~\"devops-fe-.*\", container!=\"\", container!=\"POD\"}) by (namespace) / 1024 / 1024", "legendFormat": "{{ namespace }} MEM (Mi)", "refId": "B" }
+            { "expr": "sum(rate(container_cpu_usage_seconds_total{namespace=~\"$namespace\", pod=~\"crivo-fe-.*\", container!=\"\", container!=\"POD\"}[5m])) by (namespace) * 1000", "legendFormat": "{{ namespace }} CPU (mCores)", "refId": "A" },
+            { "expr": "sum(container_memory_working_set_bytes{namespace=~\"$namespace\", pod=~\"crivo-fe-.*\", container!=\"\", container!=\"POD\"}) by (namespace) / 1024 / 1024", "legendFormat": "{{ namespace }} MEM (Mi)", "refId": "B" }
           ],
           "options": { "orientation": "horizontal", "displayMode": "gradient" }
         },
@@ -248,7 +248,7 @@ data:
           "title": "Node.js Heap Used",
           "type": "timeseries",
           "gridPos": { "h": 8, "w": 12, "x": 0, "y": 28 },
-          "targets": [{ "expr": "nodejs_heap_size_used_bytes{namespace=~\"$namespace\", pod=~\"devops-fe-.*\"} / 1024 / 1024", "legendFormat": "{{ namespace }} / {{ pod }}", "refId": "A" }],
+          "targets": [{ "expr": "nodejs_heap_size_used_bytes{namespace=~\"$namespace\", pod=~\"crivo-fe-.*\"} / 1024 / 1024", "legendFormat": "{{ namespace }} / {{ pod }}", "refId": "A" }],
           "fieldConfig": { "defaults": { "unit": "decmbytes", "custom": { "fillOpacity": 10, "showPoints": "never" } } }
         },
         {
@@ -256,14 +256,14 @@ data:
           "title": "Event Loop Lag (p99)",
           "type": "timeseries",
           "gridPos": { "h": 8, "w": 12, "x": 12, "y": 28 },
-          "targets": [{ "expr": "nodejs_eventloop_lag_p99_seconds{namespace=~\"$namespace\", pod=~\"devops-fe-.*\"} * 1000", "legendFormat": "{{ namespace }} / {{ pod }}", "refId": "A" }],
+          "targets": [{ "expr": "nodejs_eventloop_lag_p99_seconds{namespace=~\"$namespace\", pod=~\"crivo-fe-.*\"} * 1000", "legendFormat": "{{ namespace }} / {{ pod }}", "refId": "A" }],
           "fieldConfig": { "defaults": { "unit": "ms", "custom": { "fillOpacity": 10, "showPoints": "never" } } }
         }
       ]
     }
 ---
 # ============================================================================
-# Grafana Dashboard - devops-auth (Keycloak)
+# Grafana Dashboard - crivo-auth (Keycloak)
 # ============================================================================
 apiVersion: v1
 kind: ConfigMap
@@ -275,10 +275,10 @@ metadata:
   annotations:
     grafana_folder: "DevOps Lab"
 data:
-  devops-auth.json: |-
+  crivo-auth.json: |-
     {
-      "uid": "devops-auth",
-      "title": "Auth / Keycloak (devops-auth)",
+      "uid": "crivo-auth",
+      "title": "Auth / Keycloak (crivo-auth)",
       "tags": ["devops", "auth", "keycloak"],
       "timezone": "America/Sao_Paulo",
       "editable": true,
@@ -305,7 +305,7 @@ data:
           "title": "Status",
           "type": "stat",
           "gridPos": { "h": 4, "w": 6, "x": 0, "y": 0 },
-          "targets": [{ "expr": "count(kube_pod_status_phase{namespace=~\"$namespace\", pod=~\"devops-auth-.*\", phase=\"Running\"})", "legendFormat": "Running Pods", "refId": "A" }],
+          "targets": [{ "expr": "count(kube_pod_status_phase{namespace=~\"$namespace\", pod=~\"crivo-auth-.*\", phase=\"Running\"})", "legendFormat": "Running Pods", "refId": "A" }],
           "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "steps": [{ "color": "red", "value": 0 }, { "color": "green", "value": 1 }] } } }
         },
         {
@@ -313,7 +313,7 @@ data:
           "title": "Réplicas por Namespace",
           "type": "stat",
           "gridPos": { "h": 4, "w": 18, "x": 6, "y": 0 },
-          "targets": [{ "expr": "kube_deployment_status_replicas_ready{namespace=~\"$namespace\", deployment=~\"devops-auth.*\"}", "legendFormat": "{{ namespace }}", "refId": "A" }],
+          "targets": [{ "expr": "kube_deployment_status_replicas_ready{namespace=~\"$namespace\", deployment=~\"crivo-auth.*\"}", "legendFormat": "{{ namespace }}", "refId": "A" }],
           "fieldConfig": { "defaults": { "color": { "mode": "palette-classic" } } }
         },
         {
@@ -321,7 +321,7 @@ data:
           "title": "CPU Usage",
           "type": "timeseries",
           "gridPos": { "h": 8, "w": 12, "x": 0, "y": 4 },
-          "targets": [{ "expr": "sum(rate(container_cpu_usage_seconds_total{namespace=~\"$namespace\", pod=~\"devops-auth-.*\", container!=\"\", container!=\"POD\"}[5m])) by (namespace, pod)", "legendFormat": "{{ namespace }} / {{ pod }}", "refId": "A" }],
+          "targets": [{ "expr": "sum(rate(container_cpu_usage_seconds_total{namespace=~\"$namespace\", pod=~\"crivo-auth-.*\", container!=\"\", container!=\"POD\"}[5m])) by (namespace, pod)", "legendFormat": "{{ namespace }} / {{ pod }}", "refId": "A" }],
           "fieldConfig": { "defaults": { "unit": "short", "custom": { "fillOpacity": 10, "showPoints": "never" } } }
         },
         {
@@ -329,7 +329,7 @@ data:
           "title": "Memory Usage",
           "type": "timeseries",
           "gridPos": { "h": 8, "w": 12, "x": 12, "y": 4 },
-          "targets": [{ "expr": "sum(container_memory_working_set_bytes{namespace=~\"$namespace\", pod=~\"devops-auth-.*\", container!=\"\", container!=\"POD\"}) by (namespace, pod) / 1024 / 1024", "legendFormat": "{{ namespace }} / {{ pod }}", "refId": "A" }],
+          "targets": [{ "expr": "sum(container_memory_working_set_bytes{namespace=~\"$namespace\", pod=~\"crivo-auth-.*\", container!=\"\", container!=\"POD\"}) by (namespace, pod) / 1024 / 1024", "legendFormat": "{{ namespace }} / {{ pod }}", "refId": "A" }],
           "fieldConfig": { "defaults": { "unit": "decmbytes", "custom": { "fillOpacity": 10, "showPoints": "never" } } }
         },
         {
@@ -337,7 +337,7 @@ data:
           "title": "Network RX",
           "type": "timeseries",
           "gridPos": { "h": 8, "w": 12, "x": 0, "y": 12 },
-          "targets": [{ "expr": "sum(rate(container_network_receive_bytes_total{namespace=~\"$namespace\", pod=~\"devops-auth-.*\"}[5m])) by (namespace, pod)", "legendFormat": "{{ namespace }} / {{ pod }}", "refId": "A" }],
+          "targets": [{ "expr": "sum(rate(container_network_receive_bytes_total{namespace=~\"$namespace\", pod=~\"crivo-auth-.*\"}[5m])) by (namespace, pod)", "legendFormat": "{{ namespace }} / {{ pod }}", "refId": "A" }],
           "fieldConfig": { "defaults": { "unit": "Bps", "custom": { "fillOpacity": 10, "showPoints": "never" } } }
         },
         {
@@ -345,7 +345,7 @@ data:
           "title": "Network TX",
           "type": "timeseries",
           "gridPos": { "h": 8, "w": 12, "x": 12, "y": 12 },
-          "targets": [{ "expr": "sum(rate(container_network_transmit_bytes_total{namespace=~\"$namespace\", pod=~\"devops-auth-.*\"}[5m])) by (namespace, pod)", "legendFormat": "{{ namespace }} / {{ pod }}", "refId": "A" }],
+          "targets": [{ "expr": "sum(rate(container_network_transmit_bytes_total{namespace=~\"$namespace\", pod=~\"crivo-auth-.*\"}[5m])) by (namespace, pod)", "legendFormat": "{{ namespace }} / {{ pod }}", "refId": "A" }],
           "fieldConfig": { "defaults": { "unit": "Bps", "custom": { "fillOpacity": 10, "showPoints": "never" } } }
         },
         {
@@ -353,7 +353,7 @@ data:
           "title": "Pod Restarts",
           "type": "timeseries",
           "gridPos": { "h": 8, "w": 12, "x": 0, "y": 20 },
-          "targets": [{ "expr": "increase(kube_pod_container_status_restarts_total{namespace=~\"$namespace\", pod=~\"devops-auth-.*\"}[30m])", "legendFormat": "{{ namespace }} / {{ pod }}", "refId": "A" }],
+          "targets": [{ "expr": "increase(kube_pod_container_status_restarts_total{namespace=~\"$namespace\", pod=~\"crivo-auth-.*\"}[30m])", "legendFormat": "{{ namespace }} / {{ pod }}", "refId": "A" }],
           "fieldConfig": { "defaults": { "custom": { "fillOpacity": 10, "showPoints": "never" } } }
         },
         {
@@ -362,8 +362,8 @@ data:
           "type": "bargauge",
           "gridPos": { "h": 8, "w": 12, "x": 12, "y": 20 },
           "targets": [
-            { "expr": "sum(rate(container_cpu_usage_seconds_total{namespace=~\"$namespace\", pod=~\"devops-auth-.*\", container!=\"\", container!=\"POD\"}[5m])) by (namespace) * 1000", "legendFormat": "{{ namespace }} CPU (mCores)", "refId": "A" },
-            { "expr": "sum(container_memory_working_set_bytes{namespace=~\"$namespace\", pod=~\"devops-auth-.*\", container!=\"\", container!=\"POD\"}) by (namespace) / 1024 / 1024", "legendFormat": "{{ namespace }} MEM (Mi)", "refId": "B" }
+            { "expr": "sum(rate(container_cpu_usage_seconds_total{namespace=~\"$namespace\", pod=~\"crivo-auth-.*\", container!=\"\", container!=\"POD\"}[5m])) by (namespace) * 1000", "legendFormat": "{{ namespace }} CPU (mCores)", "refId": "A" },
+            { "expr": "sum(container_memory_working_set_bytes{namespace=~\"$namespace\", pod=~\"crivo-auth-.*\", container!=\"\", container!=\"POD\"}) by (namespace) / 1024 / 1024", "legendFormat": "{{ namespace }} MEM (Mi)", "refId": "B" }
           ],
           "options": { "orientation": "horizontal", "displayMode": "gradient" }
         },
@@ -388,7 +388,7 @@ data:
           "title": "JVM Heap Used",
           "type": "timeseries",
           "gridPos": { "h": 8, "w": 12, "x": 0, "y": 36 },
-          "targets": [{ "expr": "jvm_memory_used_bytes{namespace=~\"$namespace\", pod=~\"devops-auth-.*\", area=\"heap\"} / 1024 / 1024", "legendFormat": "{{ namespace }} / {{ id }}", "refId": "A" }],
+          "targets": [{ "expr": "jvm_memory_used_bytes{namespace=~\"$namespace\", pod=~\"crivo-auth-.*\", area=\"heap\"} / 1024 / 1024", "legendFormat": "{{ namespace }} / {{ id }}", "refId": "A" }],
           "fieldConfig": { "defaults": { "unit": "decmbytes", "custom": { "fillOpacity": 10, "showPoints": "never" } } }
         },
         {

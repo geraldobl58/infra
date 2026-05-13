@@ -76,14 +76,14 @@ Uma Application é um recurso que conecta um repositório Git a um namespace Kub
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: devops-be-local
+  name: crivo-be-local
   namespace: argocd
 spec:
   project: devops-lab
   source:
     repoURL: https://github.com/geraldobl58/devops.git
     targetRevision: main
-    path: local/helm/devops-be
+    path: local/helm/crivo-be
     helm:
       valueFiles:
         - values-local.yaml
@@ -110,9 +110,9 @@ spec:
   generators:
     - list:
         elements:
-          - service: devops-be
-          - service: devops-fe
-          - service: devops-auth
+          - service: crivo-be
+          - service: crivo-fe
+          - service: crivo-auth
   template:
     metadata:
       name: "{{service}}-local"
@@ -154,52 +154,52 @@ argocd app list
 kubectl get applications -n argocd
 
 # Detalhes
-argocd app get devops-be-local
+argocd app get crivo-be-local
 ```
 
 ### Sincronizar Aplicações
 
 ```bash
 # Sync manual
-argocd app sync devops-be-local
+argocd app sync crivo-be-local
 
 # Sync todas
 argocd app sync -l environment=local
 
 # Sync com prune (remove recursos órfãos)
-argocd app sync devops-be-local --prune
+argocd app sync crivo-be-local --prune
 
 # Sync forçado
-argocd app sync devops-be-local --force
+argocd app sync crivo-be-local --force
 ```
 
 ### Ver Status
 
 ```bash
 # Status de uma app
-argocd app get devops-be-local
+argocd app get crivo-be-local
 
 # Ver diferenças (drift detection)
-argocd app diff devops-be-local
+argocd app diff crivo-be-local
 
 # Ver histórico
-argocd app history devops-be-local
+argocd app history crivo-be-local
 
 # Ver recursos
-argocd app resources devops-be-local
+argocd app resources crivo-be-local
 ```
 
 ### Rollback
 
 ```bash
 # Ver histórico
-argocd app history devops-be-local
+argocd app history crivo-be-local
 
 # Rollback para revisão anterior
-argocd app rollback devops-be-local 2
+argocd app rollback crivo-be-local 2
 
 # Rollback via kubectl
-kubectl patch application devops-be-local -n argocd --type merge -p '{"spec":{"source":{"targetRevision":"previous-commit"}}}'
+kubectl patch application crivo-be-local -n argocd --type merge -p '{"spec":{"source":{"targetRevision":"previous-commit"}}}'
 ```
 
 ## Sync Policies
@@ -262,7 +262,7 @@ spec:
     spec:
       containers:
         - name: migrations
-          image: devops-be:latest
+          image: crivo-be:latest
           command: ["npm", "run", "migrate"]
       restartPolicy: Never
 ```
@@ -388,11 +388,11 @@ argocd cluster list
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: devops-be-prod
+  name: crivo-be-prod
 spec:
   destination:
     server: https://prod-cluster.example.com
-    namespace: devops-prod
+    namespace: crivo-prod
   # ... resto da config
 ```
 
@@ -461,37 +461,37 @@ git commit -m "feat: nova feature"
 git push
 
 # 2. Build e push da imagem
-docker build -t ghcr.io/geraldobl58/devops-be:v1.2.3 .
-docker push ghcr.io/geraldobl58/devops-be:v1.2.3
+docker build -t ghcr.io/geraldobl58/crivo-be:v1.2.3 .
+docker push ghcr.io/geraldobl58/crivo-be:v1.2.3
 
 # 3. Atualizar Helm values
-# Editar local/helm/devops-be/values-local.yaml
+# Editar local/helm/crivo-be/values-local.yaml
 # Mudar tag: "v1.2.3"
 
 # 4. Commit e push
-git add local/helm/devops-be/values-local.yaml
-git commit -m "release: devops-be v1.2.3"
+git add local/helm/crivo-be/values-local.yaml
+git commit -m "release: crivo-be v1.2.3"
 git push
 
 # 5. ArgoCD faz sync automaticamente em ~3 minutos
 # Ou forçar sync:
-argocd app sync devops-be-local
+argocd app sync crivo-be-local
 ```
 
 ### Debug de Sync Failures
 
 ```bash
 # Ver detalhes do erro
-argocd app get devops-be-local
+argocd app get crivo-be-local
 
 # Ver logs do sync
-argocd app logs devops-be-local
+argocd app logs crivo-be-local
 
 # Ver eventos
 kubectl get events -n devops-lab --sort-by='.lastTimestamp'
 
 # Ver diff
-argocd app diff devops-be-local
+argocd app diff crivo-be-local
 ```
 
 ## Monitoramento com Prometheus
@@ -530,10 +530,10 @@ argocd app list | grep OutOfSync
 argocd app sync -l environment=local
 
 # Ver logs de sync
-argocd app logs devops-be-local --follow
+argocd app logs crivo-be-local --follow
 
 # Ver recursos de uma app
-argocd app resources devops-be-local
+argocd app resources crivo-be-local
 
 # Info do servidor
 argocd admin settings resource-overrides
@@ -542,7 +542,7 @@ argocd admin settings resource-overrides
 argocd proj list
 
 # Export de app (backup)
-argocd app get devops-be-local -o yaml > backup.yaml
+argocd app get crivo-be-local -o yaml > backup.yaml
 ```
 
 ## Troubleshooting
@@ -551,7 +551,7 @@ argocd app get devops-be-local -o yaml > backup.yaml
 
 ```bash
 # Ver detalhes
-kubectl describe application devops-be-local -n argocd
+kubectl describe application crivo-be-local -n argocd
 
 # Ver pods
 kubectl get pods -n devops-lab
@@ -564,7 +564,7 @@ kubectl get events -n devops-lab
 
 ```bash
 # Verificar imagePullSecrets
-kubectl get deployment devops-be -n devops-lab -o yaml | grep -A 5 imagePullSecrets
+kubectl get deployment crivo-be -n devops-lab -o yaml | grep -A 5 imagePullSecrets
 
 # Criar secret se necessário
 kubectl create secret docker-registry ghcr-secret \
@@ -578,13 +578,13 @@ kubectl create secret docker-registry ghcr-secret \
 
 ```bash
 # Pode ser differences ignoráveis
-argocd app diff devops-be-local
+argocd app diff crivo-be-local
 
 # Forçar refresh
-argocd app get devops-be-local --refresh
+argocd app get crivo-be-local --refresh
 
 # Hard refresh
-argocd app get devops-be-local --hard-refresh
+argocd app get crivo-be-local --hard-refresh
 ```
 
 ## Próximos Passos

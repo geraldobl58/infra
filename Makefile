@@ -40,12 +40,12 @@ status: ## Mostra status completo do cluster e aplicações
 	@chmod +x status.sh
 	@./status.sh
 
-logs: ## Ver logs de um serviço. Uso: make logs SERVICE=devops-be NAMESPACE=devops-develop
+logs: ## Ver logs de um serviço. Uso: make logs SERVICE=crivo-be NAMESPACE=crivo-develop
 	@if [ -z "$(SERVICE)" ]; then \
-		echo "$(YELLOW)⚠️  Especifique o SERVICE. Exemplo: make logs SERVICE=devops-be NAMESPACE=devops-develop$(RESET)"; \
+		echo "$(YELLOW)⚠️  Especifique o SERVICE. Exemplo: make logs SERVICE=crivo-be NAMESPACE=crivo-develop$(RESET)"; \
 		exit 1; \
 	fi
-	@kubectl logs -n $(or $(NAMESPACE),devops-develop) -l app=$(SERVICE) --tail=100 -f
+	@kubectl logs -n $(or $(NAMESPACE),crivo-develop) -l app=$(SERVICE) --tail=100 -f
 
 k9s: ## Abre k9s para gerenciamento visual
 	@k9s

@@ -1,0 +1,63 @@
+# Values for QA environment
+replicaCount: 1
+
+image:
+  repository: ghcr.io/geraldobl58/crivo-be
+  tag: "develop"
+  pullPolicy: Always
+
+imagePullSecrets:
+  - name: ghcr-secret
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+  hosts:
+    - host: qa-be.devops.local
+      paths:
+        - path: /
+          pathType: Prefix
+
+resources:
+  limits:
+    cpu: 200m
+    memory: 256Mi
+  requests:
+    cpu: 10m
+    memory: 64Mi
+
+autoscaling:
+  enabled: false
+
+env:
+  NODE_ENV: production
+  PORT: "3000"
+  LOG_LEVEL: info
+  SWAGGER_ENABLED: "true"
+  METRICS_ENABLED: "true"
+  KEYCLOAK_URL: "http://qa-auth.devops.local"
+  KEYCLOAK_INTERNAL_URL: "http://crivo-auth-qa:8080"
+  KEYCLOAK_REALM: devops
+
+podDisruptionBudget:
+  enabled: false
+
+podAnnotations:
+  app.kubernetes.io/commit: "pending"
+
+metrics:
+  enabled: false
+  path: /metrics
+  serviceMonitor:
+    enabled: false
+
+# Kubernetes Secret com as credenciais do Cloudinary.
+# Criar o secret antes de implantar:
+#   kubectl create secret generic crivo-be-cloudinary -n crivo-qa \
+#     --from-literal=CLOUDINARY_CLOUD_NAME=xxx \
+#     --from-literal=CLOUDINARY_API_KEY=xxx \
+#     --from-literal=CLOUDINARY_API_SECRET=xxx \
+#     --from-literal=CLOUDINARY_FOLDER=devops
+envFrom:
+  - secretRef: crivo-be-cloudinary

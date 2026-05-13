@@ -1,0 +1,62 @@
+replicaCount: 1
+
+image:
+  repository: ghcr.io/geraldobl58/crivo-fe
+  tag: "latest"
+  pullPolicy: Always
+
+imagePullSecrets: []
+
+service:
+  type: ClusterIP
+  port: 3000
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations: {}
+  hosts:
+    - host: devops.local
+      paths:
+        - path: /
+          pathType: Prefix
+
+resources:
+  limits:
+    cpu: 200m
+    memory: 256Mi
+  requests:
+    cpu: 10m
+    memory: 64Mi
+
+livenessProbe:
+  enabled: true
+  path: /
+  initialDelaySeconds: 30
+  periodSeconds: 10
+
+readinessProbe:
+  enabled: true
+  path: /
+  initialDelaySeconds: 10
+  periodSeconds: 5
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 80
+
+env: []
+
+podDisruptionBudget:
+  enabled: false
+  minAvailable: 1
+
+podAnnotations: {}
+
+metrics:
+  enabled: false
+  path: /metrics
+  serviceMonitor:
+    enabled: false

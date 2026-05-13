@@ -6,10 +6,10 @@ O Lab DevOps possui **4 ambientes** completos rodando localmente:
 
 | Ambiente   | Branch    | Namespace      | URL Base                          | Auto-Deploy |
 | ---------- | --------- | -------------- | --------------------------------- | ----------- |
-| Develop    | `develop` | `devops-develop` | `develop-{fe,be,auth}.devops.local` | ✅ Sim      |
-| QA         | `qa`      | `devops-qa`      | `qa-{fe,be,auth}.devops.local`      | ✅ Sim      |
-| Staging    | `staging` | `devops-staging` | `staging-{fe,be,auth}.devops.local` | ✅ Sim      |
-| Production | `main`    | `devops-prod`    | `{fe,be,auth}.devops.local`         | ✅ Sim      |
+| Develop    | `develop` | `crivo-develop` | `develop-{fe,be,auth}.devops.local` | ✅ Sim      |
+| QA         | `qa`      | `crivo-qa`      | `qa-{fe,be,auth}.devops.local`      | ✅ Sim      |
+| Staging    | `staging` | `crivo-staging` | `staging-{fe,be,auth}.devops.local` | ✅ Sim      |
+| Production | `main`    | `crivo-prod`    | `{fe,be,auth}.devops.local`         | ✅ Sim      |
 
 > 💡 **100% LOCAL:** Todos os ambientes rodam em k3d no seu Mac, sem dependências de cloud.
 
@@ -20,7 +20,7 @@ O Lab DevOps possui **4 ambientes** completos rodando localmente:
 ### 🔧 Develop (Desenvolvimento)
 
 **Branch:** `develop` (default)  
-**Namespace:** `devops-develop`  
+**Namespace:** `crivo-develop`  
 **Propósito:** Integração contínua de features
 
 #### URLs:
@@ -59,7 +59,7 @@ git push origin feature/nova-feature
 ### 🧪 QA (Quality Assurance)
 
 **Branch:** `qa`  
-**Namespace:** `devops-qa`  
+**Namespace:** `crivo-qa`  
 **Propósito:** Testes de qualidade e validações do QA team
 
 #### URLs:
@@ -101,7 +101,7 @@ git push origin qa
 ### 🎭 Staging (Homologação)
 
 **Branch:** `staging`  
-**Namespace:** `devops-staging`  
+**Namespace:** `crivo-staging`  
 **Propósito:** Ambiente espelho de produção para testes finais
 
 #### URLs:
@@ -145,7 +145,7 @@ git push origin staging
 ### 🚀 Production (Produção)
 
 **Branch:** `main`  
-**Namespace:** `devops-prod`  
+**Namespace:** `crivo-prod`  
 **Propósito:** Ambiente de produção (simulado localmente)
 
 #### URLs:
@@ -191,13 +191,13 @@ git push origin v1.0.0
 ```
 1. Feature Branch
    ↓ PR + Merge
-2. Develop (devops-develop)
+2. Develop (crivo-develop)
    ↓ Merge após testes iniciais
-3. QA (devops-qa)
+3. QA (crivo-qa)
    ↓ Merge após testes de qualidade
-4. Staging (devops-staging)
+4. Staging (crivo-staging)
    ↓ Merge após homologação
-5. Production (devops-prod)
+5. Production (crivo-prod)
 ```
 
 ### Comandos Git para Promoção
@@ -292,9 +292,9 @@ Todos os ambientes compartilham os mesmos limites (ambiente de estudos):
 
 | Serviço   | CPU Limit | Memory Limit | CPU Request | Memory Request |
 | --------- | --------- | ------------ | ----------- | -------------- |
-| devops-be   | 200m      | 256Mi        | 10m         | 64Mi           |
-| devops-fe   | 200m      | 256Mi        | 10m         | 64Mi           |
-| devops-auth | 400m      | 768Mi        | 10m         | 128Mi          |
+| crivo-be   | 200m      | 256Mi        | 10m         | 64Mi           |
+| crivo-fe   | 200m      | 256Mi        | 10m         | 64Mi           |
+| crivo-auth | 400m      | 768Mi        | 10m         | 128Mi          |
 
 ### Réplicas
 
@@ -315,10 +315,10 @@ Cada ambiente possui seus próprios secrets:
 
 ```bash
 # Listar secrets
-kubectl get secrets -n devops-develop
-kubectl get secrets -n devops-qa
-kubectl get secrets -n devops-staging
-kubectl get secrets -n devops-prod
+kubectl get secrets -n crivo-develop
+kubectl get secrets -n crivo-qa
+kubectl get secrets -n crivo-staging
+kubectl get secrets -n crivo-prod
 
 # Secrets comuns em todos:
 # - ghcr-secret (pull images do GitHub Container Registry)
@@ -334,12 +334,12 @@ kubectl create secret docker-registry ghcr-secret \
   --docker-server=ghcr.io \
   --docker-username=geraldobl58 \
   --docker-password=$GITHUB_TOKEN \
-  -n devops-qa
+  -n crivo-qa
 
 kubectl create secret generic postgres-secret \
   --from-literal=host=postgres-qa.internal \
   --from-literal=password=qa-pass \
-  -n devops-qa
+  -n crivo-qa
 ```
 
 ---
@@ -350,10 +350,10 @@ kubectl create secret generic postgres-secret \
 
 Cada ambiente tem seus próprios ServiceMonitors:
 
-- `devops-be-develop` → `http://devops-be-develop:3000/metrics`
-- `devops-be-qa` → `http://devops-be-qa:3000/metrics`
-- `devops-be-staging` → `http://devops-be-staging:3000/metrics`
-- `devops-be-prod` → `http://devops-be-prod:3000/metrics`
+- `crivo-be-develop` → `http://crivo-be-develop:3000/metrics`
+- `crivo-be-qa` → `http://crivo-be-qa:3000/metrics`
+- `crivo-be-staging` → `http://crivo-be-staging:3000/metrics`
+- `crivo-be-prod` → `http://crivo-be-prod:3000/metrics`
 
 ### Grafana Dashboards
 
@@ -364,10 +364,10 @@ http://grafana.devops.local
 Login: admin / devops.local2026
 
 # No dashboard, filtrar por:
-- namespace: devops-develop
-- namespace: devops-qa
-- namespace: devops-staging
-- namespace: devops-prod
+- namespace: crivo-develop
+- namespace: crivo-qa
+- namespace: crivo-staging
+- namespace: crivo-prod
 ```
 
 ---
@@ -406,10 +406,10 @@ Login: admin / devops.local2026
 kubectl get namespaces | grep devops
 
 # Ver apps em cada ambiente
-kubectl get pods -n devops-develop
-kubectl get pods -n devops-qa
-kubectl get pods -n devops-staging
-kubectl get pods -n devops-prod
+kubectl get pods -n crivo-develop
+kubectl get pods -n crivo-qa
+kubectl get pods -n crivo-staging
+kubectl get pods -n crivo-prod
 
 # Ver deployments do ArgoCD
 kubectl get applications -n argocd | grep devops
@@ -418,8 +418,8 @@ kubectl get applications -n argocd | grep devops
 kubectl get appproject -n argocd
 
 # Forçar sync de um app
-argocd app sync devops-be-qa
-argocd app sync devops-fe-staging
+argocd app sync crivo-be-qa
+argocd app sync crivo-fe-staging
 ```
 
 ---

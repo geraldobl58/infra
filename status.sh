@@ -69,7 +69,7 @@ echo -e "${YELLOW}📦 NAMESPACES${NC}"
 echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo ""
 
-for ns in devops-develop devops-qa devops-staging devops-prod monitoring argocd; do
+for ns in crivo-develop crivo-qa crivo-staging crivo-prod monitoring argocd; do
     if kubectl get namespace "$ns" &>/dev/null; then
         echo -e "  ${GREEN}✓${NC} $ns"
     else

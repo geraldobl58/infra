@@ -15,7 +15,7 @@ O Lab inclui uma stack completa de observabilidade:
 ```
 ┌───────────────────────────────────────────────────┐
 │                  Applications                     │
-│          (devops-be, devops-fe, devops-auth)           │
+│          (crivo-be, crivo-fe, crivo-auth)           │
 │                Expose /metrics                    │
 └────────────────────┬──────────────────────────────┘
                      │
@@ -98,7 +98,7 @@ Visão geral de todos os ambientes (develop, qa, staging, prod):
 - Pod restarts nos últimos 30 min
 - Uptime dos deployments
 
-#### Backend API (devops-be)
+#### Backend API (crivo-be)
 
 Dashboard dedicado ao backend com filtro por namespace:
 
@@ -108,7 +108,7 @@ Dashboard dedicado ao backend com filtro por namespace:
 - Pod restarts
 - Comparação CPU vs Memory por namespace
 
-#### Frontend (devops-fe)
+#### Frontend (crivo-fe)
 
 Dashboard dedicado ao frontend com filtro por namespace:
 
@@ -118,7 +118,7 @@ Dashboard dedicado ao frontend com filtro por namespace:
 - Pod restarts
 - Comparação CPU vs Memory por namespace
 
-#### Auth / Keycloak (devops-auth)
+#### Auth / Keycloak (crivo-auth)
 
 Dashboard dedicado ao Keycloak com filtro por namespace:
 
@@ -129,7 +129,7 @@ Dashboard dedicado ao Keycloak com filtro por namespace:
 - Comparação CPU vs Memory por namespace
 
 > **Nota:** Todos os dashboards possuem variável `$namespace` que permite
-> filtrar por `devops-develop`, `devops-qa`, `devops-staging` ou `devops-prod`.
+> filtrar por `crivo-develop`, `crivo-qa`, `crivo-staging` ou `crivo-prod`.
 
 ### Dashboards Built-in do Kubernetes
 
@@ -176,7 +176,7 @@ Métricas do Ingress:
 ### Instrumentar Aplicação Node.js
 
 ```typescript
-// Backend: devops-be/src/libs/metrics.ts
+// Backend: crivo-be/src/libs/metrics.ts
 import promClient from "prom-client";
 
 // Registro
@@ -211,7 +211,7 @@ export async function metricsHandler(req, res) {
 ### Middleware de Métricas
 
 ```typescript
-// devops-be/src/middleware/metrics.middleware.ts
+// crivo-be/src/middleware/metrics.middleware.ts
 export function metricsMiddleware(req, res, next) {
   const start = Date.now();
 
@@ -244,14 +244,14 @@ export function metricsMiddleware(req, res, next) {
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: devops-be
+  name: crivo-be
   namespace: monitoring
   labels:
     release: kube-prometheus-stack
 spec:
   selector:
     matchLabels:
-      app: devops-be
+      app: crivo-be
   namespaceSelector:
     matchNames:
       - devops-lab

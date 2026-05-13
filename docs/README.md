@@ -55,7 +55,7 @@ make stop          # Parar cluster
 make restart       # Reiniciar cluster
 make destroy       # Destruir tudo - INTERATIVO
 make status        # Status completo
-make logs          # Logs: make logs SERVICE=devops-be NAMESPACE=devops-develop
+make logs          # Logs: make logs SERVICE=crivo-be NAMESPACE=crivo-develop
 make k9s           # Interface visual para K8s
 make grafana       # Abrir Grafana no browser
 make argocd        # Abrir ArgoCD no browser
@@ -66,7 +66,7 @@ make argocd        # Abrir ArgoCD no browser
 ```
 feature/* → develop → qa → staging → main
               ↓         ↓       ↓        ↓
-          devops-develop  devops-qa  devops-staging  devops-prod
+          crivo-develop  crivo-qa  crivo-staging  crivo-prod
 ```
 
 ## CI/CD Pipeline
@@ -123,9 +123,9 @@ local/
 │   ├── secrets.example.yaml   # Template de secrets
 │   └── storage-class.yaml     # StorageClass para SSD
 ├── helm/
-│   ├── devops-be/               # Helm chart: Backend (NestJS)
-│   ├── devops-fe/               # Helm chart: Frontend (Next.js)
-│   └── devops-auth/             # Helm chart: Auth (Keycloak)
+│   ├── crivo-be/               # Helm chart: Backend (NestJS)
+│   ├── crivo-fe/               # Helm chart: Frontend (Next.js)
+│   └── crivo-auth/             # Helm chart: Auth (Keycloak)
 ├── argocd/
 │   ├── projects/              # ArgoCD Projects (4 envs)
 │   └── applicationsets/       # ApplicationSets (12 apps)
@@ -183,7 +183,7 @@ Iniciar setup? (y/N): _
 **Fluxo de execução (6 etapas):**
 
 1. **Criar cluster k3d** — 1 server + 6 agents via `config/k3d-config.yaml`
-2. **Criar namespaces** — devops-develop, devops-qa, devops-staging, devops-prod, monitoring, argocd
+2. **Criar namespaces** — crivo-develop, crivo-qa, crivo-staging, crivo-prod, monitoring, argocd
 3. **Instalar ArgoCD** — Helm chart + Ingress em `argocd.devops.local`
 4. **Instalar observabilidade** — kube-prometheus-stack (Prometheus, Grafana, AlertManager)
 5. **Configurar ArgoCD GitOps** — Aplica projects + ApplicationSets (12 apps)

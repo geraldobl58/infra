@@ -8,19 +8,19 @@
 # ============================================================================
 
 ---
-# ServiceMonitor para devops-be (Backend NestJS)
+# ServiceMonitor para crivo-be (Backend NestJS)
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: devops-be
-  namespace: devops-develop
+  name: crivo-be
+  namespace: crivo-develop
   labels:
-    app: devops-be
+    app: crivo-be
     environment: develop
 spec:
   selector:
     matchLabels:
-      app: devops-be
+      app: crivo-be
   endpoints:
     - port: http
       path: /metrics
@@ -31,15 +31,15 @@ spec:
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: devops-be
-  namespace: devops-prod
+  name: crivo-be
+  namespace: crivo-prod
   labels:
-    app: devops-be
+    app: crivo-be
     environment: prod
 spec:
   selector:
     matchLabels:
-      app: devops-be
+      app: crivo-be
   endpoints:
     - port: http
       path: /metrics
@@ -47,21 +47,21 @@ spec:
       scrapeTimeout: 10s
 
 ---
-# ServiceMonitor para devops-fe (Frontend Next.js)
+# ServiceMonitor para crivo-fe (Frontend Next.js)
 # Next.js não expõe métricas Prometheus por padrão
 # Use: https://github.com/lirantal/next-prometheus-plugin
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: devops-fe
-  namespace: devops-develop
+  name: crivo-fe
+  namespace: crivo-develop
   labels:
-    app: devops-fe
+    app: crivo-fe
     environment: develop
 spec:
   selector:
     matchLabels:
-      app: devops-fe
+      app: crivo-fe
   endpoints:
     - port: http
       path: /api/metrics
@@ -72,15 +72,15 @@ spec:
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: devops-fe
-  namespace: devops-prod
+  name: crivo-fe
+  namespace: crivo-prod
   labels:
-    app: devops-fe
+    app: crivo-fe
     environment: prod
 spec:
   selector:
     matchLabels:
-      app: devops-fe
+      app: crivo-fe
   endpoints:
     - port: http
       path: /api/metrics
@@ -88,20 +88,20 @@ spec:
       scrapeTimeout: 10s
 
 ---
-# ServiceMonitor para devops-auth (Keycloak)
+# ServiceMonitor para crivo-auth (Keycloak)
 # Keycloak expõe métricas em /metrics por padrão (quando habilitado)
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: devops-auth
-  namespace: devops-develop
+  name: crivo-auth
+  namespace: crivo-develop
   labels:
-    app: devops-auth
+    app: crivo-auth
     environment: develop
 spec:
   selector:
     matchLabels:
-      app: devops-auth
+      app: crivo-auth
   endpoints:
     - port: http
       path: /metrics
@@ -112,15 +112,15 @@ spec:
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: devops-auth
-  namespace: devops-prod
+  name: crivo-auth
+  namespace: crivo-prod
   labels:
-    app: devops-auth
+    app: crivo-auth
     environment: prod
 spec:
   selector:
     matchLabels:
-      app: devops-auth
+      app: crivo-auth
   endpoints:
     - port: http
       path: /metrics
@@ -129,22 +129,22 @@ spec:
 
 
 # ============================================================================
-# ServiceMonitors para ambientes devops-qa e devops-staging
+# ServiceMonitors para ambientes crivo-qa e crivo-staging
 # ============================================================================
 
 ---
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: devops-be
-  namespace: devops-qa
+  name: crivo-be
+  namespace: crivo-qa
   labels:
-    app: devops-be
+    app: crivo-be
     environment: qa
 spec:
   selector:
     matchLabels:
-      app: devops-be
+      app: crivo-be
   endpoints:
     - port: http
       path: /metrics
@@ -155,15 +155,15 @@ spec:
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: devops-fe
-  namespace: devops-qa
+  name: crivo-fe
+  namespace: crivo-qa
   labels:
-    app: devops-fe
+    app: crivo-fe
     environment: qa
 spec:
   selector:
     matchLabels:
-      app: devops-fe
+      app: crivo-fe
   endpoints:
     - port: http
       path: /api/metrics
@@ -174,15 +174,15 @@ spec:
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: devops-auth
-  namespace: devops-qa
+  name: crivo-auth
+  namespace: crivo-qa
   labels:
-    app: devops-auth
+    app: crivo-auth
     environment: qa
 spec:
   selector:
     matchLabels:
-      app: devops-auth
+      app: crivo-auth
   endpoints:
     - port: http
       path: /metrics
@@ -193,15 +193,15 @@ spec:
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: devops-be
-  namespace: devops-staging
+  name: crivo-be
+  namespace: crivo-staging
   labels:
-    app: devops-be
+    app: crivo-be
     environment: staging
 spec:
   selector:
     matchLabels:
-      app: devops-be
+      app: crivo-be
   endpoints:
     - port: http
       path: /metrics
@@ -212,15 +212,15 @@ spec:
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: devops-fe
-  namespace: devops-staging
+  name: crivo-fe
+  namespace: crivo-staging
   labels:
-    app: devops-fe
+    app: crivo-fe
     environment: staging
 spec:
   selector:
     matchLabels:
-      app: devops-fe
+      app: crivo-fe
   endpoints:
     - port: http
       path: /api/metrics
@@ -231,15 +231,15 @@ spec:
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: devops-auth
-  namespace: devops-staging
+  name: crivo-auth
+  namespace: crivo-staging
   labels:
-    app: devops-auth
+    app: crivo-auth
     environment: staging
 spec:
   selector:
     matchLabels:
-      app: devops-auth
+      app: crivo-auth
   endpoints:
     - port: http
       path: /metrics

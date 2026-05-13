@@ -1,0 +1,107 @@
+# DevOps Auth - Local Lab Values
+replicaCount: 1
+
+image:
+  repository: ghcr.io/geraldobl58/crivo-auth
+  pullPolicy: Always
+  tag: "latest"
+
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+podAnnotations:
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "8080"
+
+podSecurityContext:
+  fsGroup: 1000
+  runAsNonRoot: true
+
+securityContext:
+  allowPrivilegeEscalation: false
+  runAsNonRoot: true
+  runAsUser: 1000
+  capabilities:
+    drop:
+      - ALL
+
+service:
+  type: ClusterIP
+  port: 8080
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations: {}
+  hosts:
+    - host: develop-auth.devops.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 256Mi
+
+autoscaling:
+  enabled: false
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+env:
+  - name: KC_DB
+    value: "postgres"
+  - name: KC_DB_URL
+    valueFrom:
+      secretKeyRef:
+        name: devops-secrets
+        key: keycloak-db-url
+  - name: KC_DB_USERNAME
+    valueFrom:
+      secretKeyRef:
+        name: devops-secrets
+        key: db-username
+  - name: KC_DB_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: devops-secrets
+        key: db-password
+  - name: KC_HOSTNAME
+    value: "develop-auth.devops.local"
+  - name: KC_HTTP_ENABLED
+    value: "true"
+  - name: KEYCLOAK_ADMIN
+    value: "admin"
+  - name: KEYCLOAK_ADMIN_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: devops-secrets
+        key: keycloak-admin-password
+
+livenessProbe:
+  httpGet:
+    path: /health/live
+    port: 8080
+  initialDelaySeconds: 60
+  periodSeconds: 10
+
+readinessProbe:
+  httpGet:
+    path: /health/ready
+    port: 8080
+  initialDelaySeconds: 30
+  periodSeconds: 5

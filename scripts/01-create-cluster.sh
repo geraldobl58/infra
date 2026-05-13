@@ -44,10 +44,10 @@ kubectl get nodes -o wide
 
 # Criar namespaces
 echo -e "${YELLOW}🏗️  Criando namespaces...${NC}"
-kubectl create namespace devops-develop || true
-kubectl create namespace devops-qa || true
-kubectl create namespace devops-staging || true
-kubectl create namespace devops-prod || true
+kubectl create namespace crivo-develop || true
+kubectl create namespace crivo-qa || true
+kubectl create namespace crivo-staging || true
+kubectl create namespace crivo-prod || true
 kubectl create namespace monitoring || true
 kubectl create namespace argocd || true
 
@@ -126,7 +126,7 @@ echo -e "${BLUE}📊 Informações do Cluster:${NC}"
 echo "  Cluster: $CLUSTER_NAME"
 echo "  Context: k3d-$CLUSTER_NAME"
 echo "  Nodes: $(kubectl get nodes --no-headers | wc -l)"
-echo "  Namespaces: devops-develop, devops-qa, devops-staging, devops-prod, monitoring, argocd"
+echo "  Namespaces: crivo-develop, crivo-qa, crivo-staging, crivo-prod, monitoring, argocd"
 echo ""
 echo -e "${BLUE}📦 Comandos úteis:${NC}"
 echo "  kubectl get nodes"

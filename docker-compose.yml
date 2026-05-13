@@ -46,7 +46,7 @@ services:
   # ════════════════════════════════════════════════════════════════════════════
   keycloak:
     image: quay.io/keycloak/keycloak:26.5
-    container_name: devops-auth-dev
+    container_name: crivo-auth-dev
     command:
       - start-dev
       - --http-port=8080
@@ -82,7 +82,7 @@ services:
       KC_LOG_LEVEL: INFO
     volumes:
       - keycloak-data:/opt/keycloak/data
-      - ./apps/devops-auth/themes:/opt/keycloak/themes
+      - ./apps/crivo-auth/themes:/opt/keycloak/themes
     networks:
       - devops-network
     depends_on:
