@@ -12,7 +12,7 @@ metadata:
 spec:
   description: DevOps Platform - Ambiente de Development
   sourceRepos:
-    - "https://github.com/geraldobl58/devops.git"
+    - "https://github.com/geraldobl58/infra.git"
   destinations:
     - namespace: crivo-develop
       server: https://kubernetes.default.svc
@@ -30,7 +30,7 @@ metadata:
 spec:
   description: DevOps Platform - Ambiente de QA
   sourceRepos:
-    - "https://github.com/geraldobl58/devops.git"
+    - "https://github.com/geraldobl58/infra.git"
   destinations:
     - namespace: crivo-qa
       server: https://kubernetes.default.svc
@@ -48,7 +48,7 @@ metadata:
 spec:
   description: DevOps Platform - Ambiente de Staging
   sourceRepos:
-    - "https://github.com/geraldobl58/devops.git"
+    - "https://github.com/geraldobl58/infra.git"
   destinations:
     - namespace: crivo-staging
       server: https://kubernetes.default.svc
@@ -66,7 +66,7 @@ metadata:
 spec:
   description: DevOps Platform - Ambiente de Producao
   sourceRepos:
-    - "https://github.com/geraldobl58/devops.git"
+    - "https://github.com/geraldobl58/infra.git"
   destinations:
     - namespace: crivo-prod
       server: https://kubernetes.default.svc
