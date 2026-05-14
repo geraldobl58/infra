@@ -10,7 +10,6 @@ imagePullSecrets:
   - name: ghcr-secret
 
 # Keycloak management port (health + metrics)
-managementPort: 9000
 
 # Usar start-dev para Lab (QA com recursos limitados)
 args:
@@ -18,6 +17,7 @@ args:
   - --http-enabled=true
   - --hostname-strict=false
   - --metrics-enabled=true
+  - --health-enabled=true
 
 ingress:
   enabled: true
@@ -34,7 +34,7 @@ ingress:
 livenessProbe:
   enabled: true
   path: /health/live
-  port: management
+  port: http
   initialDelaySeconds: 240
   periodSeconds: 15
   timeoutSeconds: 5
@@ -43,7 +43,7 @@ livenessProbe:
 readinessProbe:
   enabled: true
   path: /health/ready
-  port: management
+  port: http
   initialDelaySeconds: 180
   periodSeconds: 10
   timeoutSeconds: 5
