@@ -3,7 +3,7 @@ replicaCount: 1
 
 image:
   repository: ghcr.io/geraldobl58/crivo-be
-  tag: "develop-f05b854be1c7c1bf01e9775cd116cfea96371bab"
+  tag: "develop-3f6ff070d963178ebc4d95527f97e852ea83f3a4"
   pullPolicy: Always
 
 imagePullSecrets:
@@ -44,7 +44,7 @@ podDisruptionBudget:
   enabled: false
 
 podAnnotations:
-  app.kubernetes.io/commit: "f05b854"
+  app.kubernetes.io/commit: "3f6ff07"
 
 metrics:
   enabled: false
