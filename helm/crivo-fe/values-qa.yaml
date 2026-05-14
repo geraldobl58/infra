@@ -32,6 +32,9 @@ autoscaling:
 
 env:
   NODE_ENV: production
+  BETTER_AUTH_SECRET: "crivo-super-secret-key-for-better-auth"
+  BETTER_AUTH_URL: "http://main.fe.crivo.local"
+
   API_URL: http://crivo-be-qa:3000
   NEXT_PUBLIC_API_URL: http://qa.be.crivo.local
   NEXT_PUBLIC_KEYCLOAK_URL: http://qa.auth.crivo.local

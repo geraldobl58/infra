@@ -36,7 +36,13 @@ env:
   LOG_LEVEL: warn
   SWAGGER_ENABLED: "true"
   METRICS_ENABLED: "true"
-  KEYCLOAK_URL: "http://auth.crivo.local"
+  KEYCLOAK_BASE_URL: "http://auth.crivo.local"
+  KEYCLOAK_CLIENT_ID: crivo-api
+  KEYCLOAK_CLIENT_SECRET: "dummy-secret"
+  KEYCLOAK_WEB_CLIENT_ID: crivo-web
+  KEYCLOAK_ISSUER: "http://main.auth.crivo.local/realms/devops"
+  KEYCLOAK_JWKS_URI: "http://main.auth.crivo.local/realms/devops/protocol/openid-connect/certs"
+
   KEYCLOAK_INTERNAL_URL: "http://crivo-auth-prod:8080"
   KEYCLOAK_REALM: devops
 
