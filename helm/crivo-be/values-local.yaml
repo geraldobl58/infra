@@ -40,7 +40,7 @@ ingress:
   className: "nginx"
   annotations: {}
   hosts:
-    - host: develop-be.devops.local
+    - host: develop.be.crivo.local
       paths:
         - path: /
           pathType: Prefix

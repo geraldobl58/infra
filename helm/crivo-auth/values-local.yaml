@@ -39,7 +39,7 @@ ingress:
   className: "nginx"
   annotations: {}
   hosts:
-    - host: develop-auth.devops.local
+    - host: develop.auth.crivo.local
       paths:
         - path: /
           pathType: Prefix
@@ -81,7 +81,7 @@ env:
         name: devops-secrets
         key: db-password
   - name: KC_HOSTNAME
-    value: "develop-auth.devops.local"
+    value: "develop.auth.crivo.local"
   - name: KC_HTTP_ENABLED
     value: "true"
   - name: KEYCLOAK_ADMIN

@@ -14,7 +14,7 @@ ingress:
   className: "nginx"
   annotations:
   hosts:
-    - host: qa-be.devops.local
+    - host: qa.be.crivo.local
       paths:
         - path: /
           pathType: Prefix
@@ -36,7 +36,7 @@ env:
   LOG_LEVEL: info
   SWAGGER_ENABLED: "true"
   METRICS_ENABLED: "true"
-  KEYCLOAK_URL: "http://qa-auth.devops.local"
+  KEYCLOAK_URL: "http://qa.auth.crivo.local"
   KEYCLOAK_INTERNAL_URL: "http://crivo-auth-qa:8080"
   KEYCLOAK_REALM: devops
 

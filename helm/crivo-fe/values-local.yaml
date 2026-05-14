@@ -37,7 +37,7 @@ ingress:
   className: "nginx"
   annotations: {}
   hosts:
-    - host: develop-fe.devops.local
+    - host: develop.fe.crivo.local
       paths:
         - path: /
           pathType: Prefix
@@ -64,9 +64,9 @@ env:
   - name: NODE_ENV
     value: "local"
   - name: NEXT_PUBLIC_API_URL
-    value: "http://develop-be.devops.local"
+    value: "http://develop.be.crivo.local"
   - name: NEXT_PUBLIC_AUTH_URL
-    value: "http://develop-auth.devops.local"
+    value: "http://develop.auth.crivo.local"
 
 livenessProbe:
   httpGet:

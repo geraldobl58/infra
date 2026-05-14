@@ -17,7 +17,7 @@ ingress:
   className: "nginx"
   annotations: {}
   hosts:
-    - host: auth.devops.local
+    - host: auth.crivo.local
       paths:
         - path: /
           pathType: Prefix

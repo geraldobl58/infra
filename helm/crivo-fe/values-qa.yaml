@@ -14,7 +14,7 @@ ingress:
   className: "nginx"
   annotations:
   hosts:
-    - host: qa-fe.devops.local
+    - host: qa.fe.crivo.local
       paths:
         - path: /
           pathType: Prefix
@@ -33,8 +33,8 @@ autoscaling:
 env:
   NODE_ENV: production
   API_URL: http://crivo-be-qa:3000
-  NEXT_PUBLIC_API_URL: http://qa-be.devops.local
-  NEXT_PUBLIC_KEYCLOAK_URL: http://qa-auth.devops.local
+  NEXT_PUBLIC_API_URL: http://qa.be.crivo.local
+  NEXT_PUBLIC_KEYCLOAK_URL: http://qa.auth.crivo.local
   NEXT_PUBLIC_KEYCLOAK_REALM: devops
   NEXT_PUBLIC_KEYCLOAK_CLIENT_ID: devops-web
 

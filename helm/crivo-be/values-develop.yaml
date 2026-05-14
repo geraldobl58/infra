@@ -14,7 +14,7 @@ ingress:
   className: "nginx"
   annotations:
   hosts:
-    - host: develop-be.devops.local
+    - host: develop.be.crivo.local
       paths:
         - path: /
           pathType: Prefix
@@ -36,7 +36,7 @@ env:
   LOG_LEVEL: debug
   SWAGGER_ENABLED: "true"
   METRICS_ENABLED: "true"
-  KEYCLOAK_URL: "http://develop-auth.devops.local"
+  KEYCLOAK_URL: "http://develop.auth.crivo.local"
   KEYCLOAK_INTERNAL_URL: "http://crivo-auth-develop:8080"
   KEYCLOAK_REALM: devops
 

@@ -14,7 +14,7 @@ ingress:
   className: "nginx"
   annotations:
   hosts:
-    - host: staging-be.devops.local
+    - host: staging.be.crivo.local
       paths:
         - path: /
           pathType: Prefix
@@ -36,7 +36,7 @@ env:
   LOG_LEVEL: info
   SWAGGER_ENABLED: "true"
   METRICS_ENABLED: "true"
-  KEYCLOAK_URL: "http://staging-auth.devops.local"
+  KEYCLOAK_URL: "http://staging.auth.crivo.local"
   KEYCLOAK_INTERNAL_URL: "http://crivo-auth-staging:8080"
   KEYCLOAK_REALM: devops
 

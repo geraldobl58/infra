@@ -27,7 +27,7 @@ ingress:
     nginx.ingress.kubernetes.io/proxy-buffer-size: "128k"
     nginx.ingress.kubernetes.io/proxy-buffers-number: "4"
   hosts:
-    - host: auth.devops.local
+    - host: auth.crivo.local
       paths:
         - path: /
           pathType: Prefix
@@ -64,7 +64,7 @@ autoscaling:
 env:
   KEYCLOAK_ADMIN: "admin"
   KEYCLOAK_ADMIN_PASSWORD: "admin"
-  KC_HOSTNAME: "http://auth.devops.local"
+  KC_HOSTNAME: "http://auth.crivo.local"
   KC_HOSTNAME_STRICT: "false"
   KC_PROXY_HEADERS: "xforwarded"
   KC_HTTP_ENABLED: "true"
