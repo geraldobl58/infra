@@ -63,7 +63,9 @@ autoscaling:
 env:
   KEYCLOAK_ADMIN: "admin"
   KEYCLOAK_ADMIN_PASSWORD: "admin"
-  KC_HOSTNAME: "http://staging.auth.crivo.local"
+  KC_HOSTNAME_URL: "http://prod.auth.crivo.local"
+  KC_HOSTNAME_ADMIN_URL: "http://prod.auth.crivo.local"
+  KC_HOSTNAME_BACKCHANNEL_DYNAMIC: "true"
   KC_HOSTNAME_STRICT: "false"
   KC_PROXY_HEADERS: "xforwarded"
   KC_HTTP_ENABLED: "true"
