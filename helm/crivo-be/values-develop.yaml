@@ -45,6 +45,29 @@ env:
 
   KEYCLOAK_INTERNAL_URL: "http://crivo-auth-develop:8080"
   KEYCLOAK_REALM: devops
+  FRONTEND_URL: "http://prod.fe.crivo.local"
+  DATABASE_URL: "postgresql://crivo:crivo_password@localhost:5432/crivo_app?schema=public"
+  MAILTRAP_HOST: "sandbox.smtp.mailtrap.io"
+  MAILTRAP_PORT: "587"
+  MAILTRAP_USER: "stub"
+  MAILTRAP_PASSWORD: "stub"
+  MAIL_PROVIDER: "nodemailer"
+  MAIL_FROM: "no-reply@crivo.local"
+  STRIPE_SECRET_KEY: "sk_test_stub"
+  STRIPE_PUBLISHABLE_KEY: "pk_test_stub"
+  STRIPE_WEBHOOK_SECRET: "whsec_stub"
+  STRIPE_PRICE_TRIAL: "prod_stub"
+  STRIPE_PRICE_BASIC: "prod_stub"
+  STRIPE_PRICE_PROFESSIONAL: "prod_stub"
+  STRIPE_PRICE_ENTERPRISE: "prod_stub"
+  AI_PROVIDER: "anthropic"
+  ANTHROPIC_API_KEY: "stub"
+  STORAGE_PROVIDER: "s3"
+  AWS_REGION: "us-east-1"
+  AWS_ACCESS_KEY_ID: "stub"
+  AWS_SECRET_ACCESS_KEY: "stub"
+  S3_BUCKET: "stub"
+
 
 podDisruptionBudget:
   enabled: false
