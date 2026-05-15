@@ -47,7 +47,7 @@ env:
   KEYCLOAK_ISSUER: "http://develop.auth.crivo.local/realms/crivo"
   KEYCLOAK_JWKS_URI: "http://develop.auth.crivo.local/realms/crivo/protocol/openid-connect/certs"
   KEYCLOAK_CLIENT_ID: "crivo-api"
-  KEYCLOAK_CLIENT_SECRET: "dummy-secret"
+  KEYCLOAK_CLIENT_SECRET: "ZGYQ8zh7IUQy2HFaazv84Abv1MjqWYer"
   KEYCLOAK_WEB_CLIENT_ID: "crivo-web"
   # Misc stubs
   AI_PROVIDER: "anthropic"
