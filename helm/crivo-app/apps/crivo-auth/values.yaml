@@ -4,7 +4,8 @@ app:
 
 image:
   repository: quay.io/keycloak/keycloak
-  tag: "26.0.7"
+  # Bate com a versão do docker-compose do Crivo (26.5).
+  tag: "26.5"
   pullPolicy: IfNotPresent
 
 # Keycloak: 8080 HTTP, 9000 management (health/metrics) no Keycloak 26.
