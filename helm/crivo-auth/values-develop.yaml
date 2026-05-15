@@ -76,8 +76,10 @@ env:
   # HTTP / Hostname
   - name: KC_HTTP_ENABLED
     value: "true"
-  - name: KC_HOSTNAME
-    value: "develop.auth.crivo.local"
+  - name: KC_HOSTNAME_URL
+    value: "http://develop.auth.crivo.local"
+  - name: KC_HOSTNAME_ADMIN_URL
+    value: "http://develop.auth.crivo.local"
   - name: KC_HOSTNAME_STRICT
     value: "false"
   - name: KC_HOSTNAME_STRICT_HTTPS
