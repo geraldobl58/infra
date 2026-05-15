@@ -68,3 +68,9 @@ envFrom:
   - secretRef: crivo-be-mail
   - secretRef: crivo-be-ai
   - secretRef: crivo-be-storage
+
+# Roda `prisma migrate deploy` antes de subir o container principal.
+# Usa a mesma imagem do app (que já vem com prisma/schema embutidos).
+initContainers:
+  - name: prisma-migrate
+    command: ["sh", "-c", "npx prisma migrate deploy"]

@@ -7,10 +7,14 @@ image:
   tag: "26.0.7"
   pullPolicy: IfNotPresent
 
-# Keycloak roda em 8080 (HTTP) no modo start-dev.
+# Keycloak: 8080 HTTP, 9000 management (health/metrics) no Keycloak 26.
 service:
   type: ClusterIP
   port: 8080
+
+extraPorts:
+  - name: management
+    containerPort: 9000
 
 # args do entrypoint do Keycloak (modo dev é apropriado pro lab).
 args:
@@ -30,11 +34,12 @@ ingress:
     nginx.ingress.kubernetes.io/proxy-buffer-size: "128k"
     nginx.ingress.kubernetes.io/proxy-buffers-number: "4"
 
+# Health endpoints do Keycloak 26 vivem na porta management (9000), não na 8080.
 livenessProbe:
   enabled: true
   path: /health/live
-  port: http
-  initialDelaySeconds: 240
+  port: management
+  initialDelaySeconds: 60
   periodSeconds: 15
   timeoutSeconds: 5
   failureThreshold: 20
@@ -42,11 +47,11 @@ livenessProbe:
 readinessProbe:
   enabled: true
   path: /health/ready
-  port: http
-  initialDelaySeconds: 180
+  port: management
+  initialDelaySeconds: 30
   periodSeconds: 10
   timeoutSeconds: 5
-  failureThreshold: 20
+  failureThreshold: 30
 
 resources:
   limits:

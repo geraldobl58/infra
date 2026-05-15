@@ -25,6 +25,13 @@ service:
   type: ClusterIP
   port: 3000
 
+# Portas extras expostas no container (útil pra Keycloak que separa management
+# em 9000). Não são publicadas via Service por padrão.
+#   extraPorts:
+#     - name: management
+#       containerPort: 9000
+extraPorts: []
+
 # args opcionais no container (usado pelo Keycloak)
 args: []
 
@@ -72,6 +79,13 @@ autoscaling:
 # env: map (chave: valor). Conversão para lista é feita no template.
 # Use ${ENV} em strings para referenciar app.environment via tpl render.
 env: {}
+
+# initContainers: rodam ANTES do container principal. Útil pra migrations
+# (Prisma migrate deploy, etc.). Herdam env + envFrom do container principal.
+#   initContainers:
+#     - name: migrate
+#       command: ["sh", "-c", "npx prisma migrate deploy"]
+initContainers: []
 
 # envFrom: lista de Secrets/ConfigMaps cujas chaves viram env vars.
 #   envFrom:
