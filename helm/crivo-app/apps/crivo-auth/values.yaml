@@ -1,0 +1,74 @@
+# Auth (Keycloak) — valores comuns a todos os ambientes.
+app:
+  name: crivo-auth
+
+image:
+  repository: quay.io/keycloak/keycloak
+  tag: "26.0.7"
+  pullPolicy: IfNotPresent
+
+# Keycloak roda em 8080 (HTTP) no modo start-dev.
+service:
+  type: ClusterIP
+  port: 8080
+
+# args do entrypoint do Keycloak (modo dev é apropriado pro lab).
+args:
+  - start-dev
+  - --http-enabled=true
+  - --hostname-strict=false
+  - --metrics-enabled=true
+  - --health-enabled=true
+  - --proxy-headers=xforwarded
+
+ingress:
+  enabled: true
+  className: nginx
+  path: /
+  pathType: Prefix
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-buffer-size: "128k"
+    nginx.ingress.kubernetes.io/proxy-buffers-number: "4"
+
+livenessProbe:
+  enabled: true
+  path: /health/live
+  port: http
+  initialDelaySeconds: 240
+  periodSeconds: 15
+  timeoutSeconds: 5
+  failureThreshold: 20
+
+readinessProbe:
+  enabled: true
+  path: /health/ready
+  port: http
+  initialDelaySeconds: 180
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 20
+
+resources:
+  limits:
+    cpu: 400m
+    memory: 768Mi
+  requests:
+    cpu: 10m
+    memory: 128Mi
+
+# Variáveis públicas. Sensíveis (admin password, DB password) via envFrom.
+env:
+  KC_DB: postgres
+  KC_HTTP_ENABLED: "true"
+  KC_HOSTNAME_STRICT: "false"
+  KC_HOSTNAME_STRICT_HTTPS: "false"
+  KC_PROXY_HEADERS: xforwarded
+  KC_HEALTH_ENABLED: "true"
+  KC_METRICS_ENABLED: "true"
+
+# Secrets esperados no namespace:
+#   crivo-auth-admin (KC_BOOTSTRAP_ADMIN_USERNAME, KC_BOOTSTRAP_ADMIN_PASSWORD)
+#   crivo-auth-db    (KC_DB_URL, KC_DB_USERNAME, KC_DB_PASSWORD)
+envFrom:
+  - secretRef: crivo-auth-admin
+  - secretRef: crivo-auth-db

@@ -35,27 +35,15 @@ echo ""
 echo -e "${GREEN}🌐 Aplicações por Ambiente:${NC}"
 echo ""
 echo -e "  ${BLUE}Develop:${NC}"
-echo "    Frontend: http://develop-fe.devops.local"
-echo "    API:      http://develop-be.devops.local"
-echo "    Auth:     http://develop-auth.devops.local"
-echo ""
-
-echo -e "  ${BLUE}QA:${NC}"
-echo "    Frontend: http://qa-fe.devops.local"
-echo "    API:      http://qa-be.devops.local"
-echo "    Auth:     http://qa-auth.devops.local"
-echo ""
-
-echo -e "  ${BLUE}Staging:${NC}"
-echo "    Frontend: http://staging-fe.devops.local"
-echo "    API:      http://staging-be.devops.local"
-echo "    Auth:     http://staging-auth.devops.local"
+echo "    Frontend: http://develop.fe.crivo.local"
+echo "    API:      http://develop.be.crivo.local"
+echo "    Auth:     http://develop.auth.crivo.local"
 echo ""
 
 echo -e "  ${BLUE}Prod:${NC}"
-echo "    Frontend: http://fe.devops.local"
-echo "    API:      http://be.devops.local"
-echo "    Auth:     http://auth.devops.local"
+echo "    Frontend: http://prod.fe.crivo.local"
+echo "    API:      http://prod.be.crivo.local"
+echo "    Auth:     http://prod.auth.crivo.local"
 echo ""
 
 echo -e "${YELLOW}📊 Status do Cluster:${NC}"
@@ -75,7 +63,7 @@ kubectl get pods -n monitoring --no-headers 2>/dev/null | wc -l | xargs echo "  
 # echo "Namespace: logging"
 # kubectl get pods -n logging --no-headers 2>/dev/null | wc -l | xargs echo "  Pods:"
 
-for NS in crivo-develop crivo-qa crivo-staging crivo-prod; do
+for NS in crivo-develop crivo-prod; do
   echo "Namespace: $NS"
   kubectl get pods -n $NS --no-headers 2>/dev/null | wc -l | xargs echo "  Pods:"
 done

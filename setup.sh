@@ -124,8 +124,6 @@ log_step "ETAPA 2/7: Criando Namespaces"
 
 log_substep "Criando namespaces de ambientes..."
 kubectl create namespace crivo-develop --dry-run=client -o yaml | kubectl apply -f -
-kubectl create namespace crivo-qa --dry-run=client -o yaml | kubectl apply -f -
-kubectl create namespace crivo-staging --dry-run=client -o yaml | kubectl apply -f -
 kubectl create namespace crivo-prod --dry-run=client -o yaml | kubectl apply -f -
 
 log_substep "Criando namespaces de infra..."
@@ -268,7 +266,7 @@ kubectl wait --for=condition=ready pod \
 echo -e "${GREEN}✓ Grafana instalado - Usuário: admin / Senha: devops.local2026${NC}"
 
 log_substep "Aplicando dashboards customizados do Grafana..."
-kubectl apply -f "$SCRIPT_DIR/k8s/grafana-dashboard-devops.yaml"
+kubectl apply -f "$SCRIPT_DIR/k8s/grafana-dashboard-crivo.yaml"
 kubectl apply -f "$SCRIPT_DIR/k8s/grafana-dashboard-apps.yaml"
 echo -e "${GREEN}✓ Dashboards customizados aplicados${NC}"
 
@@ -279,32 +277,16 @@ echo -e "${GREEN}✓ ServiceMonitors aplicados para infraestrutura${NC}"
 # ==============================================================================
 log_step "ETAPA 4.5/7: Criando Secrets das Aplicações"
 
-generate_secret() {
-  openssl rand -base64 32 2>/dev/null || echo "change-me-to-a-random-secret"
-}
-
-log_substep "Criando devops-secrets em todos os namespaces..."
-for NS in crivo-develop crivo-qa crivo-staging crivo-prod; do
-  if kubectl get secret devops-secrets -n "$NS" &>/dev/null; then
-    echo -e "  ${YELLOW}⚠️  devops-secrets já existe em $NS, recriando...${NC}"
-    kubectl delete secret devops-secrets -n "$NS"
+log_substep "Aplicando secrets das aplicações via scripts/create-app-secrets.sh..."
+for ENV_NAME in develop prod; do
+  if [ -f "$SCRIPT_DIR/config/secrets.${ENV_NAME}.env" ]; then
+    bash "$SCRIPT_DIR/scripts/create-app-secrets.sh" "$ENV_NAME"
+    echo -e "  ${GREEN}✅ Secrets criados para crivo-${ENV_NAME}${NC}"
+  else
+    echo -e "  ${YELLOW}⚠️  config/secrets.${ENV_NAME}.env não encontrado.${NC}"
+    echo -e "      Copie config/secrets.${ENV_NAME}.env.example e preencha,"
+    echo -e "      depois rode: ./scripts/create-app-secrets.sh ${ENV_NAME}"
   fi
-  
-  kubectl create secret generic devops-secrets \
-    --namespace="$NS" \
-    --from-literal=database-url='postgresql://crivo:crivo_password@postgres.crivo-develop:5432/crivo_app?schema=public' \
-    --from-literal=jwt-secret="$(generate_secret)" \
-    --from-literal=better-auth-secret="$(generate_secret)" \
-    --from-literal=db-username='crivo' \
-    --from-literal=db-password='crivo_password' \
-    --from-literal=keycloak-db-url='jdbc:postgresql://postgres.crivo-develop:5432/crivo_keycloak' \
-    --from-literal=keycloak-admin-password='admin' \
-    --from-literal=keycloak-client-secret='ZGYQ8zh7IUQy2HFaazv84Abv1MjqWYer' \
-    --from-literal=keycloak-web-secret='crivo-web-secret-123' \
-    --from-literal=stripe-secret-key='sk_test_stub' \
-    --from-literal=stripe-webhook-secret='whsec_stub'
-    
-  echo -e "  ${GREEN}✅ devops-secrets criado em $NS${NC}"
 done
 
 # Create ghcr-secret if GITHUB_TOKEN is available
@@ -325,7 +307,10 @@ log_step "ETAPA 5/7: Configurando Projetos ArgoCD"
 log_substep "Aplicando ArgoCD Projects..."
 kubectl apply -f "$SCRIPT_DIR/argocd/projects/crivo-environments.yaml"
 
-echo -e "${GREEN}✓ Projetos configurados (develop, qa, staging, prod)${NC}"
+log_substep "Aplicando ArgoCD ApplicationSet..."
+kubectl apply -f "$SCRIPT_DIR/argocd/applicationsets/crivo-apps.yaml"
+
+echo -e "${GREEN}✓ Projetos + ApplicationSet configurados (develop, prod)${NC}"
 
 # ==============================================================================
 # ETAPA 6: Configurar /etc/hosts
@@ -338,11 +323,21 @@ HOSTS_ENTRIES="
 127.0.0.1 grafana.devops.local
 127.0.0.1 prometheus.devops.local
 127.0.0.1 alertmanager.devops.local
+# Crivo - Apps (develop)
+127.0.0.1 develop.auth.crivo.local
+127.0.0.1 develop.be.crivo.local
+127.0.0.1 develop.fe.crivo.local
+# Crivo - Apps (prod)
+127.0.0.1 prod.auth.crivo.local
+127.0.0.1 prod.be.crivo.local
+127.0.0.1 prod.fe.crivo.local
 "
 
 # Remover entradas antigas do DevOps Lab
 sudo sed -i '' '/# DevOps Lab/d' /etc/hosts 2>/dev/null || true
+sudo sed -i '' '/# Crivo - Apps/d' /etc/hosts 2>/dev/null || true
 sudo sed -i '' '/devops\.local/d' /etc/hosts 2>/dev/null || true
+sudo sed -i '' '/crivo\.local/d' /etc/hosts 2>/dev/null || true
 
 # Adicionar novas entradas
 echo "$HOSTS_ENTRIES" | sudo tee -a /etc/hosts > /dev/null

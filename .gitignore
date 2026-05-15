@@ -76,6 +76,10 @@ github_pat
 **/token.txt
 **/credentials.txt
 
+# Config secrets per environment (gerados a partir do .example, gitignored)
+config/secrets.*.env
+!config/secrets.*.env.example
+
 # Setup logs (podem conter tokens)
 setup.log
 setup-*.log

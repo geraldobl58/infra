@@ -1,0 +1,22 @@
+app:
+  environment: develop
+
+image:
+  tag: develop
+
+ingress:
+  host: develop.fe.crivo.local
+
+env:
+  NODE_ENV: development
+  BETTER_AUTH_URL: http://develop.fe.crivo.local
+  API_URL: http://develop.be.crivo.local
+  NEXT_PUBLIC_API_URL: http://develop.be.crivo.local
+  NEXT_PUBLIC_KEYCLOAK_URL: http://develop.auth.crivo.local
+
+hostAliases:
+  - ip: "10.43.45.3"
+    hostnames:
+      - develop.auth.crivo.local
+      - develop.be.crivo.local
+      - develop.fe.crivo.local

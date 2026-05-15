@@ -1,0 +1,51 @@
+# Frontend (Next.js) — valores comuns a todos os ambientes.
+app:
+  name: crivo-fe
+
+image:
+  repository: ghcr.io/geraldobl58/crivo-fe
+  pullPolicy: Always
+
+service:
+  type: ClusterIP
+  port: 3000
+
+ingress:
+  enabled: true
+  className: nginx
+  path: /
+  pathType: Prefix
+
+livenessProbe:
+  enabled: true
+  path: /
+  port: http
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  timeoutSeconds: 3
+  failureThreshold: 5
+
+readinessProbe:
+  enabled: true
+  path: /
+  port: http
+  initialDelaySeconds: 10
+  periodSeconds: 5
+  timeoutSeconds: 3
+  failureThreshold: 5
+
+resources:
+  limits:
+    cpu: 200m
+    memory: 256Mi
+  requests:
+    cpu: 10m
+    memory: 64Mi
+
+env:
+  NEXT_PUBLIC_KEYCLOAK_REALM: crivo
+  NEXT_PUBLIC_KEYCLOAK_CLIENT_ID: crivo-web
+
+# BETTER_AUTH_SECRET vem do Secret crivo-fe-auth.
+envFrom:
+  - secretRef: crivo-fe-auth

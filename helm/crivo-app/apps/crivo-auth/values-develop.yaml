@@ -1,0 +1,36 @@
+app:
+  environment: develop
+
+ingress:
+  host: develop.auth.crivo.local
+
+env:
+  KC_HOSTNAME_URL: http://develop.auth.crivo.local
+  KC_HOSTNAME_ADMIN_URL: http://develop.auth.crivo.local
+  # Theme cache off (mais conveniente em dev)
+  KC_SPI_THEME_STATIC_MAX_AGE: "-1"
+  KC_SPI_THEME_CACHE_THEMES: "false"
+  KC_SPI_THEME_CACHE_TEMPLATES: "false"
+
+# Monta o tema custom Nexo se o ConfigMap existir no namespace.
+# Para desligar: passe `extraVolumes: []` em um override local.
+extraVolumes:
+  - name: theme-nexo
+    configMap:
+      name: keycloak-theme-nexo-login
+      optional: true
+
+extraVolumeMounts:
+  - name: theme-nexo
+    mountPath: /opt/keycloak/themes/nexo/login/login.ftl
+    subPath: login.ftl
+  - name: theme-nexo
+    mountPath: /opt/keycloak/themes/nexo/login/theme.properties
+    subPath: theme.properties
+
+hostAliases:
+  - ip: "10.43.45.3"
+    hostnames:
+      - develop.auth.crivo.local
+      - develop.be.crivo.local
+      - develop.fe.crivo.local

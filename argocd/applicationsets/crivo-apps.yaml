@@ -1,66 +1,61 @@
 # ============================================================================
-# ArgoCD ApplicationSet - Multi-Environment Deployment (Local Lab Ninja)
+# ArgoCD ApplicationSet - Crivo Multi-Env (chart genérico crivo-app)
 # ============================================================================
-# Branch Flow: feature/* -> develop -> qa -> staging -> main (production)
-# Registry: ghcr.io/geraldobl58/*
-# Domains: *.devops.local (local /etc/hosts)
+# Branch flow:  feature/* -> develop -> main (production)
+# Chart único:  helm/crivo-app
+# Values:       helm/crivo-app/apps/<app>/values.yaml
+#               helm/crivo-app/apps/<app>/values-<env>.yaml
 #
-# Ambientes: develop, qa, staging, prod (todos com auto-sync)
-# Lab/estudo: recursos minimos, 4 ambientes completos
+# Para adicionar um novo app: crie helm/crivo-app/apps/<novo-app>/
+#   com values.yaml + values-develop.yaml + values-prod.yaml, e adicione o
+#   nome do app na lista `apps` abaixo.
 #
-# Nota: Separado em 2 ApplicationSets porque o template do ArgoCD
-# nao suporta booleans dinamicos via generators (prune/selfHeal).
+# Para adicionar um novo ambiente: adicione um item em `envs` e crie o
+# correspondente AppProject em argocd/projects/.
 # ============================================================================
-
-# --- Auto-sync environments (develop, qa, staging) ---
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
-  name: devops-apps-auto
+  name: crivo-apps
   namespace: argocd
 spec:
+  goTemplate: true
+  goTemplateOptions:
+    - missingkey=error
   generators:
     - matrix:
         generators:
           - list:
               elements:
                 - env: develop
-                  namespace: crivo-develop
                   branch: develop
-                - env: qa
-                  namespace: crivo-qa
-                  branch: qa
-                - env: staging
-                  namespace: crivo-staging
-                  branch: staging
+                - env: prod
+                  branch: main
           - list:
               elements:
-                - service: crivo-be
-                  path: helm/crivo-be
-                - service: crivo-fe
-                  path: helm/crivo-fe
-                - service: crivo-auth
-                  path: helm/crivo-auth
-
+                - app: crivo-auth
+                - app: crivo-be
+                - app: crivo-fe
   template:
     metadata:
-      name: "{{service}}-{{env}}"
+      name: "{{ .app }}-{{ .env }}"
       labels:
-        app: "{{service}}"
-        environment: "{{env}}"
+        app: "{{ .app }}"
+        environment: "{{ .env }}"
     spec:
-      project: "crivo-{{env}}"
+      project: "crivo-{{ .env }}"
       source:
         repoURL: https://github.com/geraldobl58/infra.git
-        targetRevision: "{{branch}}"
-        path: "{{path}}"
+        targetRevision: "{{ .branch }}"
+        path: helm/crivo-app
         helm:
+          releaseName: "{{ .app }}"
           valueFiles:
-            - values.yaml
-            - "values-{{env}}.yaml"
+            - "apps/{{ .app }}/values.yaml"
+            - "apps/{{ .app }}/values-{{ .env }}.yaml"
       destination:
         server: https://kubernetes.default.svc
-        namespace: "{{namespace}}"
+        namespace: "crivo-{{ .env }}"
       syncPolicy:
         automated:
           prune: true
@@ -68,66 +63,12 @@ spec:
         syncOptions:
           - CreateNamespace=true
           - PruneLast=true
+          - ServerSideApply=true
         retry:
           limit: 3
           backoff:
             duration: 5s
             factor: 2
             maxDuration: 3m
-
   syncPolicy:
-    preserveResourcesOnDeletion: true
-
----
-# --- Auto-sync environment (prod) ---
-apiVersion: argoproj.io/v1alpha1
-kind: ApplicationSet
-metadata:
-  name: devops-apps-prod
-  namespace: argocd
-spec:
-  generators:
-    - list:
-        elements:
-          - service: crivo-be
-            path: helm/crivo-be
-          - service: crivo-fe
-            path: helm/crivo-fe
-          - service: crivo-auth
-            path: helm/crivo-auth
-
-  template:
-    metadata:
-      name: "{{service}}-prod"
-      labels:
-        app: "{{service}}"
-        environment: prod
-    spec:
-      project: crivo-prod
-      source:
-        repoURL: https://github.com/geraldobl58/infra.git
-        targetRevision: main
-        path: "{{path}}"
-        helm:
-          valueFiles:
-            - values.yaml
-            - values-prod.yaml
-      destination:
-        server: https://kubernetes.default.svc
-        namespace: crivo-prod
-      syncPolicy:
-        automated:
-          prune: true
-          selfHeal: true
-        syncOptions:
-          - CreateNamespace=true
-          - PruneLast=true
-        retry:
-          limit: 3
-          backoff:
-            duration: 5s
-            factor: 2
-            maxDuration: 3m
-
-  syncPolicy:
-    preserveResourcesOnDeletion: true
+    preserveResourcesOnDeletion: false

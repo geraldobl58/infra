@@ -1,6 +1,8 @@
 # ============================================================================
-# DevOps Platform - ArgoCD Projects (DigitalOcean)
-# Ambientes: develop, qa, staging, prod
+# ArgoCD AppProjects - Crivo
+# Ambientes: develop, prod
+# Para adicionar um novo ambiente, copie um bloco abaixo, troque o nome e
+# adicione o env correspondente no ApplicationSet.
 # ============================================================================
 apiVersion: argoproj.io/v1alpha1
 kind: AppProject
@@ -10,51 +12,18 @@ metadata:
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
-  description: DevOps Platform - Ambiente de Development
+  description: Crivo - Development
   sourceRepos:
-    - "https://github.com/geraldobl58/infra.git"
+    - https://github.com/geraldobl58/infra.git
   destinations:
     - namespace: crivo-develop
       server: https://kubernetes.default.svc
   clusterResourceWhitelist:
     - group: ""
       kind: Namespace
----
-apiVersion: argoproj.io/v1alpha1
-kind: AppProject
-metadata:
-  name: crivo-qa
-  namespace: argocd
-  finalizers:
-    - resources-finalizer.argocd.argoproj.io
-spec:
-  description: DevOps Platform - Ambiente de QA
-  sourceRepos:
-    - "https://github.com/geraldobl58/infra.git"
-  destinations:
-    - namespace: crivo-qa
-      server: https://kubernetes.default.svc
-  clusterResourceWhitelist:
-    - group: ""
-      kind: Namespace
----
-apiVersion: argoproj.io/v1alpha1
-kind: AppProject
-metadata:
-  name: crivo-staging
-  namespace: argocd
-  finalizers:
-    - resources-finalizer.argocd.argoproj.io
-spec:
-  description: DevOps Platform - Ambiente de Staging
-  sourceRepos:
-    - "https://github.com/geraldobl58/infra.git"
-  destinations:
-    - namespace: crivo-staging
-      server: https://kubernetes.default.svc
-  clusterResourceWhitelist:
-    - group: ""
-      kind: Namespace
+  namespaceResourceWhitelist:
+    - group: "*"
+      kind: "*"
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: AppProject
@@ -64,12 +33,15 @@ metadata:
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
-  description: DevOps Platform - Ambiente de Producao
+  description: Crivo - Production
   sourceRepos:
-    - "https://github.com/geraldobl58/infra.git"
+    - https://github.com/geraldobl58/infra.git
   destinations:
     - namespace: crivo-prod
       server: https://kubernetes.default.svc
   clusterResourceWhitelist:
     - group: ""
       kind: Namespace
+  namespaceResourceWhitelist:
+    - group: "*"
+      kind: "*"

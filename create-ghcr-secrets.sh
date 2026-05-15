@@ -7,7 +7,7 @@
 
 set -e
 
-NAMESPACES=("crivo-develop" "crivo-qa" "crivo-staging" "crivo-prod")
+NAMESPACES=("crivo-develop" "crivo-prod")
 REGISTRY="ghcr.io"
 USERNAME="geraldobl58"
 
@@ -80,7 +80,6 @@ for NS in "${NAMESPACES[@]}"; do
 done
 echo ""
 echo "Restartar pods para puxar imagens:"
-echo "  kubectl rollout restart deployment -n crivo-develop"
-echo "  kubectl rollout restart deployment -n crivo-qa"
-echo "  kubectl rollout restart deployment -n crivo-staging"
-echo "  kubectl rollout restart deployment -n crivo-prod"
+for NS in "${NAMESPACES[@]}"; do
+  echo "  kubectl rollout restart deployment -n $NS"
+done

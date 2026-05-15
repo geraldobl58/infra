@@ -1,0 +1,26 @@
+app:
+  environment: prod
+
+image:
+  tag: latest
+
+ingress:
+  host: prod.fe.crivo.local
+
+env:
+  NODE_ENV: production
+  BETTER_AUTH_URL: http://prod.fe.crivo.local
+  API_URL: http://crivo-be.crivo-prod.svc.cluster.local:3000
+  NEXT_PUBLIC_API_URL: http://prod.be.crivo.local
+  NEXT_PUBLIC_KEYCLOAK_URL: http://prod.auth.crivo.local
+
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1
+
+hostAliases:
+  - ip: "10.43.45.3"
+    hostnames:
+      - prod.auth.crivo.local
+      - prod.be.crivo.local
+      - prod.fe.crivo.local
