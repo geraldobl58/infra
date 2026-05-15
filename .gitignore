@@ -80,6 +80,10 @@ github_pat
 config/secrets.*.env
 !config/secrets.*.env.example
 
+# Chave pública do Keycloak por ambiente (renovada quando o realm é
+# recriado; faz parte da configuração do Kong)
+config/keycloak.*.pub
+
 # Setup logs (podem conter tokens)
 setup.log
 setup-*.log
