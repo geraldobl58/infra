@@ -81,8 +81,17 @@ env:
   KC_SPI_THEME_CACHE_THEMES: "false"
   KC_SPI_THEME_CACHE_TEMPLATES: "false"
 
-extraVolumes: []
-extraVolumeMounts: []
+extraVolumes:
+  - name: theme-nexo
+    configMap:
+      name: keycloak-theme-nexo-login
+extraVolumeMounts:
+  - name: theme-nexo
+    mountPath: /opt/keycloak/themes/nexo/login/login.ftl
+    subPath: login.ftl
+  - name: theme-nexo
+    mountPath: /opt/keycloak/themes/nexo/login/theme.properties
+    subPath: theme.properties
 
 hostAliases:
   - ip: "10.43.45.3"
