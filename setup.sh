@@ -275,12 +275,55 @@ echo -e "${GREEN}✓ Dashboards customizados aplicados${NC}"
 echo -e "${GREEN}✓ ServiceMonitors aplicados para infraestrutura${NC}"
 
 # ==============================================================================
+# ETAPA 4.5: Criar Secrets das Aplicações
+# ==============================================================================
+log_step "ETAPA 4.5/7: Criando Secrets das Aplicações"
+
+generate_secret() {
+  openssl rand -base64 32 2>/dev/null || echo "change-me-to-a-random-secret"
+}
+
+log_substep "Criando devops-secrets em todos os namespaces..."
+for NS in crivo-develop crivo-qa crivo-staging crivo-prod; do
+  if kubectl get secret devops-secrets -n "$NS" &>/dev/null; then
+    echo -e "  ${YELLOW}⚠️  devops-secrets já existe em $NS, recriando...${NC}"
+    kubectl delete secret devops-secrets -n "$NS"
+  fi
+  
+  kubectl create secret generic devops-secrets \
+    --namespace="$NS" \
+    --from-literal=database-url='postgresql://crivo:crivo_password@postgres.crivo-develop:5432/crivo_app?schema=public' \
+    --from-literal=jwt-secret="$(generate_secret)" \
+    --from-literal=better-auth-secret="$(generate_secret)" \
+    --from-literal=db-username='crivo' \
+    --from-literal=db-password='crivo_password' \
+    --from-literal=keycloak-db-url='jdbc:postgresql://postgres.crivo-develop:5432/crivo_keycloak' \
+    --from-literal=keycloak-admin-password='admin' \
+    --from-literal=keycloak-client-secret='ZGYQ8zh7IUQy2HFaazv84Abv1MjqWYer' \
+    --from-literal=keycloak-web-secret='crivo-web-secret-123' \
+    --from-literal=stripe-secret-key='sk_test_stub' \
+    --from-literal=stripe-webhook-secret='whsec_stub'
+    
+  echo -e "  ${GREEN}✅ devops-secrets criado em $NS${NC}"
+done
+
+# Create ghcr-secret if GITHUB_TOKEN is available
+log_substep "Criando ghcr-secret para pull de imagens..."
+if [ -n "$GITHUB_TOKEN" ]; then
+  echo "$GITHUB_TOKEN" | bash "$SCRIPT_DIR/create-ghcr-secrets.sh"
+  echo -e "  ${GREEN}✅ ghcr-secret criado a partir do GITHUB_TOKEN${NC}"
+else
+  echo -e "  ${YELLOW}⚠️  GITHUB_TOKEN não definido. Crie manualmente:${NC}"
+  echo -e "     bash $SCRIPT_DIR/create-ghcr-secrets.sh <seu-token>"
+fi
+
+# ==============================================================================
 # ETAPA 5: Configurar ArgoCD Applications
 # ==============================================================================
 log_step "ETAPA 5/7: Configurando Projetos ArgoCD"
 
 log_substep "Aplicando ArgoCD Projects..."
-kubectl apply -f "$SCRIPT_DIR/argocd/projects/devops-environments.yaml"
+kubectl apply -f "$SCRIPT_DIR/argocd/projects/crivo-environments.yaml"
 
 echo -e "${GREEN}✓ Projetos configurados (develop, qa, staging, prod)${NC}"
 

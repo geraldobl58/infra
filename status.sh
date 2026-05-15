@@ -174,11 +174,11 @@ echo ""
 # Verificar Aplicações por Namespace
 # ==============================================================================
 for ENV in develop qa staging prod; do
-    NS="devops-$ENV"
+    NS="crivo-$ENV"
     if [ "$ENV" == "prod" ]; then
         DOMAIN_PREFIX=""
     else
-        DOMAIN_PREFIX="$ENV-"
+        DOMAIN_PREFIX="$ENV."
     fi
     
     echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
@@ -190,9 +190,9 @@ for ENV in develop qa staging prod; do
     if [ "$POD_COUNT" -eq "0" ]; then
         echo -e "  ${YELLOW}⚠${NC} Nenhum pod encontrado"
         echo -e "  ${BLUE}URLs:${NC}"
-        echo -e "    • Backend:  http://${DOMAIN_PREFIX}be.devops.local"
-        echo -e "    • Frontend: http://${DOMAIN_PREFIX}fe.devops.local"
-        echo -e "    • Auth:     http://${DOMAIN_PREFIX}auth.devops.local"
+        echo -e "    • Backend:  http://${DOMAIN_PREFIX}be.crivo.local"
+        echo -e "    • Frontend: http://${DOMAIN_PREFIX}fe.crivo.local"
+        echo -e "    • Auth:     http://${DOMAIN_PREFIX}auth.crivo.local"
     else
         echo -e "${BLUE}Pods ($POD_COUNT):${NC}"
         kubectl get pods -n "$NS" --no-headers 2>/dev/null | while read line; do
@@ -211,9 +211,9 @@ for ENV in develop qa staging prod; do
         
         echo ""
         echo -e "${BLUE}URLs:${NC}"
-        echo -e "  • Backend:  http://${DOMAIN_PREFIX}be.devops.local"
-        echo -e "  • Frontend: http://${DOMAIN_PREFIX}fe.devops.local"
-        echo -e "  • Auth:     http://${DOMAIN_PREFIX}auth.devops.local"
+        echo -e "  • Backend:  http://${DOMAIN_PREFIX}be.crivo.local"
+        echo -e "  • Frontend: http://${DOMAIN_PREFIX}fe.crivo.local"
+        echo -e "  • Auth:     http://${DOMAIN_PREFIX}auth.crivo.local"
     fi
     
     echo ""

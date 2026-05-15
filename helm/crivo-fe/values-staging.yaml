@@ -31,15 +31,23 @@ autoscaling:
   enabled: false
 
 env:
-  NODE_ENV: production
-  BETTER_AUTH_SECRET: "crivo-super-secret-key-for-better-auth"
-  BETTER_AUTH_URL: "http://main.fe.crivo.local"
+  - name: NODE_ENV
+    value: "production"
+  - name: BETTER_AUTH_SECRET
+    value: "crivo-super-secret-key-for-better-auth"
+  - name: BETTER_AUTH_URL
+    value: "http://main.fe.crivo.local"
 
-  API_URL: http://crivo-be-staging:3000
-  NEXT_PUBLIC_API_URL: http://staging.be.crivo.local
-  NEXT_PUBLIC_KEYCLOAK_URL: http://staging.auth.crivo.local
-  NEXT_PUBLIC_KEYCLOAK_REALM: devops
-  NEXT_PUBLIC_KEYCLOAK_CLIENT_ID: devops-web
+  - name: API_URL
+    value: "http://crivo-be-staging:3000"
+  - name: NEXT_PUBLIC_API_URL
+    value: "http://staging.be.crivo.local"
+  - name: NEXT_PUBLIC_KEYCLOAK_URL
+    value: "http://staging.auth.crivo.local"
+  - name: NEXT_PUBLIC_KEYCLOAK_REALM
+    value: "devops"
+  - name: NEXT_PUBLIC_KEYCLOAK_CLIENT_ID
+    value: "devops-web"
 
 podDisruptionBudget:
   enabled: false

@@ -67,6 +67,27 @@ env:
     value: "http://develop.be.crivo.local"
   - name: NEXT_PUBLIC_AUTH_URL
     value: "http://develop.auth.crivo.local"
+  - name: BETTER_AUTH_URL
+    value: "http://develop.fe.crivo.local"
+  - name: BETTER_AUTH_SECRET
+    valueFrom:
+      secretKeyRef:
+        name: devops-secrets
+        key: better-auth-secret
+  - name: AUTH_KEYCLOAK_ID
+    value: "crivo-web"
+  - name: AUTH_KEYCLOAK_SECRET
+    valueFrom:
+      secretKeyRef:
+        name: devops-secrets
+        key: keycloak-web-secret
+  - name: AUTH_KEYCLOAK_ISSUER
+    value: "http://develop.auth.crivo.local/realms/crivo"
+  - name: DATABASE_URL
+    valueFrom:
+      secretKeyRef:
+        name: devops-secrets
+        key: database-url
 
 livenessProbe:
   httpGet:

@@ -84,6 +84,12 @@ env:
     value: "develop.auth.crivo.local"
   - name: KC_HTTP_ENABLED
     value: "true"
+  - name: KC_PROXY
+    value: "edge"
+  - name: KC_HOSTNAME_URL
+    value: "http://develop.auth.crivo.local"
+  - name: KC_HOSTNAME_ADMIN_URL
+    value: "http://develop.auth.crivo.local"
   - name: KEYCLOAK_ADMIN
     value: "admin"
   - name: KEYCLOAK_ADMIN_PASSWORD

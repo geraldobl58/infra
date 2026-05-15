@@ -61,16 +61,28 @@ autoscaling:
   enabled: false
 
 env:
-  KEYCLOAK_ADMIN: "admin"
-  KEYCLOAK_ADMIN_PASSWORD: "admin"
-  KC_HOSTNAME_URL: "http://prod.auth.crivo.local"
-  KC_HOSTNAME_ADMIN_URL: "http://prod.auth.crivo.local"
-  KC_HOSTNAME_BACKCHANNEL_DYNAMIC: "true"
-  KC_HOSTNAME_STRICT: "false"
-  KC_PROXY_HEADERS: "xforwarded"
-  KC_HTTP_ENABLED: "true"
-  KC_HEALTH_ENABLED: "true"
-  KC_METRICS_ENABLED: "true"
+  - name: KEYCLOAK_ADMIN
+    value: "admin"
+  - name: KEYCLOAK_ADMIN_PASSWORD
+    value: "admin"
+  - name: KC_HOSTNAME_URL
+    value: "http://qa.auth.crivo.local"
+  - name: KC_HOSTNAME_ADMIN_URL
+    value: "http://qa.auth.crivo.local"
+  - name: KC_HOSTNAME_BACKCHANNEL_DYNAMIC
+    value: "true"
+  - name: KC_HOSTNAME_STRICT
+    value: "false"
+  - name: KC_PROXY_HEADERS
+  - name: KC_PROXY
+    value: "edge"
+    value: "xforwarded"
+  - name: KC_HTTP_ENABLED
+    value: "true"
+  - name: KC_HEALTH_ENABLED
+    value: "true"
+  - name: KC_METRICS_ENABLED
+    value: "true"
 
 podDisruptionBudget:
   enabled: false

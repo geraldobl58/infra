@@ -31,15 +31,23 @@ autoscaling:
   enabled: false
 
 env:
-  NODE_ENV: development
-  BETTER_AUTH_SECRET: "crivo-super-secret-key-for-better-auth"
-  BETTER_AUTH_URL: "http://develop.fe.crivo.local"
+  - name: NODE_ENV
+    value: "development"
+  - name: BETTER_AUTH_SECRET
+    value: "crivo-super-secret-key-for-better-auth"
+  - name: BETTER_AUTH_URL
+    value: "http://develop.fe.crivo.local"
 
-  API_URL: "http://develop.be.crivo.local"
-  NEXT_PUBLIC_API_URL: "http://develop.be.crivo.local"
-  NEXT_PUBLIC_KEYCLOAK_URL: "http://develop.auth.crivo.local"
-  NEXT_PUBLIC_KEYCLOAK_REALM: "crivo"
-  NEXT_PUBLIC_KEYCLOAK_CLIENT_ID: "crivo-web"
+  - name: API_URL
+    value: "http://develop.be.crivo.local"
+  - name: NEXT_PUBLIC_API_URL
+    value: "http://develop.be.crivo.local"
+  - name: NEXT_PUBLIC_KEYCLOAK_URL
+    value: "http://develop.auth.crivo.local"
+  - name: NEXT_PUBLIC_KEYCLOAK_REALM
+    value: "crivo"
+  - name: NEXT_PUBLIC_KEYCLOAK_CLIENT_ID
+    value: "crivo-web"
 
 hostAliases:
   - ip: "10.43.45.3"

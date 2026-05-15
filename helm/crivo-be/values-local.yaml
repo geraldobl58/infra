@@ -82,6 +82,35 @@ env:
       secretKeyRef:
         name: devops-secrets
         key: jwt-secret
+  - name: FRONTEND_URL
+    value: "http://develop.fe.crivo.local"
+  - name: KEYCLOAK_BASE_URL
+    value: "http://develop.auth.crivo.local"
+  - name: KEYCLOAK_REALM
+    value: "crivo"
+  - name: KEYCLOAK_CLIENT_ID
+    value: "crivo-api"
+  - name: KEYCLOAK_CLIENT_SECRET
+    valueFrom:
+      secretKeyRef:
+        name: devops-secrets
+        key: keycloak-client-secret
+  - name: KEYCLOAK_WEB_CLIENT_ID
+    value: "crivo-web"
+  - name: KEYCLOAK_JWKS_URI
+    value: "http://develop.auth.crivo.local/realms/crivo/protocol/openid-connect/certs"
+  - name: KEYCLOAK_ISSUER
+    value: "http://develop.auth.crivo.local/realms/crivo"
+  - name: STRIPE_SECRET_KEY
+    valueFrom:
+      secretKeyRef:
+        name: devops-secrets
+        key: stripe-secret-key
+  - name: STRIPE_WEBHOOK_SECRET
+    valueFrom:
+      secretKeyRef:
+        name: devops-secrets
+        key: stripe-webhook-secret
 
 # Health checks
 livenessProbe:
