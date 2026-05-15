@@ -1,4 +1,4 @@
-.PHONY: help setup start stop restart destroy status logs k9s grafana prometheus argocd secrets helm-lint helm-template apply-argocd
+.PHONY: help setup start stop restart destroy status logs k9s grafana prometheus argocd secrets helm-lint helm-template apply-argocd kong-config migrate seed import-realm
 
 # Cores
 GREEN  := $(shell tput -Txterm setaf 2)
@@ -54,8 +54,46 @@ secrets: ## Aplica secrets das apps em um ambiente. Uso: make secrets ENV=develo
 	fi
 	@./scripts/create-app-secrets.sh $(ENV)
 
+import-realm: ## Importa realm.json no Keycloak. Uso: make import-realm ENV=develop FILE=path/to/realm.json
+	@if [ -z "$(ENV)" ] || [ -z "$(FILE)" ]; then \
+		echo "$(YELLOW)⚠️  Uso: make import-realm ENV=develop FILE=path/to/realm.json$(RESET)"; \
+		exit 1; \
+	fi
+	@./scripts/import-keycloak-realm.sh $(ENV) $(FILE)
+
+kong-config: ## Aplica ConfigMap do Kong (kong.yml renderizado). Uso: make kong-config ENV=develop
+	@if [ -z "$(ENV)" ]; then \
+		echo "$(YELLOW)⚠️  Especifique ENV. Exemplo: make kong-config ENV=develop$(RESET)"; \
+		exit 1; \
+	fi
+	@./scripts/apply-kong-config.sh $(ENV)
+
+migrate: ## Roda Prisma migrate deploy via port-forward. Uso: make migrate ENV=develop CRIVO_REPO=~/Development/fullstack/crivo
+	@if [ -z "$(ENV)" ]; then echo "$(YELLOW)⚠️  ENV obrigatório.$(RESET)"; exit 1; fi
+	@CRIVO_REPO=$${CRIVO_REPO:-$$HOME/Development/fullstack/crivo}; \
+	if [ ! -d "$$CRIVO_REPO/apps/crivo-be" ]; then echo "$(YELLOW)⚠️  Repo crivo não encontrado em $$CRIVO_REPO$(RESET)"; exit 1; fi; \
+	PF_PORT=$$([ "$(ENV)" = "prod" ] && echo 5434 || echo 5433); \
+	echo "$(BLUE)→ port-forward postgres.$(ENV) -> localhost:$$PF_PORT$(RESET)"; \
+	kubectl port-forward -n crivo-$(ENV) svc/postgres $$PF_PORT:5432 >/tmp/pf-$(ENV).log 2>&1 & \
+	PF_PID=$$!; sleep 3; \
+	cd $$CRIVO_REPO/apps/crivo-be && \
+	DATABASE_URL="postgresql://crivo:crivo_password@127.0.0.1:$$PF_PORT/crivo_app?schema=public" npx prisma migrate deploy; \
+	RC=$$?; kill $$PF_PID 2>/dev/null || true; exit $$RC
+
+seed: ## Roda Prisma db seed via port-forward. Uso: make seed ENV=develop
+	@if [ -z "$(ENV)" ]; then echo "$(YELLOW)⚠️  ENV obrigatório.$(RESET)"; exit 1; fi
+	@CRIVO_REPO=$${CRIVO_REPO:-$$HOME/Development/fullstack/crivo}; \
+	if [ ! -d "$$CRIVO_REPO/apps/crivo-be" ]; then echo "$(YELLOW)⚠️  Repo crivo não encontrado em $$CRIVO_REPO$(RESET)"; exit 1; fi; \
+	PF_PORT=$$([ "$(ENV)" = "prod" ] && echo 5434 || echo 5433); \
+	echo "$(BLUE)→ port-forward postgres.$(ENV) -> localhost:$$PF_PORT$(RESET)"; \
+	kubectl port-forward -n crivo-$(ENV) svc/postgres $$PF_PORT:5432 >/tmp/pf-$(ENV).log 2>&1 & \
+	PF_PID=$$!; sleep 3; \
+	cd $$CRIVO_REPO/apps/crivo-be && \
+	DATABASE_URL="postgresql://crivo:crivo_password@127.0.0.1:$$PF_PORT/crivo_app?schema=public" npx prisma db seed; \
+	RC=$$?; kill $$PF_PID 2>/dev/null || true; exit $$RC
+
 helm-lint: ## Valida o chart crivo-app contra os values de cada app/ambiente
-	@for app in crivo-auth crivo-be crivo-fe; do \
+	@for app in $$(ls helm/crivo-app/apps/); do \
 		for env in develop prod; do \
 			echo "$(BLUE)→ helm lint $$app/$$env$(RESET)"; \
 			helm lint helm/crivo-app \

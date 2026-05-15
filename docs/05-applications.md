@@ -11,6 +11,7 @@ um `values-<env>.yaml` por ambiente.
 | `crivo-auth` | `quay.io/keycloak/keycloak:26.0.7` | 8080 + 9000 mgmt | `/health/ready` (9000) | Keycloak 26 |
 | `crivo-be`   | `ghcr.io/geraldobl58/crivo-be`     | 3000  | `/health`        | NestJS + Prisma |
 | `crivo-fe`   | `ghcr.io/geraldobl58/crivo-fe`     | 3000  | `/`              | Next.js     |
+| `crivo-kong` | `kong:3.7-alpine`                  | 8000 + 8001 admin | `/status` (8001) | Kong API Gateway |
 
 ## Padrão de configuração
 
@@ -38,6 +39,31 @@ vem por `envFrom` referenciando Kubernetes Secrets criados pelo
 - Variáveis `NEXT_PUBLIC_*` apontam para os hosts **externos**.
 - `API_URL` (server-side fetch) também usa host externo em develop e
   Service interno em prod (`crivo-be.crivo-prod.svc.cluster.local:3000`).
+
+### crivo-kong
+
+- **API gateway** entre o FE e o BE/Auth.
+- Roda em **DB-less mode**: config inteira vem do `kong.yml` montado como
+  ConfigMap `crivo-kong-config`.
+- O ConfigMap **não** é gerado pelo chart Helm; é renderizado a partir de
+  `helm/crivo-app/apps/crivo-kong/kong.tmpl.yml` por
+  `scripts/apply-kong-config.sh` (via `make kong-config ENV=...`),
+  substituindo:
+  - URL interna do BE: `crivo-be.<ns>.svc.cluster.local:3000`
+  - URL interna do Auth: `crivo-auth.<ns>.svc.cluster.local:8080`
+  - Host externo do Keycloak (para o claim `iss` do JWT)
+  - Origin do FE (para CORS)
+  - Chave pública RS256 do realm Keycloak (de `config/keycloak.<env>.pub`)
+- Plugins ativos: JWT (validação RS256), rate-limiting (por IP e por plano),
+  CORS, request-size-limiting, correlation-id, bot-detection,
+  response-transformer (headers de segurança).
+- O Kong precisa da chave pública RS256 do realm pra validar JWTs. Obter:
+  ```bash
+  curl http://develop.auth.crivo.local/realms/crivo/protocol/openid-connect/certs \
+    | jq -r '.keys[] | select(.alg=="RS256") | .x5c[0]' \
+    > config/keycloak.develop.pub
+  make kong-config ENV=develop
+  ```
 
 ### crivo-auth
 

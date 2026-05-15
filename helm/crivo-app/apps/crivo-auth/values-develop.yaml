@@ -12,12 +12,29 @@ env:
   KC_SPI_THEME_CACHE_THEMES: "false"
   KC_SPI_THEME_CACHE_TEMPLATES: "false"
 
-# Monta o tema custom Nexo se o ConfigMap existir no namespace.
-# Para desligar: passe `extraVolumes: []` em um override local.
+# Args inclui --import-realm: ao subir, se /opt/keycloak/data/import/realm.json
+# existir, Keycloak importa o realm automaticamente (idempotente: não duplica).
+args:
+  - start-dev
+  - --http-enabled=true
+  - --hostname-strict=false
+  - --metrics-enabled=true
+  - --health-enabled=true
+  - --proxy-headers=xforwarded
+  - --import-realm
+
+# Monta:
+#   1) Tema custom Nexo se ConfigMap keycloak-theme-nexo-login existir
+#   2) Realm export se ConfigMap keycloak-realm-import existir
+# Os dois com optional: true — Keycloak sobe normalmente se faltar.
 extraVolumes:
   - name: theme-nexo
     configMap:
       name: keycloak-theme-nexo-login
+      optional: true
+  - name: realm-import
+    configMap:
+      name: keycloak-realm-import
       optional: true
 
 extraVolumeMounts:
@@ -27,6 +44,8 @@ extraVolumeMounts:
   - name: theme-nexo
     mountPath: /opt/keycloak/themes/nexo/login/theme.properties
     subPath: theme.properties
+  - name: realm-import
+    mountPath: /opt/keycloak/data/import
 
 hostAliases:
   - ip: "10.43.45.3"

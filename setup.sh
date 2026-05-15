@@ -327,10 +327,12 @@ HOSTS_ENTRIES="
 127.0.0.1 develop.auth.crivo.local
 127.0.0.1 develop.be.crivo.local
 127.0.0.1 develop.fe.crivo.local
+127.0.0.1 develop.api.crivo.local
 # Crivo - Apps (prod)
 127.0.0.1 prod.auth.crivo.local
 127.0.0.1 prod.be.crivo.local
 127.0.0.1 prod.fe.crivo.local
+127.0.0.1 prod.api.crivo.local
 "
 
 # Remover entradas antigas do DevOps Lab

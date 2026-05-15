@@ -36,6 +36,7 @@ spec:
                 - app: crivo-auth
                 - app: crivo-be
                 - app: crivo-fe
+                - app: crivo-kong
   template:
     metadata:
       name: "{{ .app }}-{{ .env }}"

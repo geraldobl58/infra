@@ -69,10 +69,37 @@ envFrom:
   - secretRef: crivo-be-ai
   - secretRef: crivo-be-storage
 
-# Roda `prisma migrate deploy` antes de subir o container principal.
+# Roda `prisma migrate deploy` antes do container principal.
 # Usa a mesma imagem do app (que já vem com prisma/schema embutidos).
 # NOTA: requer que a imagem inclua prisma.config.ts + tsconfig.json (Prisma 7+).
 # Habilitado por padrão; sobrescreva pra [] em values-<env>.yaml se quiser pular.
+#
+# Seed: roda apenas se a tabela Plan estiver vazia (evita re-seed destrutivo
+# em ambientes onde os dados já existem). Para forçar re-seed manual:
+#   make seed ENV=develop
 initContainers:
   - name: prisma-migrate
     command: ["sh", "-c", "npx prisma migrate deploy"]
+  - name: prisma-seed-if-empty
+    command:
+      - sh
+      - -c
+      - |
+        set -e
+        count=$(node -e "
+          const { Pool } = require('pg');
+          (async () => {
+            const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+            try {
+              const r = await pool.query('SELECT COUNT(*)::int AS c FROM \"Plan\"');
+              console.log(r.rows[0].c);
+            } catch { console.log(0); }
+            await pool.end();
+          })();
+        ")
+        if [ "$count" = "0" ]; then
+          echo "🌱 Plan table empty, running seed..."
+          npx prisma db seed || echo "⚠️  seed failed (non-fatal)"
+        else
+          echo "✅ Plan table already populated ($count rows), skipping seed."
+        fi

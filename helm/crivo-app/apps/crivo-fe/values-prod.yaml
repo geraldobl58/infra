@@ -12,8 +12,10 @@ ingress:
 env:
   NODE_ENV: production
   BETTER_AUTH_URL: http://prod.fe.crivo.local
+  # API_URL: chamadas server-side do Next vão direto no Service interno do BE.
   API_URL: http://crivo-be.crivo-prod.svc.cluster.local:3000
-  NEXT_PUBLIC_API_URL: http://prod.be.crivo.local
+  # NEXT_PUBLIC_API_URL: chamadas do browser passam pelo Kong (API gateway).
+  NEXT_PUBLIC_API_URL: http://prod.api.crivo.local/api
   NEXT_PUBLIC_KEYCLOAK_URL: http://prod.auth.crivo.local
 
 podDisruptionBudget:
@@ -26,3 +28,4 @@ hostAliases:
       - prod.auth.crivo.local
       - prod.be.crivo.local
       - prod.fe.crivo.local
+      - prod.api.crivo.local

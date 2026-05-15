@@ -67,10 +67,14 @@ scripts/
 
 ### Apps
 
-| Ambiente | Frontend                        | Backend                         | Auth                              |
-| -------- | ------------------------------- | ------------------------------- | --------------------------------- |
-| develop  | http://develop.fe.crivo.local   | http://develop.be.crivo.local   | http://develop.auth.crivo.local   |
-| prod     | http://prod.fe.crivo.local      | http://prod.be.crivo.local      | http://prod.auth.crivo.local      |
+| Ambiente | Frontend                      | API Gateway (Kong)            | Backend (direto)              | Auth                            |
+| -------- | ----------------------------- | ----------------------------- | ----------------------------- | ------------------------------- |
+| develop  | http://develop.fe.crivo.local | http://develop.api.crivo.local | http://develop.be.crivo.local | http://develop.auth.crivo.local |
+| prod     | http://prod.fe.crivo.local    | http://prod.api.crivo.local    | http://prod.be.crivo.local    | http://prod.auth.crivo.local    |
+
+O browser fala com o **Frontend** e com a **API via Kong** (que faz JWT
+validation, rate limiting por plano, CORS centralizado). O Backend direto
+existe apenas pra debug — o FE em prod nunca o usa.
 
 Adicionar entradas no `/etc/hosts` é parte do `make setup`.
 
@@ -89,7 +93,21 @@ cp config/secrets.prod.env.example config/secrets.prod.env
 $EDITOR config/secrets.prod.env
 make secrets ENV=prod
 
-# 3. ArgoCD começa a sincronizar automaticamente. Acompanhe:
+# 3. Aguarde o Keycloak subir (1-2min). Crie o realm 'crivo':
+#    (a) UI manual em http://develop.auth.crivo.local/admin (admin/admin)
+#    OU
+#    (b) Importar realm.json existente (do Keycloak antigo):
+make import-realm ENV=develop FILE=path/to/realm.json
+
+# 4. Aplicar config do Kong (precisa da chave pública RS256 do realm —
+#    obtém em http://<auth>/realms/crivo/protocol/openid-connect/certs):
+echo "<chave-base64-da-cert>" > config/keycloak.develop.pub
+make kong-config ENV=develop
+
+# 5. Rodar seed para popular Plans (opcional, init container já tenta):
+make seed ENV=develop
+
+# 6. ArgoCD sincroniza automaticamente. Acompanhe:
 make status
 make argocd        # abre UI
 ```
