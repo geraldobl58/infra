@@ -84,6 +84,13 @@ env:
 extraVolumes: []
 extraVolumeMounts: []
 
+hostAliases:
+  - ip: "10.43.45.3"
+    hostnames:
+      - develop.auth.crivo.local
+      - develop.be.crivo.local
+      - develop.fe.crivo.local
+
 podDisruptionBudget:
   enabled: false
 

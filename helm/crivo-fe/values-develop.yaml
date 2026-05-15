@@ -33,13 +33,20 @@ autoscaling:
 env:
   NODE_ENV: development
   BETTER_AUTH_SECRET: "crivo-super-secret-key-for-better-auth"
-  BETTER_AUTH_URL: "http://main.fe.crivo.local"
+  BETTER_AUTH_URL: "http://develop.fe.crivo.local"
 
-  API_URL: http://crivo-be-develop:3000
-  NEXT_PUBLIC_API_URL: http://develop.be.crivo.local
-  NEXT_PUBLIC_KEYCLOAK_URL: http://develop.auth.crivo.local
-  NEXT_PUBLIC_KEYCLOAK_REALM: devops
-  NEXT_PUBLIC_KEYCLOAK_CLIENT_ID: devops-web
+  API_URL: "http://develop.be.crivo.local"
+  NEXT_PUBLIC_API_URL: "http://develop.be.crivo.local"
+  NEXT_PUBLIC_KEYCLOAK_URL: "http://develop.auth.crivo.local"
+  NEXT_PUBLIC_KEYCLOAK_REALM: "crivo"
+  NEXT_PUBLIC_KEYCLOAK_CLIENT_ID: "crivo-web"
+
+hostAliases:
+  - ip: "10.43.45.3"
+    hostnames:
+      - develop.auth.crivo.local
+      - develop.be.crivo.local
+      - develop.fe.crivo.local
 
 podDisruptionBudget:
   enabled: false

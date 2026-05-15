@@ -69,6 +69,13 @@ env:
   STRIPE_SECRET_KEY: "stub"
   STRIPE_WEBHOOK_SECRET: "stub"
 
+hostAliases:
+  - ip: "10.43.45.3"
+    hostnames:
+      - develop.auth.crivo.local
+      - develop.be.crivo.local
+      - develop.fe.crivo.local
+
 podDisruptionBudget:
   enabled: false
 
