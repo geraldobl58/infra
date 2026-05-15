@@ -173,10 +173,10 @@ Os ApplicationSets sincronizam:
 
 ## Próxima leitura
 
-- [01-installation.md](01-installation.md) – Pré-requisitos
-- [02-architecture.md](02-architecture.md) – Arquitetura detalhada
-- [04-argocd.md](04-argocd.md) – ArgoCD + ApplicationSet
+- [01-installation.md](01-installation.md) – Pré-requisitos e setup do zero
+- [02-architecture.md](02-architecture.md) – Arquitetura e decisões
+- [04-argocd.md](04-argocd.md) – ApplicationSet + AppProjects
 - [05-applications.md](05-applications.md) – Como cada app está modelada
-- [07-environments.md](07-environments.md) – Multi-env
-- [08-troubleshooting.md](08-troubleshooting.md) – Problemas comuns
+- [07-environments.md](07-environments.md) – Multi-env e como adicionar um novo
+- [08-troubleshooting.md](08-troubleshooting.md) – Problemas comuns + soluções
 - [09-cheatsheet.md](09-cheatsheet.md) – Atalhos do dia-a-dia
