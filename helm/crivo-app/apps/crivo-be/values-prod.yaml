@@ -28,3 +28,6 @@ hostAliases:
       - prod.auth.crivo.local
       - prod.be.crivo.local
       - prod.fe.crivo.local
+
+# TEMP: idem develop, até a imagem prod sair com prisma.config.ts.
+initContainers: []

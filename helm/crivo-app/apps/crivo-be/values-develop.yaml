@@ -24,3 +24,8 @@ hostAliases:
       - develop.auth.crivo.local
       - develop.be.crivo.local
       - develop.fe.crivo.local
+
+# TEMP: a imagem 'develop' atual não tem prisma.config.ts (será incluído na
+# próxima build após o fix do Dockerfile). Desabilita migrate até lá; rode
+# manualmente uma vez via port-forward se precisar.
+initContainers: []

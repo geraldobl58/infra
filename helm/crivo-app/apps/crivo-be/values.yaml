@@ -71,6 +71,8 @@ envFrom:
 
 # Roda `prisma migrate deploy` antes de subir o container principal.
 # Usa a mesma imagem do app (que já vem com prisma/schema embutidos).
+# NOTA: requer que a imagem inclua prisma.config.ts + tsconfig.json (Prisma 7+).
+# Habilitado por padrão; sobrescreva pra [] em values-<env>.yaml se quiser pular.
 initContainers:
   - name: prisma-migrate
     command: ["sh", "-c", "npx prisma migrate deploy"]
