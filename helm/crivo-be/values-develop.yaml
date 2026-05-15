@@ -36,38 +36,38 @@ env:
   LOG_LEVEL: debug
   SWAGGER_ENABLED: "true"
   METRICS_ENABLED: "true"
+  # Database — Postgres Docker conectado à rede k3d-devops-lab (IP 172.19.0.11)
+  DATABASE_URL: "postgresql://crivo:crivo_password@172.19.0.11:5432/crivo_app?schema=public"
+  # Frontend / CORS
+  FRONTEND_URL: "http://develop.fe.crivo.local"
+  # Keycloak — internal service URL para token validation
   KEYCLOAK_BASE_URL: "http://develop.auth.crivo.local"
-  KEYCLOAK_CLIENT_ID: crivo-api
+  KEYCLOAK_INTERNAL_URL: "http://crivo-auth:8080"
+  KEYCLOAK_REALM: "crivo"
+  KEYCLOAK_ISSUER: "http://develop.auth.crivo.local/realms/crivo"
+  KEYCLOAK_JWKS_URI: "http://develop.auth.crivo.local/realms/crivo/protocol/openid-connect/certs"
+  KEYCLOAK_CLIENT_ID: "crivo-api"
   KEYCLOAK_CLIENT_SECRET: "dummy-secret"
-  KEYCLOAK_WEB_CLIENT_ID: crivo-web
-  KEYCLOAK_ISSUER: "http://main.auth.crivo.local/realms/devops"
-  KEYCLOAK_JWKS_URI: "http://main.auth.crivo.local/realms/devops/protocol/openid-connect/certs"
-
-  KEYCLOAK_INTERNAL_URL: "http://crivo-auth-develop:8080"
-  KEYCLOAK_REALM: devops
-  FRONTEND_URL: "http://prod.fe.crivo.local"
-  DATABASE_URL: "postgresql://crivo:crivo_password@localhost:5432/crivo_app?schema=public"
+  KEYCLOAK_WEB_CLIENT_ID: "crivo-web"
+  # Misc stubs
+  AI_PROVIDER: "anthropic"
+  ANTHROPIC_API_KEY: "stub"
+  AWS_ACCESS_KEY_ID: "stub"
+  AWS_REGION: "us-east-1"
+  AWS_SECRET_ACCESS_KEY: "stub"
+  MAIL_PROVIDER: "nodemailer"
   MAILTRAP_HOST: "sandbox.smtp.mailtrap.io"
   MAILTRAP_PORT: "587"
   MAILTRAP_USER: "stub"
   MAILTRAP_PASSWORD: "stub"
-  MAIL_PROVIDER: "nodemailer"
   MAIL_FROM: "no-reply@crivo.local"
-  STRIPE_SECRET_KEY: "sk_test_stub"
-  STRIPE_PUBLISHABLE_KEY: "pk_test_stub"
-  STRIPE_WEBHOOK_SECRET: "whsec_stub"
-  STRIPE_PRICE_TRIAL: "prod_stub"
-  STRIPE_PRICE_BASIC: "prod_stub"
-  STRIPE_PRICE_PROFESSIONAL: "prod_stub"
-  STRIPE_PRICE_ENTERPRISE: "prod_stub"
-  AI_PROVIDER: "anthropic"
-  ANTHROPIC_API_KEY: "stub"
   STORAGE_PROVIDER: "s3"
-  AWS_REGION: "us-east-1"
-  AWS_ACCESS_KEY_ID: "stub"
-  AWS_SECRET_ACCESS_KEY: "stub"
   S3_BUCKET: "stub"
-
+  STRIPE_PRICE_BASIC: "prod_stub"
+  STRIPE_PRICE_ENTERPRISE: "prod_stub"
+  STRIPE_PRICE_PROFESSIONAL: "prod_stub"
+  STRIPE_SECRET_KEY: "stub"
+  STRIPE_WEBHOOK_SECRET: "stub"
 
 podDisruptionBudget:
   enabled: false

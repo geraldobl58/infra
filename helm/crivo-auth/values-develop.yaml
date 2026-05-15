@@ -2,14 +2,12 @@
 replicaCount: 1
 
 image:
-  repository: ghcr.io/geraldobl58/crivo-auth
-  tag: "develop-3f6ff070d963178ebc4d95527f97e852ea83f3a4"
-  pullPolicy: Always
+  repository: quay.io/keycloak/keycloak
+  tag: "26.5"
+  pullPolicy: IfNotPresent
 
 imagePullSecrets:
   - name: ghcr-secret
-
-# Keycloak management port (health + metrics)
 
 # Usar start-dev em develop para hot-reload de temas
 args:
@@ -61,16 +59,30 @@ autoscaling:
   enabled: false
 
 env:
-  KEYCLOAK_ADMIN: "admin"
-  KEYCLOAK_ADMIN_PASSWORD: "admin"
-  KC_HOSTNAME_URL: "http://prod.auth.crivo.local"
-  KC_HOSTNAME_ADMIN_URL: "http://prod.auth.crivo.local"
-  KC_HOSTNAME_BACKCHANNEL_DYNAMIC: "true"
-  KC_HOSTNAME_STRICT: "false"
-  KC_PROXY_HEADERS: "xforwarded"
+  # Admin Bootstrap (Keycloak 26+)
+  KC_BOOTSTRAP_ADMIN_USERNAME: "admin"
+  KC_BOOTSTRAP_ADMIN_PASSWORD: "admin"
+  # Database — Postgres Docker conectado à rede k3d-devops-lab
+  KC_DB: "postgres"
+  KC_DB_URL: "jdbc:postgresql://172.19.0.11:5432/crivo_keycloak"
+  KC_DB_USERNAME: "crivo"
+  KC_DB_PASSWORD: "crivo_password"
+  # HTTP / Hostname
   KC_HTTP_ENABLED: "true"
+  KC_HOSTNAME: "develop.auth.crivo.local"
+  KC_HOSTNAME_STRICT: "false"
+  KC_HOSTNAME_STRICT_HTTPS: "false"
+  KC_PROXY_HEADERS: "xforwarded"
+  # Health / Metrics
   KC_HEALTH_ENABLED: "true"
   KC_METRICS_ENABLED: "true"
+  # Theme cache off em dev
+  KC_SPI_THEME_STATIC_MAX_AGE: "-1"
+  KC_SPI_THEME_CACHE_THEMES: "false"
+  KC_SPI_THEME_CACHE_TEMPLATES: "false"
+
+extraVolumes: []
+extraVolumeMounts: []
 
 podDisruptionBudget:
   enabled: false

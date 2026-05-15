@@ -72,3 +72,11 @@ spec:
             value: {{ $value | quote }}
         {{- end }}
         {{- end }}
+        {{- if .Values.extraVolumeMounts }}
+        volumeMounts:
+        {{- toYaml .Values.extraVolumeMounts | nindent 8 }}
+        {{- end }}
+      {{- if .Values.extraVolumes }}
+      volumes:
+      {{- toYaml .Values.extraVolumes | nindent 6 }}
+      {{- end }}
