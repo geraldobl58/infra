@@ -18,6 +18,9 @@ extraPorts:
     containerPort: 9000
 
 # args do entrypoint do Keycloak (modo dev é apropriado pro lab).
+# --import-realm: se o ConfigMap keycloak-realm-import existir no namespace,
+# importa o realm contido no arquivo realm.json (idempotente — ignora se já
+# existe).
 args:
   - start-dev
   - --http-enabled=true
@@ -25,6 +28,7 @@ args:
   - --metrics-enabled=true
   - --health-enabled=true
   - --proxy-headers=xforwarded
+  - --import-realm
 
 ingress:
   enabled: true
@@ -78,3 +82,16 @@ env:
 envFrom:
   - secretRef: crivo-auth-admin
   - secretRef: crivo-auth-db
+
+# Monta ConfigMap keycloak-realm-import (criado por
+# scripts/import-keycloak-realm.sh) com optional: true.
+# Se não existir no namespace, Keycloak sobe normalmente sem import.
+extraVolumes:
+  - name: realm-import
+    configMap:
+      name: keycloak-realm-import
+      optional: true
+
+extraVolumeMounts:
+  - name: realm-import
+    mountPath: /opt/keycloak/data/import

@@ -12,21 +12,9 @@ env:
   KC_SPI_THEME_CACHE_THEMES: "false"
   KC_SPI_THEME_CACHE_TEMPLATES: "false"
 
-# Args inclui --import-realm: ao subir, se /opt/keycloak/data/import/realm.json
-# existir, Keycloak importa o realm automaticamente (idempotente: não duplica).
-args:
-  - start-dev
-  - --http-enabled=true
-  - --hostname-strict=false
-  - --metrics-enabled=true
-  - --health-enabled=true
-  - --proxy-headers=xforwarded
-  - --import-realm
-
-# Monta:
-#   1) Tema custom Nexo se ConfigMap keycloak-theme-nexo-login existir
-#   2) Realm export se ConfigMap keycloak-realm-import existir
-# Os dois com optional: true — Keycloak sobe normalmente se faltar.
+# Tema custom Nexo (overlay sobre o defaults do chart, que já monta
+# o realm-import). O ChAdmin Helm preserva extraVolumes do values.yaml +
+# concatena os daqui.
 extraVolumes:
   - name: theme-nexo
     configMap:
