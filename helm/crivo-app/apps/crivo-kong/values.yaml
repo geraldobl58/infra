@@ -4,7 +4,7 @@ app:
 
 image:
   repository: kong
-  tag: "3.7-alpine"
+  tag: "3.9"
   pullPolicy: IfNotPresent
 
 # Kong proxy roda em 8000.
