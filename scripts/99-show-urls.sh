@@ -32,6 +32,11 @@ echo -e "  ${BLUE}AlertManager (Alertas):${NC}"
 echo "    URL: http://alertmanager.devops.local"
 echo ""
 
+echo -e "  ${BLUE}Konga (Kong Admin UI):${NC}"
+echo "    URL: http://konga.devops.local"
+echo "    (cria usuário admin no primeiro acesso)"
+echo ""
+
 echo -e "${GREEN}🌐 Aplicações por Ambiente:${NC}"
 echo ""
 echo -e "  ${BLUE}Develop:${NC}"

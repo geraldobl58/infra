@@ -64,6 +64,7 @@ scripts/
 | Grafana      | http://grafana.devops.local      |
 | Prometheus   | http://prometheus.devops.local   |
 | AlertManager | http://alertmanager.devops.local |
+| Konga (Kong UI) | http://konga.devops.local     |
 
 ### Apps
 

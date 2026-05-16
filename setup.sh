@@ -274,6 +274,10 @@ kubectl apply -f "$SCRIPT_DIR/k8s/grafana-dashboard-crivo.yaml"
 kubectl apply -f "$SCRIPT_DIR/k8s/grafana-dashboard-apps.yaml"
 echo -e "${GREEN}✓ Dashboards customizados aplicados${NC}"
 
+log_substep "Instalando Konga (Kong Admin UI)..."
+kubectl apply -f "$SCRIPT_DIR/k8s/konga.yaml"
+echo -e "${GREEN}✓ Konga em http://konga.devops.local${NC}"
+
 echo -e "${GREEN}✓ ServiceMonitors aplicados para infraestrutura${NC}"
 
 # ==============================================================================
@@ -327,6 +331,7 @@ HOSTS_ENTRIES="
 127.0.0.1 grafana.devops.local
 127.0.0.1 prometheus.devops.local
 127.0.0.1 alertmanager.devops.local
+127.0.0.1 konga.devops.local
 # Crivo - Apps (develop)
 127.0.0.1 develop.auth.crivo.local
 127.0.0.1 develop.be.crivo.local
