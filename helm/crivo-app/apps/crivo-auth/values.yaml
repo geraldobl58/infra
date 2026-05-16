@@ -14,8 +14,11 @@ service:
   port: 8080
 
 extraPorts:
+  # Management port (9000) — health probes + Prometheus /metrics.
+  # servicePort: 9000 expõe no Service para Prometheus scrape via ServiceMonitor.
   - name: management
     containerPort: 9000
+    servicePort: 9000
 
 # args do entrypoint do Keycloak (modo dev é apropriado pro lab).
 # --import-realm: se o ConfigMap keycloak-realm-import existir no namespace,

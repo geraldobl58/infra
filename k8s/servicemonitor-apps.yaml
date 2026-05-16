@@ -1,150 +1,82 @@
-# ============================================================================
-# ServiceMonitors para monitorar aplicações DevOps no Grafana/Prometheus
-# ============================================================================
-# Prometheus já está configurado para coletar métricas de todos os namespaces
-# via servicemonitorSelectorNilUsesHelmValues: false
+# ════════════════════════════════════════════════════════════════════════════
+# ServiceMonitors para Prometheus coletar métricas das apps crivo-*
+# ════════════════════════════════════════════════════════════════════════════
+# Prometheus (kube-prometheus-stack) está com serviceMonitorSelector: {} e
+# serviceMonitorNamespaceSelector: {} — pega todos os ServiceMonitors em
+# qualquer namespace sem filtro de label.
 #
-# Este arquivo cria ServiceMonitors para os serviços DevOps exportarem métricas
-# ============================================================================
+# Labels do Service (criado pelo chart crivo-app):
+#   app.kubernetes.io/name: <app>
+#   app.kubernetes.io/instance: <app>
+#
+# Apps que expõem /metrics:
+#   - crivo-auth (Keycloak 26): porta 9000 (management), path /metrics
+#   - crivo-be (NestJS): TODO — adicionar @willsoto/nestjs-prometheus
+#   - crivo-fe (Next.js): TODO — adicionar next-prometheus-plugin
+#   - crivo-kong (Kong 3.9): porta 8001 (admin), path /metrics (plugin prometheus)
+#
+# Aplicar:
+#   kubectl apply -f k8s/servicemonitor-apps.yaml
+# ════════════════════════════════════════════════════════════════════════════
 
 ---
-# ServiceMonitor para crivo-be (Backend NestJS)
-apiVersion: monitoring.coreos.com/v1
-kind: ServiceMonitor
-metadata:
-  name: crivo-be
-  namespace: crivo-develop
-  labels:
-    app: crivo-be
-    environment: develop
-spec:
-  selector:
-    matchLabels:
-      app: crivo-be
-  endpoints:
-    - port: http
-      path: /metrics
-      interval: 30s
-      scrapeTimeout: 10s
-
----
-apiVersion: monitoring.coreos.com/v1
-kind: ServiceMonitor
-metadata:
-  name: crivo-be
-  namespace: crivo-prod
-  labels:
-    app: crivo-be
-    environment: prod
-spec:
-  selector:
-    matchLabels:
-      app: crivo-be
-  endpoints:
-    - port: http
-      path: /metrics
-      interval: 30s
-      scrapeTimeout: 10s
-
----
-# ServiceMonitor para crivo-fe (Frontend Next.js)
-# Next.js não expõe métricas Prometheus por padrão
-# Use: https://github.com/lirantal/next-prometheus-plugin
-apiVersion: monitoring.coreos.com/v1
-kind: ServiceMonitor
-metadata:
-  name: crivo-fe
-  namespace: crivo-develop
-  labels:
-    app: crivo-fe
-    environment: develop
-spec:
-  selector:
-    matchLabels:
-      app: crivo-fe
-  endpoints:
-    - port: http
-      path: /api/metrics
-      interval: 30s
-      scrapeTimeout: 10s
-
----
-apiVersion: monitoring.coreos.com/v1
-kind: ServiceMonitor
-metadata:
-  name: crivo-fe
-  namespace: crivo-prod
-  labels:
-    app: crivo-fe
-    environment: prod
-spec:
-  selector:
-    matchLabels:
-      app: crivo-fe
-  endpoints:
-    - port: http
-      path: /api/metrics
-      interval: 30s
-      scrapeTimeout: 10s
-
----
-# ServiceMonitor para crivo-auth (Keycloak)
-# Keycloak expõe métricas em /metrics por padrão (quando habilitado)
+# ── crivo-auth (Keycloak) — develop ─────────────────────────────────────────
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
   name: crivo-auth
   namespace: crivo-develop
   labels:
-    app: crivo-auth
-    environment: develop
+    app.kubernetes.io/name: crivo-auth
+    app.kubernetes.io/part-of: crivo
 spec:
   selector:
     matchLabels:
-      app: crivo-auth
+      app.kubernetes.io/name: crivo-auth
   endpoints:
-    - port: http
+    - port: management
       path: /metrics
       interval: 30s
       scrapeTimeout: 10s
 
 ---
+# ── crivo-auth (Keycloak) — prod ────────────────────────────────────────────
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
   name: crivo-auth
   namespace: crivo-prod
   labels:
-    app: crivo-auth
-    environment: prod
+    app.kubernetes.io/name: crivo-auth
+    app.kubernetes.io/part-of: crivo
 spec:
   selector:
     matchLabels:
-      app: crivo-auth
+      app.kubernetes.io/name: crivo-auth
   endpoints:
-    - port: http
+    - port: management
       path: /metrics
       interval: 30s
       scrapeTimeout: 10s
 
-
-# ============================================================================
-# ServiceMonitors para ambientes crivo-qa e crivo-staging
-# ============================================================================
-
 ---
+# ── crivo-be (NestJS) — develop ─────────────────────────────────────────────
+# /metrics retorna 404 hoje. Para ativar:
+#   1. npm i @willsoto/nestjs-prometheus prom-client --workspace crivo-be
+#   2. Importar PrometheusModule.register() no AppModule
+#   3. /metrics fica exposto automaticamente na porta principal (3000)
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
   name: crivo-be
-  namespace: crivo-qa
+  namespace: crivo-develop
   labels:
-    app: crivo-be
-    environment: qa
+    app.kubernetes.io/name: crivo-be
+    app.kubernetes.io/part-of: crivo
 spec:
   selector:
     matchLabels:
-      app: crivo-be
+      app.kubernetes.io/name: crivo-be
   endpoints:
     - port: http
       path: /metrics
@@ -152,56 +84,19 @@ spec:
       scrapeTimeout: 10s
 
 ---
-apiVersion: monitoring.coreos.com/v1
-kind: ServiceMonitor
-metadata:
-  name: crivo-fe
-  namespace: crivo-qa
-  labels:
-    app: crivo-fe
-    environment: qa
-spec:
-  selector:
-    matchLabels:
-      app: crivo-fe
-  endpoints:
-    - port: http
-      path: /api/metrics
-      interval: 30s
-      scrapeTimeout: 10s
-
----
-apiVersion: monitoring.coreos.com/v1
-kind: ServiceMonitor
-metadata:
-  name: crivo-auth
-  namespace: crivo-qa
-  labels:
-    app: crivo-auth
-    environment: qa
-spec:
-  selector:
-    matchLabels:
-      app: crivo-auth
-  endpoints:
-    - port: http
-      path: /metrics
-      interval: 30s
-      scrapeTimeout: 10s
-
----
+# ── crivo-be (NestJS) — prod ────────────────────────────────────────────────
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
   name: crivo-be
-  namespace: crivo-staging
+  namespace: crivo-prod
   labels:
-    app: crivo-be
-    environment: staging
+    app.kubernetes.io/name: crivo-be
+    app.kubernetes.io/part-of: crivo
 spec:
   selector:
     matchLabels:
-      app: crivo-be
+      app.kubernetes.io/name: crivo-be
   endpoints:
     - port: http
       path: /metrics
@@ -209,39 +104,43 @@ spec:
       scrapeTimeout: 10s
 
 ---
+# ── crivo-kong (API Gateway) — develop ──────────────────────────────────────
+# Kong com plugin prometheus expõe /metrics na admin API (porta 8001).
+# Plugin precisa estar no kong.yml: `plugins: - name: prometheus`
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: crivo-fe
-  namespace: crivo-staging
+  name: crivo-kong
+  namespace: crivo-develop
   labels:
-    app: crivo-fe
-    environment: staging
+    app.kubernetes.io/name: crivo-kong
+    app.kubernetes.io/part-of: crivo
 spec:
   selector:
     matchLabels:
-      app: crivo-fe
+      app.kubernetes.io/name: crivo-kong
   endpoints:
-    - port: http
-      path: /api/metrics
+    - port: admin
+      path: /metrics
       interval: 30s
       scrapeTimeout: 10s
 
 ---
+# ── crivo-kong (API Gateway) — prod ─────────────────────────────────────────
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: crivo-auth
-  namespace: crivo-staging
+  name: crivo-kong
+  namespace: crivo-prod
   labels:
-    app: crivo-auth
-    environment: staging
+    app.kubernetes.io/name: crivo-kong
+    app.kubernetes.io/part-of: crivo
 spec:
   selector:
     matchLabels:
-      app: crivo-auth
+      app.kubernetes.io/name: crivo-kong
   endpoints:
-    - port: http
+    - port: admin
       path: /metrics
       interval: 30s
       scrapeTimeout: 10s
