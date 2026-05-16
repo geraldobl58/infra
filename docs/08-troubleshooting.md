@@ -181,3 +181,55 @@ diff \
   <(make helm-template APP=crivo-be ENV=develop) \
   <(make helm-template APP=crivo-be ENV=prod)
 ```
+
+## ArgoCD não sincroniza após commit no repo do crivo
+
+O fluxo é em duas etapas: commit no crivo → CI builda imagem → CI commita
+novo image tag no values do infra → ArgoCD vê mudança no infra → sync.
+
+Se o ArgoCD continua mostrando revision antiga, depure a etapa do CI:
+
+```bash
+# Última run do pipeline
+gh api 'repos/geraldobl58/crivo/actions/runs?per_page=1' \
+  | jq '.workflow_runs[0] | {id, status, conclusion, head_sha}'
+
+# Pegar o id do job Deploy:
+gh api 'repos/geraldobl58/crivo/actions/runs/<id>/jobs' \
+  | jq '.jobs[] | select(.name|contains("Deploy")) | .id'
+
+# Ler log do Deploy:
+gh api 'repos/geraldobl58/crivo/actions/jobs/<job-id>/logs' \
+  | grep -E "Updated|Values file not found|No changes|denied|fatal"
+```
+
+Sintomas vs causa:
+
+| Log diz... | Causa | Fix |
+|------------|-------|-----|
+| `Values file not found` | path no awk errado | corrigir caminho no pipeline.yml |
+| `No changes to commit` | awk não substituiu (regex não bate) | tag no values em formato inesperado |
+| `denied` / `403` | `INFRA_GH_TOKEN` sem `repo` scope | rotacionar token |
+| `Updated ... + Deployed` mas Argo não sync | branch errada no checkout do infra | conferir `ref:` |
+
+## Métricas no Grafana mostram "No data"
+
+Causa comum: filtro de namespace no dashboard JSON aponta para namespace
+inexistente (ex.: `namespace=~"devops-.*"` quando os namespaces são `crivo-.*`).
+
+```bash
+# Ver quais namespaces o dashboard espera:
+kubectl get cm -n monitoring devops-dashboard-backend -o jsonpath='{.data}' \
+  | grep -oE 'namespace=~"[^"]*"' | sort -u
+```
+
+Se aparecer `devops-.*` ou outro padrão antigo, edite
+`k8s/grafana-dashboard-apps.yaml` e reaplique.
+
+Para validar que Prometheus está coletando dos apps:
+
+```bash
+kubectl port-forward -n monitoring svc/kube-prometheus-stack-prometheus 9090:9090 &
+curl -s 'http://localhost:9090/api/v1/targets?state=active' \
+  | jq '.data.activeTargets[] | select(.scrapePool|contains("crivo")) | {pool: .scrapePool, health, error: .lastError}'
+```
