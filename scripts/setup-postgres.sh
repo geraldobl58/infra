@@ -4,15 +4,19 @@
 # -----------------------------------------------------------------------------
 # Cria PostgreSQL no namespace crivo-<env>:
 #   - ConfigMap postgres-init (cria bancos crivo_keycloak + crivo_better_auth)
-#   - PersistentVolumeClaim postgres-pvc (5Gi via local-path)
 #   - Service postgres (ClusterIP, 5432)
-#   - Deployment postgres com initContainer pra limpar AppleDouble metadata
-#     do macOS (evita CrashLoop após restart do k3d).
+#   - Deployment postgres com volume emptyDir (volátil)
+#
+# emptyDir vs PVC: o local-path provisioner do k3d no macOS mapeia pra um
+# path no host; o Finder/Spotlight injeta arquivos AppleDouble (._*) ali e
+# Postgres trava com "Operation not permitted". emptyDir evita esse problema
+# 100%. Em troca, dados são perdidos no restart do pod — mas migrations +
+# seed + import-realm são reprodutíveis via make targets.
 #
 # Uso:
 #   ./scripts/setup-postgres.sh <develop|prod> [--reset]
 #
-# --reset: apaga PVC primeiro (perde dados).
+# --reset: apaga deployment primeiro (forçar recriação).
 # =============================================================================
 
 set -euo pipefail
@@ -33,9 +37,8 @@ NS="crivo-${ENV_NAME}"
 kubectl get ns "$NS" >/dev/null 2>&1 || kubectl create ns "$NS"
 
 if $RESET; then
-  echo "🗑️  Reset solicitado, apagando deployment e PVC..."
+  echo "🗑️  Reset solicitado, apagando deployment..."
   kubectl delete deploy postgres -n "$NS" --ignore-not-found --wait=true
-  kubectl delete pvc postgres-pvc -n "$NS" --ignore-not-found --wait=true
 fi
 
 # ConfigMap com init scripts (cria bancos extras)
@@ -57,20 +60,8 @@ data:
     EOSQL
 EOF
 
-# PVC
-cat <<EOF | kubectl apply -f -
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: postgres-pvc
-  namespace: ${NS}
-spec:
-  accessModes: [ReadWriteOnce]
-  storageClassName: local-path
-  resources:
-    requests:
-      storage: 5Gi
-EOF
+# Apaga PVC legacy se existir (migramos pra emptyDir)
+kubectl delete pvc postgres-pvc -n "$NS" --ignore-not-found --wait=false >/dev/null 2>&1 || true
 
 # Service
 cat <<EOF | kubectl apply -f -
@@ -112,21 +103,6 @@ spec:
       labels:
         app: postgres
     spec:
-      initContainers:
-        - name: cleanup-macos-metadata
-          image: alpine:3
-          command:
-            - sh
-            - -c
-            - |
-              if [ -d /var/lib/postgresql/data ]; then
-                find /var/lib/postgresql/data -name '._*' -delete 2>/dev/null || true
-                find /var/lib/postgresql/data -name '.DS_Store' -delete 2>/dev/null || true
-              fi
-              echo "cleanup done"
-          volumeMounts:
-            - name: data
-              mountPath: /var/lib/postgresql/data
       containers:
         - name: postgres
           image: postgres:16-alpine
@@ -156,8 +132,13 @@ spec:
               mountPath: /docker-entrypoint-initdb.d
       volumes:
         - name: data
-          persistentVolumeClaim:
-            claimName: postgres-pvc
+          # emptyDir em vez de PVC pra evitar arquivos AppleDouble (._*)
+          # que macOS injeta no path do local-path provisioner do k3d.
+          # Trade-off: dados são voláteis (perdidos no restart do pod),
+          # mas seed + migrations + import-realm são reprodutíveis via
+          # make targets. Para lab é uma troca aceitável.
+          emptyDir:
+            sizeLimit: 2Gi
         - name: init
           configMap:
             name: postgres-init
