@@ -18,6 +18,28 @@ kubectl delete deploy <name> -n <namespace>
 kubectl annotate app <app-name> -n argocd argocd.argoproj.io/refresh=hard --overwrite
 ```
 
+## FE no browser tentando `http://localhost:8000/api/...` (ou outro host errado)
+
+`NEXT_PUBLIC_*` em Next.js são **inlined no JS no momento do `next build`**,
+não lidos do `env` em runtime. Setar essas variáveis via Helm values só
+afeta SSR; o JS que vai pro browser já tem o valor "congelado" do build.
+
+Onde corrigir:
+1. `apps/crivo-fe/Dockerfile` — declare `ARG NEXT_PUBLIC_*` e `ENV` nas
+   stages `build`.
+2. `.github/workflows/pipeline.yml` — passe os valores como `build-args`
+   na etapa `docker/build-push-action`, com um valor diferente por
+   ambiente.
+
+Para confirmar qual valor a imagem atual tem embedded:
+```bash
+kubectl exec -n crivo-develop deploy/crivo-fe -- \
+  grep -rh 'localhost:8000\|develop.api' /app/apps/crivo-fe/.next 2>/dev/null | head -3
+```
+
+Se trocar `NEXT_PUBLIC_API_URL` em values e nada mudar no browser — é
+isso. Precisa rebuild da imagem.
+
 ## Pod do `crivo-be` falha com `relation "public.Plan" does not exist`
 
 Faltam migrations do Prisma. Hoje rodamos manualmente porque a imagem
