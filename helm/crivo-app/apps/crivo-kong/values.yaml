@@ -13,8 +13,11 @@ service:
   port: 8000
 
 extraPorts:
+  # Admin API do Kong; exposta via Service só dentro do cluster (Konga consome).
+  # NÃO faça ingress disso em prod-prod real.
   - name: admin
     containerPort: 8001
+    servicePort: 8001
 
 ingress:
   enabled: true
