@@ -10,12 +10,16 @@ ingress:
 env:
   NODE_ENV: development
   BETTER_AUTH_URL: http://develop.fe.crivo.local
-  # API_URL: chamadas server-side do Next vão direto no Service interno do BE.
+  # API_URL e INTERNAL_API_URL: server-side chama o BE direto pelo Service
+  # interno (não passa por Kong em SSR — performance + sem trip externa).
   API_URL: http://crivo-be.crivo-develop.svc.cluster.local:3000
-  # NEXT_PUBLIC_API_URL: chamadas do browser passam pelo Kong (API gateway).
-  # Kong adiciona /api prefix nas rotas; ver kong.yml.
+  INTERNAL_API_URL: http://crivo-be.crivo-develop.svc.cluster.local:3000
+  # NEXT_PUBLIC_API_URL: browser passa por Kong (API gateway com JWT + rate-limit).
   NEXT_PUBLIC_API_URL: http://develop.api.crivo.local/api
   NEXT_PUBLIC_KEYCLOAK_URL: http://develop.auth.crivo.local
+  NEXT_PUBLIC_KEYCLOAK_ISSUER: http://develop.auth.crivo.local/realms/crivo
+  # Better Auth precisa do issuer pro genericOAuth/keycloak provider.
+  AUTH_KEYCLOAK_ISSUER: http://develop.auth.crivo.local/realms/crivo
 
 hostAliases:
   - ip: "10.43.45.3"

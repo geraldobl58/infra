@@ -132,4 +132,8 @@ create_secret crivo-be-storage \
 create_secret crivo-fe-auth \
   BETTER_AUTH_SECRET
 
+# Better Auth grava em auth_* nas mesmas tabelas do BE — usa o mesmo DB.
+create_secret crivo-fe-db \
+  DATABASE_URL
+
 echo "🎉 Secrets aplicados em $NS"

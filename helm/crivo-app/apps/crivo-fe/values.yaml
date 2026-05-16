@@ -45,7 +45,13 @@ resources:
 env:
   NEXT_PUBLIC_KEYCLOAK_REALM: crivo
   NEXT_PUBLIC_KEYCLOAK_CLIENT_ID: crivo-web
+  # crivo-web é client PUBLIC (PKCE), sem secret.
+  AUTH_KEYCLOAK_ID: crivo-web
+  AUTH_KEYCLOAK_SECRET: ""
 
-# BETTER_AUTH_SECRET vem do Secret crivo-fe-auth.
+# crivo-fe-auth: BETTER_AUTH_SECRET
+# crivo-fe-db:   DATABASE_URL (Better Auth grava em auth_* nas mesmas tabelas
+#                do BE; usa o mesmo Postgres)
 envFrom:
   - secretRef: crivo-fe-auth
+  - secretRef: crivo-fe-db

@@ -19,8 +19,20 @@ extraPorts:
 
 # args do entrypoint do Keycloak (modo dev é apropriado pro lab).
 # --import-realm: se o ConfigMap keycloak-realm-import existir no namespace,
-# importa o realm contido no arquivo realm.json (idempotente — ignora se já
-# existe).
+# importa o realm contido no arquivo realm.json no startup.
+# Estratégia: OVERWRITE_EXISTING (re-aplica o realm a cada restart com a
+# versão do arquivo). Como dados são voláteis (Postgres emptyDir), isso
+# garante que o realm está sempre sincronizado com o realm.json em git.
+env:
+  KC_DB: postgres
+  KC_HTTP_ENABLED: "true"
+  KC_HOSTNAME_STRICT: "false"
+  KC_HOSTNAME_STRICT_HTTPS: "false"
+  KC_PROXY_HEADERS: xforwarded
+  KC_HEALTH_ENABLED: "true"
+  KC_METRICS_ENABLED: "true"
+  KEYCLOAK_IMPORT_STRATEGY: OVERWRITE_EXISTING
+
 args:
   - start-dev
   - --http-enabled=true
@@ -65,16 +77,6 @@ resources:
   requests:
     cpu: 10m
     memory: 128Mi
-
-# Variáveis públicas. Sensíveis (admin password, DB password) via envFrom.
-env:
-  KC_DB: postgres
-  KC_HTTP_ENABLED: "true"
-  KC_HOSTNAME_STRICT: "false"
-  KC_HOSTNAME_STRICT_HTTPS: "false"
-  KC_PROXY_HEADERS: xforwarded
-  KC_HEALTH_ENABLED: "true"
-  KC_METRICS_ENABLED: "true"
 
 # Secrets esperados no namespace:
 #   crivo-auth-admin (KC_BOOTSTRAP_ADMIN_USERNAME, KC_BOOTSTRAP_ADMIN_PASSWORD)
