@@ -15,19 +15,33 @@ Se você já tem um Keycloak (docker-compose antigo, outro ambiente) com o
 realm configurado, exporte e importe:
 
 ```bash
-# 1. Exportar do Keycloak antigo (docker-compose):
+# 1. Exportar do Keycloak antigo (docker-compose). Subir só o necessário:
+cd ~/Development/fullstack/crivo
+docker compose -f infra/docker/docker-compose.yml up -d postgres keycloak
+# (espera o Keycloak healthy ~60s)
 docker exec crivo-auth-dev /opt/keycloak/bin/kc.sh export \
-  --realm crivo --file /tmp/realm.json
-docker cp crivo-auth-dev:/tmp/realm.json ./crivo-realm.json
+  --realm crivo --file /tmp/realm.json --users same_file
+docker cp crivo-auth-dev:/tmp/realm.json ~/crivo-realm.json
+docker compose -f infra/docker/docker-compose.yml down
 
 # 2. Importar no Keycloak do cluster:
-make import-realm ENV=develop FILE=./crivo-realm.json
+cd ~/Development/infra
+make import-realm ENV=develop FILE=~/crivo-realm.json
+make import-realm ENV=prod    FILE=~/crivo-realm.json
 ```
 
-O script cria um ConfigMap `keycloak-realm-import` no namespace, e o pod
-do Keycloak reinicia com `--import-realm` (já configurado em
-`values-develop.yaml`/`values-prod.yaml`). O import é **idempotente**: se
-o realm já existe, Keycloak ignora.
+O script cria um ConfigMap `keycloak-realm-import` no namespace e
+reinicia o Keycloak.
+
+**Estratégia de import**: `OVERWRITE_EXISTING`. A cada restart, o realm
+é re-aplicado com o conteúdo do `realm.json`. Como o Postgres usa
+emptyDir (volátil), isso garante que o realm sempre volta ao estado
+versionado. Para mudanças no realm:
+
+1. Edite via UI do Keycloak.
+2. Exporte de novo (`kc.sh export`).
+3. Substitua `~/crivo-realm.json`.
+4. `make import-realm ENV=develop FILE=~/crivo-realm.json`.
 
 ### Opção 2 — Criar via UI
 
@@ -56,9 +70,26 @@ para development. Útil pra testar APIs sem subir o fluxo completo.
 | Item                          | Detalhe                                              |
 | ----------------------------- | ---------------------------------------------------- |
 | Realm name                    | `crivo`                                              |
-| Client `crivo-web`            | Tipo `public`, FE Next.js                            |
+| Client `crivo-web`            | Tipo `public` (PKCE), FE Next.js + Better Auth       |
 | Client `crivo-api`            | Tipo `confidential`, service account, BE NestJS      |
 | Protocol Mapper `plan_type`   | Lê atributo do user, injeta como claim `plan_type` (TRIAL/BASIC/PROFESSIONAL/ENTERPRISE) |
+
+### Redirect URIs esperados no `crivo-web`
+
+Better Auth (`genericOAuth/keycloak`) usa o callback
+`/api/auth/oauth2/callback/keycloak`. Inclua para cada ambiente:
+
+```
+http://develop.fe.crivo.local/*
+http://develop.fe.crivo.local/api/auth/callback/keycloak
+http://develop.fe.crivo.local/api/auth/oauth2/callback/keycloak
+http://prod.fe.crivo.local/*
+http://prod.fe.crivo.local/api/auth/callback/keycloak
+http://prod.fe.crivo.local/api/auth/oauth2/callback/keycloak
+```
+
+E `Web Origins` correspondentes (`http://develop.fe.crivo.local`,
+`http://prod.fe.crivo.local`).
 
 ## Renovar a chave do Kong após mudar o realm
 
