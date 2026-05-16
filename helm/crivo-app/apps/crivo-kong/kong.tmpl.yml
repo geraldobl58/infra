@@ -198,6 +198,15 @@ consumers:
 # Global plugins
 # ──────────────────────────────────────────────────────────────────────────────
 plugins:
+  # Métricas Prometheus — expostas em :8001/metrics (admin port).
+  # ServiceMonitor crivo-kong (k8s/servicemonitor-apps.yaml) coleta a cada 30s.
+  - name: prometheus
+    config:
+      status_code_metrics: true
+      latency_metrics: true
+      bandwidth_metrics: true
+      upstream_health_metrics: true
+
   - name: bot-detection
     config:
       deny: [Scrapy, SemrushBot, AhrefsBot, MJ12bot]
