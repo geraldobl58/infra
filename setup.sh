@@ -132,6 +132,10 @@ kubectl create namespace argocd --dry-run=client -o yaml | kubectl apply -f -
 
 kubectl get namespaces
 
+log_substep "Provisionando PostgreSQL em cada ambiente..."
+bash "$SCRIPT_DIR/scripts/setup-postgres.sh" develop
+bash "$SCRIPT_DIR/scripts/setup-postgres.sh" prod
+
 # ==============================================================================
 # ETAPA 3: Instalar ArgoCD
 # ==============================================================================

@@ -81,7 +81,7 @@ Adicionar entradas no `/etc/hosts` é parte do `make setup`.
 ## Setup do zero
 
 ```bash
-# 1. Cria o cluster, instala ArgoCD, observabilidade, namespaces, projects.
+# 1. Cria o cluster, ArgoCD, observabilidade, namespaces, Postgres em cada env.
 make setup
 
 # 2. Prepara secrets de cada ambiente. Cada um precisa do seu .env:
@@ -93,21 +93,23 @@ cp config/secrets.prod.env.example config/secrets.prod.env
 $EDITOR config/secrets.prod.env
 make secrets ENV=prod
 
-# 3. Aguarde o Keycloak subir (1-2min). Crie o realm 'crivo':
-#    (a) UI manual em http://develop.auth.crivo.local/admin (admin/admin)
-#    OU
-#    (b) Importar realm.json existente (do Keycloak antigo):
+# 3. ArgoCD sincroniza Apps automaticamente. Aguarde Keycloak subir
+#    (1-2min). Importe o realm:
 make import-realm ENV=develop FILE=path/to/realm.json
+make import-realm ENV=prod    FILE=path/to/realm.json
 
-# 4. Aplicar config do Kong (precisa da chave pública RS256 do realm —
-#    obtém em http://<auth>/realms/crivo/protocol/openid-connect/certs):
-echo "<chave-base64-da-cert>" > config/keycloak.develop.pub
+# 4. Rode migrations + seed do BE:
+make migrate ENV=develop
+make seed    ENV=develop
+make migrate ENV=prod
+make seed    ENV=prod
+
+# 5. Aplique a config do Kong (busca a chave RS256 do realm
+#    automaticamente):
 make kong-config ENV=develop
+make kong-config ENV=prod
 
-# 5. Rodar seed para popular Plans (opcional, init container já tenta):
-make seed ENV=develop
-
-# 6. ArgoCD sincroniza automaticamente. Acompanhe:
+# 6. Status:
 make status
 make argocd        # abre UI
 ```

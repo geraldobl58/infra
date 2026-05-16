@@ -1,4 +1,4 @@
-.PHONY: help setup start stop restart destroy status logs k9s grafana prometheus argocd secrets helm-lint helm-template apply-argocd kong-config migrate seed import-realm
+.PHONY: help setup start stop restart destroy status logs k9s grafana prometheus argocd secrets helm-lint helm-template apply-argocd kong-config migrate seed import-realm postgres
 
 # Cores
 GREEN  := $(shell tput -Txterm setaf 2)
@@ -60,6 +60,13 @@ import-realm: ## Importa realm.json no Keycloak. Uso: make import-realm ENV=deve
 		exit 1; \
 	fi
 	@./scripts/import-keycloak-realm.sh $(ENV) $(FILE)
+
+postgres: ## Cria/atualiza Postgres + bancos em um ambiente. Uso: make postgres ENV=develop [RESET_DATA=1]
+	@if [ -z "$(ENV)" ]; then \
+		echo "$(YELLOW)⚠️  Especifique ENV. Exemplo: make postgres ENV=develop$(RESET)"; \
+		exit 1; \
+	fi
+	@if [ "$(RESET_DATA)" = "1" ]; then ./scripts/setup-postgres.sh $(ENV) --reset; else ./scripts/setup-postgres.sh $(ENV); fi
 
 kong-config: ## Aplica ConfigMap do Kong (kong.yml renderizado). Uso: make kong-config ENV=develop
 	@if [ -z "$(ENV)" ]; then \

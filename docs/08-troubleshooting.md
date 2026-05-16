@@ -76,6 +76,23 @@ Possibilidades:
   https://github.com/settings/tokens, atualize `.env`, rode
   `./create-ghcr-secrets.sh`.
 
+## Postgres em `CrashLoopBackOff` com avalanche de `find: ... Operation not permitted` (arquivos `._*`)
+
+Causa: macOS criou arquivos AppleDouble metadata (`._*`) no path do PV do
+`local-path` provisioner do k3d. Acontece especialmente após `make stop`/`make start`.
+
+**Solução permanente já aplicada**: o Postgres tem um `initContainer`
+`cleanup-macos-metadata` que apaga `._*` e `.DS_Store` antes de subir o
+container principal. Veja [`scripts/setup-postgres.sh`](../scripts/setup-postgres.sh).
+
+Se ainda assim travar, force reset:
+```bash
+make postgres ENV=develop RESET_DATA=1   # apaga PVC e recria
+make migrate ENV=develop                  # remigração Prisma
+make seed ENV=develop                     # repopula plans
+make import-realm ENV=develop FILE=...    # reimporta realm Keycloak
+```
+
 ## Pod do Postgres em `Pending` com `persistentvolumeclaim "postgres-pvc" not found`
 
 PVC não foi criado. Crie manualmente:

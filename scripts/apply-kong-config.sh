@@ -36,21 +36,24 @@ AUTH_INTERNAL_URL="http://crivo-auth.${NS}.svc.cluster.local:8080"
 
 # Chave pública do Keycloak: lê do arquivo dedicado ou do secrets.<env>.env
 PUB_KEY_FILE="$INFRA_ROOT/config/keycloak.${ENV_NAME}.pub"
-if [[ -f "$PUB_KEY_FILE" ]]; then
-  PUB_KEY=$(<"$PUB_KEY_FILE")
-elif [[ -n "${KEYCLOAK_RSA_PUBLIC_KEY:-}" ]]; then
-  PUB_KEY="$KEYCLOAK_RSA_PUBLIC_KEY"
-else
-  echo "❌ Chave pública RS256 do Keycloak não encontrada."
-  echo "   Crie $PUB_KEY_FILE com o conteúdo BASE64 (sem cabeçalho -----BEGIN-----),"
-  echo "   ou exporte KEYCLOAK_RSA_PUBLIC_KEY antes de rodar este script."
-  echo ""
-  echo "   Como obter:"
-  echo "   kubectl exec -n $NS deploy/crivo-auth -- \\"
-  echo "     curl -s http://localhost:8080/realms/${KEYCLOAK_REALM}/protocol/openid-connect/certs \\"
-  echo "     | jq -r '.keys[0].x5c[0]'"
-  exit 1
+if [[ ! -f "$PUB_KEY_FILE" ]]; then
+  echo "📥 $PUB_KEY_FILE não existe. Tentando gerar a partir do Keycloak..."
+  PUB_KEY=$(curl -sS -H "Host: ${KEYCLOAK_HOST}" \
+    "http://localhost/realms/${KEYCLOAK_REALM}/protocol/openid-connect/certs" \
+    | jq -r '.keys[] | select(.alg=="RS256") | .x5c[0]' 2>/dev/null \
+    | base64 -d 2>/dev/null \
+    | openssl x509 -inform DER -pubkey -noout 2>/dev/null \
+    | sed -e '/-----BEGIN/d' -e '/-----END/d')
+  if [[ -z "$PUB_KEY" ]]; then
+    echo "❌ Falha ao obter a chave do Keycloak em http://${KEYCLOAK_HOST}/realms/${KEYCLOAK_REALM}"
+    echo "   Verifique se o realm '${KEYCLOAK_REALM}' existe e o host está resolvível."
+    exit 1
+  fi
+  echo "$PUB_KEY" > "$PUB_KEY_FILE"
+  echo "✅ Chave salva em $PUB_KEY_FILE"
 fi
+
+PUB_KEY=$(<"$PUB_KEY_FILE")
 
 # Remove cabeçalhos PEM se vieram inclusos e indenta com 10 espaços (formato YAML).
 PUB_KEY_BODY=$(echo "$PUB_KEY" \
