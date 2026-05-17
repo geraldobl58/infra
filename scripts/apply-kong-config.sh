@@ -31,6 +31,8 @@ NS="crivo-${ENV_NAME}"
 KEYCLOAK_HOST="${ENV_NAME}.auth.crivo.local"
 KEYCLOAK_REALM="${KEYCLOAK_REALM:-crivo}"
 FRONTEND_ORIGIN="http://${ENV_NAME}.fe.crivo.local"
+BE_ORIGIN="http://${ENV_NAME}.be.crivo.local"
+API_ORIGIN="http://${ENV_NAME}.api.crivo.local"
 BE_INTERNAL_URL="http://crivo-be.${NS}.svc.cluster.local:3000"
 AUTH_INTERNAL_URL="http://crivo-auth.${NS}.svc.cluster.local:8080"
 
@@ -67,6 +69,8 @@ RENDERED=$(sed \
   -e "s|{{KEYCLOAK_HOST}}|${KEYCLOAK_HOST}|g" \
   -e "s|{{KEYCLOAK_REALM}}|${KEYCLOAK_REALM}|g" \
   -e "s|{{FRONTEND_ORIGIN}}|${FRONTEND_ORIGIN}|g" \
+  -e "s|{{BE_ORIGIN}}|${BE_ORIGIN}|g" \
+  -e "s|{{API_ORIGIN}}|${API_ORIGIN}|g" \
   -e "s|{{BE_INTERNAL_URL}}|${BE_INTERNAL_URL}|g" \
   -e "s|{{AUTH_INTERNAL_URL}}|${AUTH_INTERNAL_URL}|g" \
   "$TMPL")

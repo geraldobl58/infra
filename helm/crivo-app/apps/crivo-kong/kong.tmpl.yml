@@ -121,7 +121,13 @@ services:
 
       - name: cors
         config:
-          origins: ["{{FRONTEND_ORIGIN}}"]
+          # Aceita FE (fluxo browser principal), BE (Swagger /docs no host do BE)
+          # e API (Swagger servido via Kong). Origens fora dessa lista são
+          # rejeitadas com erro CORS.
+          origins:
+            - "{{FRONTEND_ORIGIN}}"
+            - "{{BE_ORIGIN}}"
+            - "{{API_ORIGIN}}"
           methods: [GET, POST, PUT, PATCH, DELETE, OPTIONS]
           headers: [Authorization, Content-Type, Accept, X-Request-Id, X-Stripe-Signature]
           exposed_headers:
