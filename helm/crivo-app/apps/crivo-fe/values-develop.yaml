@@ -2,7 +2,7 @@ app:
   environment: develop
 
 image:
-  tag: "develop-f5804e48dd6e75260dedbe8e2c50f5d2160a236b"
+  tag: "develop-5ce4cbf5cb32882821d45e0f1971d2ae884e311c"
 
 ingress:
   host: develop.fe.crivo.local
