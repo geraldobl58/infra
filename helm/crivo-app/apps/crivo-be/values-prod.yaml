@@ -4,7 +4,7 @@ app:
 image:
   # NOTA: usando tag 'develop' enquanto CI não publica tag 'main'.
   # Em prod-prod real: usar versão semântica (v1.2.3) ou SHA.
-  tag: develop
+  tag: "main-dfaa068ee4e0e705946dc3df9eb5f522fc7628c8"
 
 ingress:
   host: prod.be.crivo.local
